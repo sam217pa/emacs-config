@@ -59,8 +59,8 @@
   (diminish 'visual-line-mode "") )
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Fira Code 13"))
-(set-face-attribute 'default nil :font "Fira Code 13")
+(add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
+(set-face-attribute 'default nil :font "Fira Code Light 13")
 
 ;;;
 ;;; keybindings
