@@ -424,7 +424,7 @@
   )
 
 (use-package ranger :ensure t
-  :bind (("C-x d" . ranger))
+  :bind (("C-x d" . deer))
 
   :general
   (:keymaps 'ranger-mode-map
