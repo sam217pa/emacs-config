@@ -169,25 +169,18 @@
 
 (use-package dired-x
   :defer t
+  :init
+  (add-hook 'dired-load-hook
+            (function (lambda () (load "dired-x"))))
+
   :config
-  ;; use GNU ls instead of BSD ls
+                                        ; use GNU ls instead of BSD ls
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
 	(setq insert-directory-program gls)))
 
+                                        ; change default arguments to ls. must include -l
   (setq dired-listing-switches "-XGalg --human-readable --dired")
-
-  (bind-key "l" #'dired-up-directory dired-mode-map)
-
-  (use-package dired-open :ensure t :defer t)
-  (use-package dired-subtree :ensure t
-    :bind (:map dired-mode-map
-                ("i" . dired-subtree-insert)
-                ("q" . dired-subtree-remove)
-                ("n" . dired-subtree-narrow)
-                ("b" . dired-subtree-up)
-                ("f" . dired-subtree-down))
-    )
   )
 
 (use-package display-time
