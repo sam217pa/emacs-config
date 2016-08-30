@@ -436,7 +436,7 @@
 	    )
 
   :config
-  (ranger-override-dired-mode t)
+  (setq ranger-cleanup-eagerly t)
   )
 
 (use-package recentf
