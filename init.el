@@ -385,6 +385,16 @@
 
 (use-package ranger :ensure t
   :bind (("C-x d" . ranger))
+
+  :general
+  (:keymaps 'ranger-mode-map
+	    "t" 'ranger-next-file ; j
+	    "s" 'ranger-prev-file ; k
+	    "r" 'ranger-find-file ; l
+	    "c" 'ranger-up-directory ; c
+	    "j" 'ranger-toggle-mark ; t
+	    )
+
   :config
   (ranger-override-dired-mode t)
   (setq ranger-cleanup-eagerly t)
