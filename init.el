@@ -221,6 +221,11 @@
     (global-evil-matchit-mode 1)
     )
 
+  (use-package evil-surround :ensure t
+    :init
+    (global-evil-surround-mode)
+    )
+
   (setq evil-insert-state-cursor '("#268bd2" bar) ;; blue
         evil-normal-state-cursor '("#b58900" box) ;; blue
         evil-visual-state-cursor '("#cb4b16" box) ;; orange
