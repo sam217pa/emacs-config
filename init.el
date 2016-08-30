@@ -224,13 +224,18 @@
   (use-package evil-surround :ensure t
     :init
     (global-evil-surround-mode)
+    :config
+    ;; (evil-define-key 'operator evil-surround-mode-map "h" 'evil-surround-edit)
+    ;; (evil-define-key 'operator evil-surround-mode-map "H" 'evil-Surround-edit)
+    ;; (evil-define-key 'visual evil-surround-mode-map "h" 'evil-surround-region)
+    ;; (evil-define-key 'visual evil-surround-mode-map "gH" 'evil-Surround-region)
     )
 
-  (setq evil-insert-state-cursor '("#268bd2" bar) ;; blue
-        evil-normal-state-cursor '("#b58900" box) ;; blue
-        evil-visual-state-cursor '("#cb4b16" box) ;; orange
+  (setq evil-insert-state-cursor  '("#268bd2" bar) ;; blue
+        evil-normal-state-cursor  '("#b58900" box) ;; blue
+        evil-visual-state-cursor  '("#cb4b16" box) ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
-        evil-emacs-state-cursor '("#d33682" box)) ;; magenta
+        evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
 
   ;;première étape: avant de réaffecter c,t,s,r en h,j,k,l, il faut
   ;;retirer ces touches de l’agencement de clavier normal-state
