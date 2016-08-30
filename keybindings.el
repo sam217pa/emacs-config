@@ -83,6 +83,9 @@
    ;; Journal
    "j" '(:ignore t :which-key "Journal")
 
+   ;; Lisp
+   "l" '(:ignore t :which-key "Lisp")
+
    ;; Quit
    "q" '(:ignore t :which-key "Quit")
    "qb" 'kill-buffer-if-not-modified
@@ -157,6 +160,7 @@
    "'" (general-simulate-keys "C-c")
    "é" 'evil-goto-mark
    "è" 'ace-window
+   "à" 'evil-lisp-state
    "s-b" 'ivy-switch-buffer
    "s-g" 'avy-goto-char
    "C-p" 'browse-kill-ring
@@ -215,7 +219,64 @@
 ;; Which-key
 ;;
 
-
+;; key description for emacs-lisp state.
+(which-key-add-key-based-replacements
+  "SPC l%"   "evil-jump-item"
+  "SPC l:"   "evil-ex"
+  "SPC l("   "lisp-state-insert-sexp-before"
+  "SPC l"    "lisp-state-insert-sexp-after"
+  "SPC l$"   "sp-end-of-sexp"
+  "SPC l`k"  "sp-kill-hybrid-sexp"
+  "SPC l`p"  "sp-push-hybrid-sexp"
+  "SPC l`s"  "sp-slurp-hybrid-sexp"
+  "SPC l`t"  "sp-transpose-hybrid-sexp"
+  "SPC l0"   "lisp-state-beginning-of-sexp"
+  "SPC l1"   "digit-argument"
+  "SPC l2"   "digit-argument"
+  "SPC l3"   "digit-argument"
+  "SPC l4"   "digit-argument"
+  "SPC l5"   "digit-argument"
+  "SPC l6"   "digit-argument"
+  "SPC l7"   "digit-argument"
+  "SPC l8"   "digit-argument"
+  "SPC l9"   "digit-argument"
+  "SPC la"   "sp-absorb-sexp"
+  "SPC lb"   "sp-forward-barf-sexp"
+  "SPC lB"   "sp-backward-barf-sexp"
+  "SPC lc"   "sp-convolute-sexp"
+  "SPC lds"  "sp-kill-symbol"
+  "SPC lDs"  "sp-backward-kill-symbol"
+  "SPC ldw"  "sp-kill-word"
+  "SPC lDw"  "sp-backward-kill-word"
+  "SPC ldx"  "sp-kill-sexp"
+  "SPC lDx"  "sp-backward-kill-sexp"
+  "SPC le"   "sp-splice-sexp-killing-forward"
+  "SPC lE"   "sp-splice-sexp-killing-backward"
+  "SPC lh"   "sp-backward-symbol"
+  "SPC lH"   "sp-backward-sexp"
+  "SPC li"   "evil-insert-state"
+  "SPC lI"   "evil-insert-line"
+  "SPC lj"   "lisp-state-next-closing-paren"
+  "SPC lJ"   "sp-join-sexp"
+  "SPC lk"   "lisp-state-prev-opening-paren"
+  "SPC ll"   "lisp-state-forward-symbol"
+  "SPC lL"   "sp-forward-sexp"
+  "SPC lp"   "evil-paste-after"
+  "SPC lP"   "evil-paste-before"
+  "SPC lr"   "sp-raise-sexp"
+  "SPC ls"   "sp-forward-slurp-sexp"
+  "SPC lS"   "sp-backward-slurp-sexp"
+  "SPC lt"   "sp-transpose-sexp"
+  "SPC lu"   "undo-tree-undo"
+  "SPC lU"   "sp-backward-up-sexp"
+  "SPC lC-r" "undo-tree-redo"
+  "SPC lv"   "evil-visual-char"
+  "SPC lV"   "evil-visual-line"
+  "SPC lC-v" "evil-visual-block"
+  "SPC lw"   "lisp-state-wrap"
+  "SPC lW"   "sp-unwrap-sexp"
+  "SPC ly"   "sp-copy-sexp"
+  )
 
 
 ;;
