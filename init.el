@@ -116,7 +116,9 @@
 (use-package auctex :ensure t :defer t)
 
 (use-package autorevert :defer t
-  :diminish auto-revert-mode)
+  :diminish auto-revert-mode
+  ;; mainly to make autorevert disappear from the modeline
+  )
 
 (use-package avy :ensure t :defer t
   :config
@@ -202,12 +204,21 @@
   :config
 
   (use-package evil-escape :ensure t
+    :diminish
+    (evil-escape-mode)
     :init
     (evil-escape-mode)
     :config
     (setq-default evil-escape-key-sequence "xq"
                   evil-escape-delay 0.2)
     (setq evil-escape-unordered-key-sequence t)
+    )
+
+  (use-package evil-matchit :ensure t
+    :commands
+    evilmi-jump-items
+    :init
+    (global-evil-matchit-mode 1)
     )
 
   (setq evil-insert-state-cursor '("#268bd2" bar) ;; blue
@@ -263,6 +274,13 @@
     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
     (setq flycheck-highlighting-mode 'lines)
     (setq flycheck-check-syntax-automatically '(save)))
+  )
+
+(use-package git-gutter :ensure t
+  :diminish ""
+  :commands (global-git-gutter-mode)
+  :init
+  (global-git-gutter-mode +1)
   )
 
 (use-package grab-mac-link :ensure t
@@ -556,7 +574,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (evil-escape ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
+    (git-gutter evil-matchit evil-escape ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
