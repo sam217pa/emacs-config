@@ -115,6 +115,9 @@
 
 (use-package auctex :ensure t :defer t)
 
+(use-package autorevert :defer t
+  :diminish auto-revert-mode)
+
 (use-package avy :ensure t :defer t
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
