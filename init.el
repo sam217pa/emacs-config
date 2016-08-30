@@ -383,6 +383,13 @@
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
   )
 
+(use-package ranger :ensure t
+  :bind (("C-x d" . ranger))
+  :config
+  (ranger-override-dired-mode t)
+  (setq ranger-cleanup-eagerly t)
+  )
+
 (use-package recentf
   :preface
   (defun recentf-add-dired-directory ()
@@ -537,7 +544,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
+    (ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

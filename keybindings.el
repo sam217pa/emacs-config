@@ -28,6 +28,7 @@
 
    ;; Applications
    "a" '(:ignore t :which-key "Applications")
+   "ar" 'ranger
 
    ;; Buffer
    "b" '(:ignore t :which-key "Buffer")
