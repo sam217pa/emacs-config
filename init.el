@@ -224,11 +224,11 @@
   (use-package evil-surround :ensure t
     :init
     (global-evil-surround-mode)
-    :config
-    ;; (evil-define-key 'operator evil-surround-mode-map "h" 'evil-surround-edit)
-    ;; (evil-define-key 'operator evil-surround-mode-map "H" 'evil-Surround-edit)
-    ;; (evil-define-key 'visual evil-surround-mode-map "h" 'evil-surround-region)
-    ;; (evil-define-key 'visual evil-surround-mode-map "gH" 'evil-Surround-region)
+    )
+
+  (use-package evil-visualstar :ensure t
+    :init
+    (global-evil-visualstar-mode t)
     )
 
   (setq evil-insert-state-cursor  '("#268bd2" bar) ;; blue
@@ -265,6 +265,12 @@
   (define-key evil-motion-state-map "j" 'evil-find-char-to)
   (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
 
+  )
+
+(use-package evil-lisp-state :ensure t
+  :commands (evil-lisp-state)
+  :config
+  (evil-lisp-state-leader "SPC l")
   )
 
 (use-package eldoc :ensure t :defer t
