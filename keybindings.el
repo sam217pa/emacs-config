@@ -124,6 +124,7 @@
    "vS" 'magit-stage-file
    "vt" 'git-timemachine
    "vU" 'magit-unstage-file
+   "vv" 'magit-status
    )
 
   ;; this is the second prefix. It gives shorter access to common
