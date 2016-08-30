@@ -119,11 +119,13 @@
    "vd" 'magit-diff-unstaged
    "ve" 'magit-ediff-compare
    "vi" 'magit-init
+   "vl" 'magit-log-current
    "vm" '(git-messenger:popup-message :which-key "git messenger")
-   "vs" 'magit-status
+   "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
    "vS" 'magit-stage-file
    "vt" 'git-timemachine
    "vU" 'magit-unstage-file
+   "vv" 'magit-status
    )
 
   ;; this is the second prefix. It gives shorter access to common
