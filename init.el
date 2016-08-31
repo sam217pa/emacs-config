@@ -190,6 +190,7 @@
 (use-package counsel :ensure t
   :bind*
   (("M-x"     . counsel-M-x)
+   ("C-s"     . counsel-grep-or-swiper)
    ("C-x C-f" . counsel-find-file)
    ("C-x C-r" . counsel-recentf)
    ("C-c f"   . counsel-git)
@@ -578,7 +579,7 @@
   :diminish "")
 
 (use-package swiper :ensure t
-  :bind* (("C-s" . swiper-or))
+  :commands swiper
   )
 
 ;;; -T-
