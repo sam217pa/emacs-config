@@ -41,9 +41,10 @@
  ring-bell-function 'ignore ; supprime cette putain de cloche.
  coding-system-for-read 'utf-8          ; use UTF8 pour tous les fichiers
  coding-system-for-write 'utf-8         ; idem
+ sentence-end-double-space nil          ; sentences does not end with double space.
+ default-fill-column 80
+ initial-scratch-message ""
  )
-
-(setq initial-scratch-message "")
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
 
@@ -88,15 +89,18 @@
 (setq initial-major-mode 'fundamental-mode)
 ;; supprime les caractères en trop en sauvegardant.
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
+
+
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
+;; -------------------------------------------------------------------
 ;;;
 ;;; Packages
 ;;;
+;; -------------------------------------------------------------------
 
-;;
+;;; -A-
 (use-package ace-window :ensure t
   :commands
   ace-window
@@ -115,6 +119,13 @@
 
 (use-package auctex :ensure t :defer t)
 
+(use-package auto-fill
+  :diminish auto-fill-mode
+  :commands turn-on-auto-fill
+  :init
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  )
+
 (use-package autorevert :defer t
   :diminish auto-revert-mode
   ;; mainly to make autorevert disappear from the modeline
@@ -126,13 +137,16 @@
   )
 
 (use-package aggressive-indent :ensure t
-  :defer 1
-  :diminish (aggressive-indent-mode . "☞")
+  :diminish (aggressive-indent-mode . "")
   :init (global-aggressive-indent-mode 1)
   :config (progn
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
             (add-to-list 'aggressive-indent-excluded-modes 'perl-mode))
   )
+
+;;; -B-
+(use-package blank-mode :ensure t
+  :commands blank-mode)
 
 (use-package browse-kill-ring :ensure t
   :commands browse-kill-ring
@@ -141,6 +155,7 @@
   (setq browse-kill-ring-separator "———")
   )
 
+;;; -C-
 (use-package color-theme-solarized :ensure t
   :init
   ;; to make the byte compiler happy. emacs25 has no color-themes variable
@@ -172,6 +187,18 @@
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
   )
 
+(use-package counsel :ensure t
+  :bind*
+  (("M-x"     . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)
+   ("C-x C-r" . counsel-recentf)
+   ("C-c f"   . counsel-git)
+   ("C-c s"   . counsel-git-grep)
+   ("C-c /"   . counsel-ag)
+   ("C-c l"   . counsel-locate))
+  )
+
+;;; -D-
 (use-package dired-x
   :defer t
   :init
@@ -197,11 +224,14 @@
         display-time-format)
   )
 
+;;; -E-
 (use-package evil :ensure t
   :init
   (evil-mode 1)
   ;; change la couleur des curseurs
   :config
+
+  (use-package evil-anzu :ensure t)
 
   (use-package evil-escape :ensure t
     :diminish
@@ -283,8 +313,16 @@
   (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
   (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode))
 
+(use-package emacs-lisp
+  :commands emacs-lisp-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
+  )
+
 (use-package expand-region :ensure t :defer t)
 
+;;; -F-
 (use-package flycheck :ensure t :defer t
   :diminish (flycheck-mode . "ⓕ")
   :init
@@ -296,6 +334,7 @@
     (setq flycheck-check-syntax-automatically '(save)))
   )
 
+;;; -G-
 (use-package git-gutter :ensure t
   :diminish ""
   :commands (global-git-gutter-mode)
@@ -306,6 +345,7 @@
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
 
+;;; -H-
 (use-package hideshow
   :commands hs-minor-mode
   :diminish hs-minor-mode
@@ -319,27 +359,46 @@
   (global-hl-line-mode)
   )
 
-(use-package hydra :ensure t :defer 10
+(use-package hydra :ensure t :defer t
   ;; pour les keybindings de fou
   )
 
+;;; -I-
+(use-package ivy :ensure t
+  :diminish (ivy-mode . "")
+  :init (ivy-mode 1)
+  :bind (:map ivy-mode-map
+         ("C-'" . ivy-avy))
+  :config
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-height 20)
+  (setq ivy-count-format "(%d/%d) ")
+  )
+
+;;; -J-
+
+;;; -K-
+
+;;; -L-
 (use-package linum :defer t
   :init
   (add-hook 'linum-mode-hook 'sam--fix-linum-size)
   )
 
+;;; -M-
 (use-package magit :ensure t
   :init
   (global-git-commit-mode)
 
-  :commands (magit-blame-mode
-             magit-commit-popup
-             magit-diff-popup
-             magit-fetch-popup
-             magit-log-popup
-             magit-pull-popup
-             magit-push-popup
-             magit-status)
+  :commands
+  (magit-blame-mode
+   magit-commit-popup
+   magit-diff-popup
+   magit-fetch-popup
+   magit-log-popup
+   magit-pull-popup
+   magit-push-popup
+   magit-status)
 
   :config
   (use-package git-commit :ensure t
@@ -351,27 +410,30 @@
     turn-on-magit-gitflow
     :general
     (:keymaps 'magit-mode-map
-              "%" 'magit-gitflow-popup)
+     "%" 'magit-gitflow-popup)
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+    )
+
+  (use-package git-messenger :ensure t
+    :general
+    (:keymaps 'git-messenger-map
+     "q" 'git-messenger:popup-close)
     )
 
   (use-package git-timemachine :ensure t
     :commands git-timemachine
     :general
     (:keymaps 'git-timemachine-mode-map
-              "n" 'git-timemachine-show-next-revision
-              "p" 'git-timemachine-show-previous-revision
-              "q" 'git-timemachine-quit
-              "w" 'git-timemachine-kill-abbreviated-revision
-              "W" 'git-timemachine-kill-revision)
+     "n" 'git-timemachine-show-next-revision
+     "p" 'git-timemachine-show-previous-revision
+     "q" 'git-timemachine-quit
+     "w" 'git-timemachine-kill-abbreviated-revision
+     "W" 'git-timemachine-kill-revision)
     )
 
-  (use-package git-messenger :ensure t
-    :general
-    (:keymaps 'git-messenger-map
-              "q" 'git-messenger:popup-close)
-    )
+  (setq magit-completing-read-function 'ivy-completing-read)
+
   )
 
 (use-package makefile-mode :defer t
@@ -388,20 +450,25 @@
    :keymaps 'markdown-mode-map
    :prefix ","
    :non-normal-prefix "’"               ; Alt-, => ’
-   "=" 'markdown-promote
-   "°" 'markdown-promote-subtree
-   "-" 'markdown-demote
-   "8" 'markdown-demote-subtree
-   "o" 'markdown-follow-thing-at-point
-   "j" 'markdown-jump
-   "»" 'markdown-indent-region
-   "«" 'markdown-exdent-region
-   "gc" 'markdown-forward-same-level
-   "gr" 'markdown-backward-same-level
-   "gs" 'markdown-up-heading
-   )
+    "=" 'markdown-promote
+    "°" 'markdown-promote-subtree
+    "-" 'markdown-demote
+    "8" 'markdown-demote-subtree
+    "o" 'markdown-follow-thing-at-point
+    "j" 'markdown-jump
+    "»" 'markdown-indent-region
+    "«" 'markdown-exdent-region
+    "gc" 'markdown-forward-same-level
+    "gr" 'markdown-backward-same-level
+    "gs" 'markdown-up-heading
+    )
   )
 
+;;; -N-
+
+;;; -O-
+
+;;; -P-
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages)
@@ -417,6 +484,9 @@
             (setq projectile-completion-system 'ivy)
             (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
 
+;;; -Q-
+
+;;; -R-
 (use-package rainbow-delimiters  :ensure t :defer t
   :init
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
@@ -424,6 +494,8 @@
   )
 
 (use-package ranger :ensure t
+  :commands (ranger
+             deer)
   :bind (("C-x d" . deer))
 
   :general
@@ -459,6 +531,7 @@
   :commands restart-emacs
   )
 
+;;; -S-
 (use-package sh-script :defer t
   ;; shell-scripts
   :init
@@ -505,36 +578,18 @@
   :diminish "")
 
 (use-package swiper :ensure t
-
-  :init
-  (use-package counsel :ensure t :defer t)
-  (use-package ivy :ensure t :init (ivy-mode 1))
-
-  :bind*
-  (("C-s" . swiper)
-   ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-x C-r" . counsel-recentf)
-   ("C-c f" . counsel-git)
-   ("C-c s" . counsel-git-grep)
-   ("C-c /" . counsel-ag)
-   ("C-c l" . counsel-locate)
-   ("C-'"   . ivy-avy)
-   )
-
-  :config
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-height 20)
-  (setq ivy-count-format "(%d/%d) ")
-
-  :diminish (ivy-mode . "➲")
+  :bind* (("C-s" . swiper-or))
   )
 
+;;; -T-
+
+;;; -U-
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
   :bind* (("C-x u" . undo-tree-visualize))
   )
 
+;;; -V-
 (use-package visual-regexp-steroids :ensure t
   :commands (
              vr/replace
@@ -542,6 +597,7 @@
              )
   )
 
+;;; -W-
 (use-package which-key :ensure t
   :diminish
   which-key-mode
@@ -565,6 +621,10 @@
         whitespace-style '(face lines-tail))
   )
 
+;;; -X-
+
+;;; -Y-
+;; TODO : setup yasnippet
 (use-package yasnippet :ensure t
   :disabled t
   :diminish (yas-minor-mode . "")
@@ -572,6 +632,10 @@
   (yas-global-mode)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   )
+
+;;; -Y-
+
+;; -------------------------------------------------------------------
 
 ;; personal functions
 (load-file "~/dotfile/emacs/functions.el")
@@ -585,6 +649,7 @@
 (load-file "~/dotfile/emacs/org.el")
 
 ;; custom goes after that
+;; -------------------------------------------------------------------
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -593,7 +658,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (evil-lisp-state evil-visualstar git-gutter evil-matchit evil-escape ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
+    (evil-anzu blank-mode evil-lisp-state evil-visualstar git-gutter evil-matchit evil-escape ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

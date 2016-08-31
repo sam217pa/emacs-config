@@ -30,6 +30,9 @@
    "a" '(:ignore t :which-key "Applications")
    "ar" 'ranger
    "ad" 'dired
+   "ab" '(:ignore t :which-key "Blog")
+   "abn" 'hugo-new-post
+   "abs" 'hugo-server
 
    ;; Buffer
    "b" '(:ignore t :which-key "Buffer")
@@ -113,6 +116,7 @@
    "Tm" '(:ignore t :which-key "modeline")
    "Tmt" 'display-time-mode
    "Tn" '(linum-mode :which-key "line number")
+   "Tw" 'blank-mode
 
    ;; Git related stuff
    "v" '(:ignore t :which-key "Version Control")
