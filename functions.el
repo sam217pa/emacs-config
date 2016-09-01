@@ -274,3 +274,8 @@ Lisp function does not specify a special indentation."
                                      indent-point normal-indent))
               (method
                (funcall method indent-point state))))))))
+
+(defun sam--edit-password ()
+  (interactive)
+  (find-file "~/Org/private.org")
+  )

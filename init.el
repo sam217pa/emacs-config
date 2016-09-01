@@ -44,7 +44,12 @@
  sentence-end-double-space nil          ; sentences does not end with double space.
  default-fill-column 80
  initial-scratch-message ""
+ save-interprogram-paste-before-kill t
  )
+
+
+
+;; (setq select-enable-clipboard nil)
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
 
@@ -199,6 +204,15 @@
    ("C-c l"   . counsel-locate))
   )
 
+(use-package counsel-osx-app :ensure t
+  :commands counsel-osx-app
+  :bind*
+  ("C-c a" . counsel-osx-app)
+  :config
+  (setq counsel-osx-app-location
+        '("/Applications/" "~/Applications/" "~/sam_app/"))
+  )
+
 ;;; -D-
 (use-package dired-x
   :defer t
@@ -231,8 +245,6 @@
   (evil-mode 1)
   ;; change la couleur des curseurs
   :config
-
-  (use-package evil-anzu :ensure t)
 
   (use-package evil-escape :ensure t
     :diminish
@@ -469,11 +481,21 @@
 
 ;;; -O-
 
+(use-package osx-clipboard :ensure t
+  :init
+  (osx-clipboard-mode +1)
+  )
+
 ;;; -P-
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages)
   )
+
+(use-package pbcopy :ensure t
+  :if (not (display-graphic-p))
+  :init
+  (turn-on-pbcopy))
 
 (use-package projectile :ensure t
   :disabled t
@@ -550,7 +572,7 @@
 
 (use-package smartparens
   :ensure t
-  :diminish (smartparens-mode . "☉")
+  :diminish (smartparens-mode . "")
   :bind (("C-M-f" . sp-forward-sexp)
          ("C-M-b" . sp-backward-sexp)
          ("C-M-d" . sp-down-sexp)
@@ -651,19 +673,5 @@
 
 ;; custom goes after that
 ;; -------------------------------------------------------------------
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (evil-anzu blank-mode evil-lisp-state evil-visualstar git-gutter evil-matchit evil-escape ranger org-journal hideshow-org org-beautify-theme browse-kill-ring ess git-messenger git-timemachine magit-gitflow color-theme wrap-region window-number which-key visual-regexp-steroids vimish-fold use-package smex smartscan smartparens smart-comment rainbow-mode rainbow-delimiters r-autoyas python-mode pyenv-mode peep-dired ox-twbs org-ref org-plus-contrib org-mac-link org-bullets multiple-cursors monokai-theme mode-icons moccur-edit minimap material-theme magit htmlize hl-spotlight hl-line+ highlight-symbol helm-themes helm-swoop helm-pages helm-make helm-descbinds helm-company helm-c-yasnippet helm-bind-key helm-ag folding flycheck fish-mode fill-column-indicator expand-region exec-path-from-shell evil-surround evil-leader elpy dired-subtree dired-rainbow dired-open dired-details color-identifiers-mode auto-complete auto-compile auctex anaconda-mode aggressive-indent ag ace-window ace-jump-helm-line)))
- '(paradox-github-token t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(setq custom-file "~/.emacs.d/emacs-custom.el")
+(load custom-file)

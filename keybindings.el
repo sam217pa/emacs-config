@@ -21,120 +21,123 @@
    :prefix "SPC"
    :non-normal-prefix " "
 
-   ;; simple command
-   "/"   'counsel-ag
-   "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
-   "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
+    ;; simple command
+    "/"   'counsel-ag
+    "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
+    "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
 
-   ;; Applications
-   "a" '(:ignore t :which-key "Applications")
-   "ar" 'ranger
-   "ad" 'dired
-   "ab" '(:ignore t :which-key "Blog")
-   "abn" 'hugo-new-post
-   "abs" 'hugo-server
+    ;; Applications
+    "a" '(:ignore t :which-key "Applications")
+    "ar" 'ranger
+    "ad" 'dired
+    "ab" '(:ignore t :which-key "Blog")
+    "abn" 'hugo-new-post
+    "abs" 'hugo-server
+    "ao"  'counsel-osx-app
 
-   ;; Buffer
-   "b" '(:ignore t :which-key "Buffer")
-   "bb"  '(ivy-switch-buffer :which-key "switch buffer")
-   "bd"  '(kill-buffer-and-window :which-key "delete buffer")
+    ;; Buffer
+    "b" '(:ignore t :which-key "Buffer")
+    "bb"  '(ivy-switch-buffer :which-key "switch buffer")
+    "bd"  '(kill-buffer-and-window :which-key "delete buffer")
 
-   ;; Comment or Compile
-   "c" '(:ignore t :which-key "Comment")
-   "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
+    ;; Comment or Compile
+    "c" '(:ignore t :which-key "Comment")
+    "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
 
-   ;; Window management
-   "é" '(:ignore t :which-key "Window")
-   "éc"  'other-window
-   "éd"  'ace-delete-window
-   "ér"  'other-window
-   "éé"  'hydra-window/body
-   "éh"  '(split-window-vertically :which-key "split horizontal")
-   "ém"  '(delete-other-windows :which-key "maximize current")
-   "év"  '(split-window-horizontally :which-key "split vertical")
-   "é|"  '(split-window-horizontally :which-key "split vertical")
-   "é-"  '(split-window-vertically :which-key "split horizontal")
+    ;; Window management
+    "é" '(:ignore t :which-key "Window")
+    "éc"  'other-window
+    "éd"  'ace-delete-window
+    "ér"  'other-window
+    "éé"  'hydra-window/body
+    "éh"  '(split-window-vertically :which-key "split horizontal")
+    "ém"  '(delete-other-windows :which-key "maximize current")
+    "év"  '(split-window-horizontally :which-key "split vertical")
+    "é|"  '(split-window-horizontally :which-key "split vertical")
+    "é-"  '(split-window-vertically :which-key "split horizontal")
 
-   ;; Find and Files
-   "f" '(:ignore t :which-key "Files")
-   "fd"  '(counsel-git :which-key "find in git dir")
-   "fD"  '(sam--delete-current-buffer-file :which-key "delete file")
-   "fe" '(:ignore t :which-key "edit")
-   "fei" '(sam--edit-init-file :which-key "edit init")
-   "fek" '(sam--edit-keybindings :which-key "edit keybindings")
-   "fef" '(sam--edit-functions :which-key "edit functions")
-   "ff"  '(find-file :which-key "find file")
-   "fo"  '(sam--open-in-external-app :which-key "open file")
-   "fr"  '(counsel-recentf :which-key "recent files")
-   "fs"  '(save-buffer :which-key "save file")
-   "fS"  '(rename-file :which-key "rename file")
+    ;; Find and Files
+    "f" '(:ignore t :which-key "Files")
+    "fd"  '(counsel-git :which-key "find in git dir")
+    "fD"  '(sam--delete-current-buffer-file :which-key "delete file")
+    "fe" '(:ignore t :which-key "edit")
+    "fei" '(sam--edit-init-file :which-key "edit init")
+    "fek" '(sam--edit-keybindings :which-key "edit keybindings")
+    "fef" '(sam--edit-functions :which-key "edit functions")
+    "fep" '(sam--edit-password :which-key "edit password")
+    "ff"  '(find-file :which-key "find file")
+    "fo"  '(sam--open-in-external-app :which-key "open file")
+    "fr"  '(counsel-recentf :which-key "recent files")
+    "fs"  '(save-buffer :which-key "save file")
+    "fS"  '(rename-file :which-key "rename file")
 
-   ;; Jump to :
-   "g" '(:ignore t :which-key "Go to")
-   "gc" 'avy-goto-char
-   "gC" 'avy-goto-char-2
-   "gl" 'avy-goto-line
-   "gé" 'avy-goto-word-or-subword-1
+    ;; Jump to :
+    "g" '(:ignore t :which-key "Go to")
+    "gc" 'avy-goto-char
+    "gC" 'avy-goto-char-2
+    "gl" 'avy-goto-line
+    "gé" 'avy-goto-word-or-subword-1
 
-   ;; Insert
-   "i" '(:ignore t :which-key "Insert")
-   "it"  '(sam--insert-timestamp :which-key "timestamp")
-   "il" '(:ignore t :which-key "insert link")
-   "ilm" '(sam--chrome-md-link :which-key "chrome - md")
-   "ilo" '(sam--chrome-org-link :which-key "chrome - org")
-   "ilf" '(sam--finder-md-link :which-key "finder - md")
+    ;; Insert
+    "i" '(:ignore t :which-key "Insert")
+    "it"  '(sam--insert-timestamp :which-key "timestamp")
+    "il" '(:ignore t :which-key "insert link")
+    "ilm" '(sam--chrome-md-link :which-key "chrome - md")
+    "ilo" '(sam--chrome-org-link :which-key "chrome - org")
+    "ilf" '(sam--finder-md-link :which-key "finder - md")
 
-   ;; Journal
-   "j" '(:ignore t :which-key "Journal")
+    ;; Journal
+    "j" '(:ignore t :which-key "Journal")
 
-   ;; Lisp
-   "l" '(:ignore t :which-key "Lisp")
+    ;; Lisp
+    "l" '(:ignore t :which-key "Lisp")
 
-   ;; Quit
-   "q" '(:ignore t :which-key "Quit")
-   "qb" 'kill-buffer-if-not-modified
-   "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
-   "qr" '(restart-emacs :which-key "restart emacs")
+    ;; Quit
+    "q" '(:ignore t :which-key "Quit")
+    "qb" 'kill-buffer-if-not-modified
+    "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
+    "qr" '(restart-emacs :which-key "restart emacs")
 
-   ;; Save and search
-   "s" '(:ignore t :which-key "Save/Search")
-   "s."  'save-buffer
+    ;; Save and search
+    "s" '(:ignore t :which-key "Save/Search")
+    "s."  'save-buffer
+    "s,"  'server-edit
 
-   ;; text related
-   "t" '(:ignore t :which-key "text")
-   "ta" '(:ignore t :which-key "text align")
-   "tar" 'align-region
-   "taR" 'align-regexp
-   "ti"  'indent-region
-   "tr" '(vr/query-replace :which-key "text replace")
+    ;; text related
+    "t" '(:ignore t :which-key "text")
+    "ta" '(:ignore t :which-key "text align")
+    "tar" 'align-region
+    "taR" 'align-regexp
+    "ti"  'indent-region
+    "tr" '(vr/query-replace :which-key "text replace")
 
-   ;; Toggle UI elements
-   "T" '(:ignore t :which-key "Toggle")
-   "TF" '(toggle-frame-fullscreen :which-key "fullscreen")
-   "Td" '(solarized-switch-to-dark :which-key "dark background")
-   "Tl" '(solarized-switch-to-light :which-key "light background")
-   "Tm" '(:ignore t :which-key "modeline")
-   "Tmt" 'display-time-mode
-   "Tn" '(linum-mode :which-key "line number")
-   "Tw" 'blank-mode
+    ;; Toggle UI elements
+    "T" '(:ignore t :which-key "Toggle")
+    "TF" '(toggle-frame-fullscreen :which-key "fullscreen")
+    "Td" '(solarized-switch-to-dark :which-key "dark background")
+    "Tl" '(solarized-switch-to-light :which-key "light background")
+    "Tm" '(:ignore t :which-key "modeline")
+    "Tmt" 'display-time-mode
+    "Tn" '(linum-mode :which-key "line number")
+    "Tw" 'blank-mode
 
-   ;; Git related stuff
-   "v" '(:ignore t :which-key "Version Control")
-   "vb" 'magit-blame
-   "vB" 'magit-blame-quit
-   "vc" 'magit-commit
-   "vC" 'magit-checkout
-   "vd" 'magit-diff-unstaged
-   "ve" 'magit-ediff-compare
-   "vi" 'magit-init
-   "vl" 'magit-log-current
-   "vm" '(git-messenger:popup-message :which-key "git messenger")
-   "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
-   "vS" 'magit-stage-file
-   "vt" 'git-timemachine
-   "vU" 'magit-unstage-file
-   "vv" 'magit-status
-   )
+    ;; Git related stuff
+    "v" '(:ignore t :which-key "Version Control")
+    "vb" 'magit-blame
+    "vB" 'magit-blame-quit
+    "vc" 'magit-commit
+    "vC" 'magit-checkout
+    "vd" 'magit-diff-unstaged
+    "ve" 'magit-ediff-compare
+    "vi" 'magit-init
+    "vl" 'magit-log-current
+    "vm" '(git-messenger:popup-message :which-key "git messenger")
+    "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
+    "vS" 'magit-stage-file
+    "vt" 'git-timemachine
+    "vU" 'magit-unstage-file
+    "vv" 'magit-status
+    )
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
@@ -142,23 +145,23 @@
    :states '(normal insert emacs)
    :prefix "C-SPC"
    :non-normal-prefix "C-SPC"
-   "l" '(avy-goto-line)
-   "a" 'align-regexp
-   )
+    "l" '(avy-goto-line)
+    "a" 'align-regexp
+    )
 
   ;; this is the last prefix. specifically reserved to emacs, like
   ;; getting help in emacs or stuff like that
   (general-define-key
    :states '(normal emacs)
    :prefix "ê"
-   "" '(:ignore t :which-key "Emacs Help")
-   "f" 'counsel-describe-function
-   "k" 'counsel-descbinds
-   "v" 'counsel-describe-variable
-   "e" 'eval-last-sexp
-   "b" 'eval-buffer
-   "c" '(sam--eval-current-form-sp :which-key "eval-current")
-   )
+    "" '(:ignore t :which-key "Emacs Help")
+    "f" 'counsel-describe-function
+    "k" 'counsel-descbinds
+    "v" 'counsel-describe-variable
+    "e" 'eval-last-sexp
+    "b" 'eval-buffer
+    "c" '(sam--eval-current-form-sp :which-key "eval-current")
+    )
 
   ;; those are the direct keybindings. Just press the touch.
   (nmap
@@ -224,6 +227,18 @@
 ;; Which-key
 ;;
 
+;; key description for C-x
+(which-key-add-key-based-replacements
+  "C-x RET" "coding system -input"
+  "C-x 4"   "Other Window"
+  "C-x 5"   "Frame"
+  "C-x 6"   "2C"
+  "C-x @"   "event"
+  "C-x 8"   "special char"
+  "C-x a"   "abbrev"
+  "C-x n"   "narrow"
+  "C-x r"   "rectangle"
+  "C-x v"   "version control")
 ;; key description for emacs-lisp state.
 (which-key-add-key-based-replacements
   "SPC l%"   "evil-jump-item"
