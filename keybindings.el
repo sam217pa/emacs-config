@@ -22,7 +22,8 @@
    :non-normal-prefix " "
 
     ;; simple command
-    "'"   'shell-pop
+    "'"   '(sam--iterm-focus :which-key "focus iterm")
+    "?"   '(sam--iterm-goto-filedir-or-home :which-key "focus iterm - goto dir")
     "/"   'counsel-ag
     "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
     "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")

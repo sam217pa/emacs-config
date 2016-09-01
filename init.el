@@ -851,18 +851,6 @@
                        "zshrc\\'"))
       (add-to-list 'auto-mode-alist (cons pattern 'sh-mode)))))
 
-(use-package shell-pop :ensure t
-  :commands shell-pop
-  :init
-  (setq shell-pop-default-directory "/Users/samuelbarreto/"
-	shell-pop-shell-type
-	(quote ("terminal" "*term*" (lambda nil (term shell-pop-term-shell))))
-	shell-pop-term-shell "/usr/local/bin/bash"
-	shell-pop-window-size 20
-	shell-pop-full-span t
-	shell-pop-window-position "bottom")
-  )
-
 (use-package smartparens
   :ensure t
   :diminish (smartparens-mode . "")
