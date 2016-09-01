@@ -194,7 +194,7 @@
    ;; SUPER map
    "s-l"   'sam--comment-or-uncomment-region-or-line
    "s-w"   'delete-other-windows
-   "s-m"   'delete-other-window
+   "s-m"   'delete-other-windows
    "s-SPC" 'set-mark-command
    "s-TAB" 'sam--switch-to-other-buffer
    ;; HYPER map
