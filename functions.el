@@ -70,11 +70,11 @@
 
 (defun sam--chrome-org-link ()
   (interactive)
-  (insert (grab-mac-link 'chrome 'org)))
+  (insert (concat " " (grab-mac-link 'chrome 'org))))
 
 (defun sam--chrome-md-link ()
   (interactive)
-  (insert (grab-mac-link 'chrome 'markdown)))
+  (insert (concat " " (grab-mac-link 'chrome 'markdown))))
 
 (defun sam--finder-md-link ()
   (interactive)

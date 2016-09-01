@@ -149,10 +149,9 @@
     "a" 'align-regexp
     )
 
-  ;; this is the last prefix. specifically reserved to emacs, like
-  ;; getting help in emacs or stuff like that
   (general-define-key
    :states '(normal emacs)
+   :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
     "" '(:ignore t :which-key "Emacs Help")
     "f" 'counsel-describe-function
