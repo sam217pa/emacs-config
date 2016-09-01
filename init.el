@@ -529,21 +529,94 @@
   :config
 
   (use-package elpy :ensure t
-    :commands elpy-mode
+    :commands (elpy-mode
+               elpy-enable
+               )
+    :bind* ("M-/" . elpy-company-backend)
     :init
     (add-hook 'python-mode-hook 'elpy-mode)
     :config
     (electric-indent-local-mode -1)
-    )
 
-  ;; (use-package anaconda-mode :ensure t :defer t
-  ;;   :init
-  ;;   (add-hook 'python-mode-hook 'anaconda-mode)
-  ;;   (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-  ;;   :config
-  ;;   (use-package pyenv-mode :ensure t
-  ;;     :init (pyenv-mode))
-  ;;   )
+    (general-define-key
+     :states '(normal visual insert emacs)
+     :keymaps 'python-mode-map
+     :prefix ","
+     :non-normal-prefix "’"               ; Alt-, => ’
+      "/" '(:ignore t :which-key "search")
+      "/s" '(elpy-rgrep-symbol :which-key "search symbol")
+
+      "d" '(:ignore t :which-key "doc")
+      "dd" 'elpy-doc
+
+      "f" '(:ignore t :which-key "file")
+      "ff" 'elpy-find-file
+
+      "g" '(:ignore t :which-key "go to")
+      "gd" 'elpy-goto-definition
+      "gb" 'pop-tag-mark
+
+      "m" '(:ignore t :which-key "move")
+      "mt" 'elpy-nav-move-line-or-region-down
+      "ms" 'elpy-nav-move-line-or-region-up
+      "mc" 'elpy-nav-indent-shift-left
+      "mr" 'elpy-nav-indent-shift-right
+
+      "n" '(:ignore t :which-key "nav")
+      "nt" 'elpy-nav-forward-block
+      "ns" 'elpy-nav-backward-block
+      "nc" 'elpy-nav-backward-indent
+      "nr" 'elpy-nav-forward-indent
+
+      "r" '(:ignore t :which-key "refactor")
+      "rf" 'elpy-format-code
+      "re" 'elpy-multiedit-python-symbol-at-point
+      "ri" '(elpy-importmagic-fixup :which-key "import fix")
+      "rr" 'elpy-refactor
+
+      "s" '(:ignore t :which-key "shell")
+      "sg" 'elpy-shell-switch-to-shell
+      "sl" 'elpy-shell-send-current-statement
+      "sb" 'elpy-shell-send-region-or-buffer
+      "sr" 'elpy-shell-send-region-or-buffer
+      "st" 'elpy-shell-send-defun
+      "si" 'elpy-use-ipython
+
+      "t" 'elpy-test
+
+      "v" '(:ignore t :which-key "virtualenv")
+      "va" 'pyenv-activate
+      "vd" 'pyenv-deactivate
+      "vo" 'pyenv-workon ; TODO describe this keybinding
+
+      )
+
+    ;; CONTROL like map
+    (general-define-key
+     :states '(insert)
+     :keymaps 'python-mode-map
+     :non-normal-prefix "ê"
+      "t" 'elpy-nav-forward-block
+      "s" 'elpy-nav-backward-block
+      "c" 'elpy-nav-backward-indent
+      "r" 'elpy-nav-forward-indent
+
+      "f" 'elpy-shell-send-defun
+      "RET" 'elpy-shell-send-current-statement
+      )
+
+    ;; META like map
+    (general-define-key
+     :states '(insert)
+     :keymaps 'python-mode-map
+     :non-normal-prefix "à"
+      "t" 'elpy-nav-move-line-or-region-down
+      "s" 'elpy-nav-move-line-or-region-up
+      "c" 'elpy-nav-indent-shift-left
+      "r" 'elpy-nav-indent-shift-right
+      )
+
+    )
 
   (use-package pyenv-mode :ensure t
     :commands pyenv-mode
@@ -713,8 +786,6 @@
 (load-file "~/dotfile/emacs/keybindings.el")
 ;; R config
 (load-file "~/dotfile/emacs/r.el")
-;;; python
-(load-file "~/dotfile/emacs/python.el")
 ;; org
 (load-file "~/dotfile/emacs/org.el")
 
