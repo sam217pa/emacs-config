@@ -92,6 +92,10 @@
     ;; Lisp
     "l" '(:ignore t :which-key "Lisp")
 
+    ;; Org
+    "o" '(:ignore t :which-key "Org")
+    "oa" 'org-agenda-list
+
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
     "qb" 'kill-buffer-if-not-modified

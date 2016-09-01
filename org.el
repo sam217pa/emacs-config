@@ -1,10 +1,13 @@
-(use-package org :ensure org-plus-contrib
+(use-package org
+  :ensure org-plus-contrib
+  :commands (org-mode
+	     org-agenda-list
+	     org-store-link
+	     )
 
   :bind*
-  (("C-c a" . org-agenda-list)
-   :map dired-mode-map
-   ("C-c C-l" . org-store-link)
-   )
+  (:map dired-mode-map
+   ("C-c C-l" . org-store-link))
 
   :config
 
