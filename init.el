@@ -293,6 +293,77 @@
   (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
 
   :config
+
+  (general-define-key
+   :states '(normal visual insert emacs)
+   :keymaps 'ess-mode-map
+   :prefix ","
+   :non-normal-prefix "’"               ; Alt-, => ’
+    "/" '(:ignore t :which-key "search")
+    "," 'ess-handy-commands
+
+    "d" '(:ignore t :which-key "doc")
+    "dd" 'ess-help
+    "dw" 'ess-help-web-search
+
+    "f" '(:ignore t :which-key "file")
+
+    "g" '(:ignore t :which-key "go to")
+
+    "i" '(:ignore t :which-key "info")
+    "id" 'ess-rdired
+
+
+    "l" '(:ignore t :which-key "load")
+    "ll" 'ess-load-library
+    "lf" 'ess-load-file
+
+    "m" '(:ignore t :which-key "move")
+
+    "n" '(:ignore t :which-key "nav")
+
+    "r" '(:ignore t :which-key "refactor")
+
+    "s" '(:ignore t :which-key "shell - send")
+    "sl"   '(:ignore t :which-key "line")
+    "sll"   'ess-eval-line
+    "slg"   'ess-eval-line-and-go
+    "sls"   'ess-eval-line-and-step
+    "sp"   '(:ignore t :which-key "chunk")
+    "spp"   'ess-eval-chunk
+    "spg"   'ess-eval-chunk-and-go
+    "sps"   'ess-eval-chunk-and-step
+    "st"   '(:ignore t :which-key "function or §")
+    "stt"   'ess-eval-function-or-paragraph
+    "stg"   'ess-eval-function-and-go
+    "sts"   'ess-eval-function-or-paragraph-and-step
+    "sr"   '(:ignore t :which-key "region")
+    "srr"  'ess-eval-region
+    "srg"  'ess-eval-region-and-go
+    "srs"  'ess-eval-region-or-line-and-step
+
+    "w" '(ess-execute-screen-options :which-key "set width")
+    )
+
+  ;; secondary major mode map
+  (general-define-key
+   :states '(normal visual insert)
+   :keymaps 'ess-mode-map
+   :prefix "ê"
+   :non-normal-prefix "’"               ; Alt-, => ’
+    "l" 'ess-eval-region-or-line-and-step
+    )
+
+  ;; primary map, direct access
+  (general-define-key
+   :states '(normal insert)
+   :keymaps 'ess-mode-map
+    "C-RET" 'ess-eval-region-or-line-and-step
+    "M-RET" 'ess-eval-function-or-paragraph-and-step
+    )
+
+  (setq ess-completing-read 'ivy)
+
   (setq ess-R-font-lock-keywords '((ess-R-fl-keyword:modifiers . t)
                                    (ess-R-fl-keyword:fun-defs . t)
                                    (ess-R-fl-keyword:keywords . t)
@@ -305,16 +376,25 @@
                                    (ess-fl-keyword:= . t)
                                    (ess-R-fl-keyword:F&T . t)
                                    (ess-R-fl-keyword:%op% . t)))
-  (setq ess-offset-continued 2
-        ess-expression-offset 2
-        ess-nuke-trailing-whitespace-p t
-        ess-default-style 'DEFAULT)
+  (setq ess-offset-continued 2          ; offset after first statement
+        ess-expression-offset 2         ; offset for expression
+        ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
+        ess-default-style 'DEFAULT)      ; set default style for R source file
 
   (add-to-list
-   'aggressive-indent-dont-indent-if
-   '(and (derived-mode-p 'ess-mode)
-         (null (string-match "\\(#+ .+ $\\)"
+   'aggressive-indent-dont-indent-if    ; do not indent line if
+   '(and (derived-mode-p 'ess-mode)     ; in ess mode
+         (null (string-match "\\(#+ .+ $\\)" ; and in a roxygen block
                              (thing-at-point 'line)))))
+
+
+  (sp-local-pair 'ess-mode "%" "%")
+  ;; when pressed RET after { or (,
+  ;; {
+  ;;    | <- cursor
+  ;; }
+  (sp-local-pair 'ess-mode "{" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  (sp-local-pair 'ess-mode "(" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
 
   )
 
@@ -772,15 +852,24 @@
          )
   :init
   (smartparens-global-mode)
+  ;; (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
+  ;; (add-hook 'org-mode-hook #'smartparens-mode)
+  ;; (add-hook 'ess-mode-hook #'smartparens-mode)
 
   :config
   (progn
-    (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
-    (add-hook 'org-mode-hook #'smartparens-mode)
-    (add-hook 'ess-mode-hook #'smartparens-mode)
     (sp-local-pair 'org-mode "$" "$")
-    (sp-local-pair 'ess-mode "%" "%")
     (sp-pair "'" nil :actions :rem))
+
+
+  (defun sam--create-newline-and-enter-sexp (&rest _ignored)
+    "Open a new brace or bracket expression, with relevant newlines and indent. "
+    ;; from [Newline and indent on appropriate pairs · Issue #80 · ;; Fuco1/smartparens](https://github.com/Fuco1/smartparens/issues/80)
+    (newline)
+    (indent-according-to-mode)
+    (forward-line -1)
+    (indent-according-to-mode))
+
   )
 
 (use-package subword :defer t
