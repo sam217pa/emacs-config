@@ -285,5 +285,3 @@
 ;;
 ;; Hydra
 ;;
-
-;; TODO move all bind-key declaration to general commands
