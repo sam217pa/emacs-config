@@ -22,6 +22,7 @@
    :non-normal-prefix " "
 
     ;; simple command
+    "'"   'shell-pop
     "/"   'counsel-ag
     "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
     "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
