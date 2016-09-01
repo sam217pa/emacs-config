@@ -149,18 +149,6 @@
     "a" 'align-regexp
     )
 
-  (general-define-key
-   :states '(normal emacs)
-   :keymaps 'emacs-lisp-mode-map
-   :prefix "ê"
-    "" '(:ignore t :which-key "Emacs Help")
-    "f" 'counsel-describe-function
-    "k" 'counsel-descbinds
-    "v" 'counsel-describe-variable
-    "e" 'eval-last-sexp
-    "b" 'eval-buffer
-    "c" '(sam--eval-current-form-sp :which-key "eval-current")
-    )
 
   ;; those are the direct keybindings. Just press the touch.
   (nmap

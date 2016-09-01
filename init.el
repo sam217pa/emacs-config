@@ -250,6 +250,39 @@
   )
 
 ;;; -E-
+(use-package eldoc :ensure t
+  :commands turn-on-eldoc-mode
+  :diminish ""
+  :init
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+  )
+
+(use-package emacs-lisp
+  :commands emacs-lisp-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
+
+  :config
+
+  (general-define-key
+   :states '(normal emacs)
+   :keymaps 'emacs-lisp-mode-map
+   :prefix "ê"
+    "" '(:ignore t :which-key "Emacs Help")
+    "f" 'counsel-describe-function
+    "k" 'counsel-descbinds
+    "v" 'counsel-describe-variable
+    "e" 'eval-last-sexp
+    "b" 'eval-buffer
+    "c" '(sam--eval-current-form-sp :which-key "eval-current")
+    )
+
+  (sp-local-pair 'emacs-lisp-mode "(" nil
+		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  )
+
 (use-package ess-site
   :ensure ess
   :mode
@@ -306,10 +339,6 @@
     "dd" 'ess-help
     "dw" 'ess-help-web-search
 
-    "f" '(:ignore t :which-key "file")
-
-    "g" '(:ignore t :which-key "go to")
-
     "i" '(:ignore t :which-key "info")
     "id" 'ess-rdired
 
@@ -317,12 +346,6 @@
     "l" '(:ignore t :which-key "load")
     "ll" 'ess-load-library
     "lf" 'ess-load-file
-
-    "m" '(:ignore t :which-key "move")
-
-    "n" '(:ignore t :which-key "nav")
-
-    "r" '(:ignore t :which-key "refactor")
 
     "s" '(:ignore t :which-key "shell - send")
     "sl"   '(:ignore t :which-key "line")
@@ -393,8 +416,10 @@
   ;; {
   ;;    | <- cursor
   ;; }
-  (sp-local-pair 'ess-mode "{" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-  (sp-local-pair 'ess-mode "(" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  (sp-local-pair 'ess-mode "{" nil
+		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  (sp-local-pair 'ess-mode "(" nil
+		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
 
   )
 
@@ -478,18 +503,6 @@
   (evil-lisp-state-leader "SPC l")
   )
 
-(use-package eldoc :ensure t :defer t
-  :diminish ""
-  :init
-  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode))
-
-(use-package emacs-lisp
-  :commands emacs-lisp-mode
-  :init
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
-  )
 
 (use-package expand-region :ensure t :defer t)
 
