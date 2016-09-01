@@ -168,7 +168,6 @@
    "'" (general-simulate-keys "C-c")
    "é" 'evil-goto-mark
    "è" 'ace-window
-   "à" 'evil-lisp-state
    "s-b" 'ivy-switch-buffer
    "s-g" 'avy-goto-char
    "C-p" 'browse-kill-ring
@@ -190,38 +189,22 @@
    "s" 'evil-previous-visual-line
    )
 
+
+  (general-define-key
+   ;; SUPER map
+   "s-l"   'sam--comment-or-uncomment-region-or-line
+   "s-w"   'delete-other-windows
+   "s-m"   'delete-other-window
+   "s-SPC" 'set-mark-command
+   "s-TAB" 'sam--switch-to-other-buffer
+   ;; HYPER map
+   "H-F" 'toggle-frame-fullscreen
+   "H-f" 'toggle-frame-maximized
+   ;; META map
+   "M-«" 'beginning-of-buffer
+   "M-»" 'end-of-buffer
+   )
   )
-
-
-;;
-;; C- map
-;;
-
-
-
-;;
-;; SUPER map
-;;
-
-(bind-key* (kbd "s-l") #'sam--comment-or-uncomment-region-or-line)
-(bind-key* (kbd "s-w") 'delete-other-windows)
-(bind-key* [s-tab] 'sam--switch-to-other-buffer)
-
-
-;;
-;; HYPER map
-;;
-
-(bind-key  (kbd "H-F") 'toggle-frame-fullscreen)
-
-
-;;
-;; META map
-;;
-
-(bind-key  (kbd "M-«") 'beginning-of-buffer)
-(bind-key  (kbd "M-»") 'end-of-buffer)
-
 
 ;;
 ;; Which-key
@@ -302,5 +285,3 @@
 ;;
 ;; Hydra
 ;;
-
-;; TODO: visual regexp. engin de remplacement
