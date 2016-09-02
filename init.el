@@ -548,6 +548,10 @@
   )
 
 ;;; -I-
+(use-package ibuffer :ensure t
+  :commands ibuffer
+  )
+
 (use-package ivy :ensure t
   :diminish (ivy-mode . "")
   :init (ivy-mode 1)

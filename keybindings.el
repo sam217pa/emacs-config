@@ -22,8 +22,8 @@
    :non-normal-prefix " "
 
     ;; simple command
-    "'"   '(sam--iterm-focus :which-key "focus iterm")
-    "?"   '(sam--iterm-goto-filedir-or-home :which-key "focus iterm - goto dir")
+    "'"   '(sam--iterm-focus :which-key "iterm")
+    "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
     "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
     "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
@@ -36,9 +36,13 @@
     "abn" 'hugo-new-post
     "abs" 'hugo-server
     "ao"  'counsel-osx-app
+    "ac"  '(sam--calendar-focus :which-key "calendar")
+    "af"  '(sam--finder-focus :which-key "finder")
+    "aF"  '(sam--finder-goto-filedir-or-home :which-key "finder - goto dir")
 
     ;; Buffer
     "b" '(:ignore t :which-key "Buffer")
+    "bB"  '(ibuffer)
     "bb"  '(ivy-switch-buffer :which-key "switch buffer")
     "bd"  '(kill-buffer-and-window :which-key "delete buffer")
 

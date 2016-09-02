@@ -307,3 +307,24 @@ Lisp function does not specify a special indentation."
   (do-applescript
    " do shell script \"open -a iTerm\"\n"
    ))
+
+(defun sam--calendar-focus ()
+  (interactive)
+  (do-applescript
+   " do shell script \"open -a Calendar\"\n"
+   )
+  )
+
+(defun sam--finder-focus ()
+  (interactive)
+  (do-applescript
+   " do shell script \"open -a Finder\"\n"
+   )
+  )
+
+(defun sam--finder-goto-filedir-or-home ()
+  (interactive)
+  (do-applescript
+   (format " do shell script \"open -a Finder %s\"\n"
+	   (sam--get-file-dir-or-home)))
+  )
