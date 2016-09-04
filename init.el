@@ -277,6 +277,7 @@
     "e" 'eval-last-sexp
     "b" 'eval-buffer
     "c" '(sam--eval-current-form-sp :which-key "eval-current")
+    "u" 'use-package-jump
     )
 
   (sp-local-pair 'emacs-lisp-mode "(" nil
@@ -571,6 +572,12 @@
 (use-package linum :defer t
   :init
   (add-hook 'linum-mode-hook 'sam--fix-linum-size)
+  )
+
+(use-package lispy :ensure t
+  :commands lispy-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
   )
 
 ;;; -M-
@@ -953,6 +960,8 @@
 ;;; -Y-
 
 ;; -------------------------------------------------------------------
+
+;; TODO use lispy
 
 ;; personal functions
 (load-file "~/dotfile/emacs/functions.el")

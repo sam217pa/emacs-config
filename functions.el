@@ -328,3 +328,26 @@ Lisp function does not specify a special indentation."
    (format " do shell script \"open -a Finder %s\"\n"
 	   (sam--get-file-dir-or-home)))
   )
+
+(defun sam--new-empty-buffer ()
+  "Create a new buffer called untitled(<n>)"
+  ;; from spacemacs/layers/+distribution/spacemacs-base/funcs.el
+  (interactive)
+  (let ((newbuf (generate-new-buffer-name "untitled")))
+    (switch-to-buffer newbuf)))
+
+(defun use-package-jump ()
+  "Jump to an outer-level `use-package' definition in current buffer."
+  (interactive)
+  (let ((packages))
+    (save-excursion
+      (goto-char (point-max))
+      (while (beginning-of-defun)
+        (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
+          (when (string-match "^(use-package \\([^[:space:]\n]+\\)"
+                              line)
+            (push (cons (match-string-no-properties 1 line)
+                        (point))
+                  packages)))))
+    (goto-char (cdr (assoc (ivy-completing-read "Package: " packages)
+                           packages)))))

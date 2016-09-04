@@ -45,6 +45,7 @@
     "bB"  '(ibuffer)
     "bb"  '(ivy-switch-buffer :which-key "switch buffer")
     "bd"  '(kill-buffer-and-window :which-key "delete buffer")
+    "bn"  '(sam--new-empty-buffer :which-key "new empty buffer")
 
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
@@ -124,6 +125,7 @@
     ;; Toggle UI elements
     "T" '(:ignore t :which-key "Toggle")
     "TF" '(toggle-frame-fullscreen :which-key "fullscreen")
+    "Tf" '(toggle-frame-maximized  :which-key "maximize")
     "Td" '(solarized-switch-to-dark :which-key "dark background")
     "Tl" '(solarized-switch-to-light :which-key "light background")
     "Tm" '(:ignore t :which-key "modeline")
