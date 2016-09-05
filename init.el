@@ -230,7 +230,7 @@
 
 ;;; -D-
 (use-package dired-x
-  :defer t
+  :commands dired-x
   :init
   (add-hook 'dired-load-hook
             (function (lambda () (load "dired-x"))))
@@ -1003,13 +1003,23 @@
 
 ;;; -Y-
 ;; TODO : setup yasnippet
-(use-package yasnippet :ensure t
-  :diminish (yas-minor-mode . "")
-  :init
-  (yas-global-mode)
+;; (use-package yasnippet :ensure t
+;;   :diminish (yas-minor-mode . "")
+;;   :init
+;;   (yas-global-mode)
+;;   (add-to-list 'yas-snippet-dirs "~/dotfile/emacs/snippets")
+;;   )
+
+(use-package yasnippet
+  :if (not noninteractive)
+  :diminish yas-minor-mode
+  :commands (yas-global-mode yas-minor-mode)
+  :bind* ("C-o" . yas-expand)
   :config
-  (setq yas-snippet-dirs '("~/dotfile/emacs/snippets"))
-  )
+  (progn
+    (setq yas-indent-line nil)
+    (setq yas-snippet-dirs
+	  '("~/dotfile/emacs/snippets"))))
 
 ;;; -Y-
 ;;; -Z-

@@ -16,6 +16,7 @@
   ;; Absolutely all functions that I use must be referenced here.
   ;; There is another leader via C-SPC which gives shorter keybindings
   ;; for stuff that I use more often.
+;;; SPC-map
   (general-define-key
    :states '(normal visual insert emacs)
    :prefix "SPC"
@@ -157,6 +158,7 @@
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
+;;; C-SPC map
   (general-define-key
    :states '(normal insert emacs)
    :prefix "C-SPC"
@@ -167,6 +169,7 @@
 
 
   ;; those are the direct keybindings. Just press the touch.
+;;; NORMAL map
   (nmap
    "'" (general-simulate-keys "C-c")
    "é" 'evil-goto-mark
@@ -174,8 +177,10 @@
    "s-b" 'ivy-switch-buffer
    "s-g" 'avy-goto-char
    "C-p" 'browse-kill-ring
+   "|" 'ivy-switch-buffer
    )
 
+;;; INSERT map
   (imap
    ;; restaure quelques commandes emacs par défault
    "C-a" 'beginning-of-line
@@ -185,8 +190,20 @@
    "C-b" 'backward-char
    "C-n" 'evil-next-line
    "C-p" 'evil-previous-line
+   "C-|" 'ivy-switch-buffer
    )
 
+  ;; this one is genius from general. you press ".", it wait for another command
+  ;; in the general-key-dispatch list of command or insert .
+  ;; really useful in insert map, no need to go to escape map.
+  (general-imap "."
+		(general-key-dispatch 'self-insert-command
+		  "b" 'ivy-switch-buffer
+		  "c" 'avy-goto-word-1
+                  "l" 'avy-goto-line
+                  "s" 'save-buffer))
+
+;;; MOTION map
   (mmap
    "t" 'evil-next-visual-line
    "s" 'evil-previous-visual-line
@@ -194,23 +211,23 @@
 
 
   (general-define-key
-   ;; SUPER map
+;;; SUPER map
    "s-l"   'sam--comment-or-uncomment-region-or-line
    "s-w"   'delete-other-windows
    "s-m"   'delete-other-windows
    "s-SPC" 'set-mark-command
    "s-<tab>" 'sam--switch-to-other-buffer
-   ;; HYPER map
+;;; HYPER map
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
-   ;; META map
+;;; META map
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
    )
   )
 
 ;;
-;; Which-key
+;;; Which-key
 ;;
 
 ;; key description for C-x
