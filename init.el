@@ -10,13 +10,22 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")))
 (package-initialize)
 
-;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; bootstrap `quelpa'
+(package-initialize)
+(setq quelpa-update-melpa-p nil)
 
-(eval-when-compile
-  (require 'use-package))
+(unless (require 'quelpa nil t)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
+    (eval-buffer)))
+
+;; Bootstrap `use-package'
+(quelpa
+ '(use-package
+    :fetcher github
+    :repo "jwiegley/use-package"))
+
+(eval-when-compile (require 'use-package))
 
 (use-package general :ensure t)
 (require 'diminish)
@@ -723,6 +732,11 @@
   (osx-clipboard-mode +1)
   )
 
+(use-package outline
+  :defer t
+  :diminish ((outline-minor-mode . "")
+	     (outline-major-mode . "")))
+
 ;;; -P-
 (use-package paradox :ensure t
   :commands (paradox-list-packages
@@ -856,6 +870,7 @@
   )
 
 ;;; -Q-
+(use-package quelpa-use-package :ensure t)
 
 ;;; -R-
 (use-package rainbow-delimiters  :ensure t :defer t
@@ -950,6 +965,10 @@
     (forward-line -1)
     (indent-according-to-mode))
 
+  )
+
+(use-package smex
+  :quelpa (smex :fetcher github :repo "abo-abo/smex")
   )
 
 (use-package subword :defer t
