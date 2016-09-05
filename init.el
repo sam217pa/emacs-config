@@ -90,12 +90,8 @@
 
 
 
-;; -------------------------------------------------------------------
-;;
 ;;; -------------------------------------------------------------------
 ;;; Packages
-;;
-;; -------------------------------------------------------------------
 
 ;;; -A-
 (use-package abbrev
@@ -259,6 +255,12 @@
   )
 
 ;;; -E-
+(use-package edit-server :ensure t
+  :if window-system
+  :init
+  (add-hook 'after-init-hook 'server-start t)
+  (add-hook 'after-init-hook 'edit-server-start t))
+
 (use-package eldoc :ensure t
   :commands turn-on-eldoc-mode
   :diminish ""
@@ -267,14 +269,12 @@
   (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
   )
 
-(use-package emacs-lisp
+(use-package emacs-lisp-mode
   :mode
-  (("\\.el\\'" . emacs-lisp-mode))
+  (("*scratch*" . emacs-lisp-mode))
   :init
   (add-hook 'emacs-lisp-mode-hook
             (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
-
-  :config
 
   (general-define-key
    :states '(normal emacs)
@@ -289,9 +289,6 @@
     "c" '(sam--eval-current-form-sp :which-key "eval-current")
     "u" 'use-package-jump
     "t" '(lispy-goto :which-key "goto tag"))
-
-  (sp-local-pair 'emacs-lisp-mode "(" nil
-                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   )
 
 (use-package ess-site
@@ -1007,11 +1004,11 @@
 ;;; -Y-
 ;; TODO : setup yasnippet
 (use-package yasnippet :ensure t
-  :disabled t
   :diminish (yas-minor-mode . "")
   :init
   (yas-global-mode)
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  :config
+  (setq yas-snippet-dirs '("~/dotfile/emacs/snippets"))
   )
 
 ;;; -Y-
