@@ -280,9 +280,6 @@ Lisp function does not specify a special indentation."
   (find-file "~/Org/private.org")
   )
 
-
-
-
 (defun sam--iterm-goto-filedir-or-home ()
   "Go to present working dir and focus iterm"
   (interactive)
@@ -291,7 +288,9 @@ Lisp function does not specify a special indentation."
     " tell application \"iTerm2\"\n"
     "   tell the current session of current window\n"
     (format "     write text \"cd %s\" \n"
-            (shell-quote-argument (or default-directory "~/")))
+            ;; string escaping madness for applescript
+            (replace-regexp-in-string "\\\\" "\\\\\\\\"
+                                      (shell-quote-argument (or default-directory "~"))))
     "   end tell\n"
     " end tell\n"
     " do shell script \"open -a iTerm\"\n"
