@@ -604,6 +604,7 @@
   )
 
 (use-package lispy :ensure t
+  :diminish (lispy-mode . "λ")
   :commands lispy-mode
   :init
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
@@ -734,13 +735,15 @@
   (turn-on-pbcopy))
 
 (use-package projectile :ensure t
-  :defer 10
   :diminish (projectile-mode . "ⓟ")
-  :init (projectile-global-mode 1)
-  :commands projectile-ag
-  :config (progn
-            (setq projectile-completion-system 'ivy)
-            (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
+  :init
+  (projectile-global-mode 1)
+  :commands
+  projectile-ag
+  :config
+  (progn
+    (setq projectile-completion-system 'ivy)
+    (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
 
 
 (use-package python
@@ -1023,37 +1026,6 @@
 ;;; -Y-
 ;;; -Z-
 ;;; -------------------------------------------------------------------
-
-;;; ligatures ?
-(let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-               (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-               (36 . ".\\(?:>\\)")
-               (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-               (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-               (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-               (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-               (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-               (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-               (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-               (48 . ".\\(?:x[a-zA-Z]\\)")
-               (58 . ".\\(?:::\\|[:=]\\)")
-               (59 . ".\\(?:;;\\|;\\)")
-               (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-               (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-               (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-               (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-               (91 . ".\\(?:]\\)")
-               (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-               (94 . ".\\(?:=\\)")
-               (119 . ".\\(?:ww\\)")
-               (123 . ".\\(?:-\\)")
-               (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-               (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-               )
-             ))
-  (dolist (char-regexp alist)
-    (set-char-table-range composition-function-table (car char-regexp)
-                          `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
 ;;; personal functions
 (load-file "~/dotfile/emacs/functions.el")
