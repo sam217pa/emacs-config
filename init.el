@@ -1,5 +1,6 @@
 ;; -*- emacs-lisp -*-
 
+;;; Sane default
 (setq gc-cons-threshold 2000000) ; augmente la taille du garbage collector
 
 (require 'package)
@@ -68,9 +69,7 @@
 (add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
 (set-face-attribute 'default nil :font "Fira Code Light 13")
 
-;;;
 ;;; keybindings
-;;;
 
 (when (eq system-type 'darwin)	; mac specific bindings
   (setq mac-right-command-modifier 'meta ; cmd de droite = meta
@@ -82,9 +81,8 @@
 	ns-right-alternate-modifier nil); cette touche n'existe pas.
   (setq locate-command "mdfind")
   )
-;;;
+
 ;;; global default mode
-;;;
 
 (defalias 'yes-or-no-p 'y-or-n-p) ; remplace yes no par y n
 (show-paren-mode) ; highlight delimiters
@@ -100,12 +98,15 @@
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 ;; -------------------------------------------------------------------
-;;;
-;;; Packages
-;;;
+;;
+;;; * Packages
+;;
 ;; -------------------------------------------------------------------
 
 ;;; -A-
+(use-package abbrev
+  :disabled t)
+
 (use-package ace-window :ensure t
   :commands
   ace-window
@@ -125,11 +126,10 @@
 (use-package auctex :ensure t :defer t)
 
 (use-package auto-fill
-  :diminish auto-fill-mode
+  :diminish (auto-fill-mode . "")
   :commands turn-on-auto-fill
   :init
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  )
+  (add-hook 'text-mode-hook 'turn-on-auto-fill))
 
 (use-package autorevert :defer t
   :diminish auto-revert-mode
@@ -161,7 +161,6 @@
   )
 
 ;;; -C-
-
 (use-package color-identifiers-mode :ensure t
   ;; colore les variables dans certains mode de programmation
   ;; par une couleur unique
@@ -194,13 +193,29 @@
   :init
   (global-company-mode)
   :config
+
+  (use-package company-flx :ensure t
+    :config
+    (company-flx-mode +1)
+    )
+
   (progn
-    (setq company-idle-delay 0.2
+    (setq company-idle-delay 0.5
           company-selection-wrap-around t)
     (define-key company-active-map [tab] 'company-complete)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
-  )
+
+  (setq company-backends
+        '((company-css
+	   company-clang
+	   company-xcode
+	   company-cmake
+	   company-capf
+	   company-files
+	   company-gtags
+	   company-etags
+	   company-keywords))) )
 
 (use-package counsel :ensure t
   :bind*
@@ -259,7 +274,8 @@
   )
 
 (use-package emacs-lisp
-  :commands emacs-lisp-mode
+  :mode
+  (("\\.el\\'" . emacs-lisp-mode))
   :init
   (add-hook 'emacs-lisp-mode-hook
             (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
@@ -278,10 +294,10 @@
     "b" 'eval-buffer
     "c" '(sam--eval-current-form-sp :which-key "eval-current")
     "u" 'use-package-jump
-    )
+    "t" '(lispy-goto :which-key "goto tag"))
 
   (sp-local-pair 'emacs-lisp-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   )
 
 (use-package ess-site
@@ -508,6 +524,8 @@
 (use-package expand-region :ensure t :defer t)
 
 ;;; -F-
+(use-package flx :ensure t)
+
 (use-package flycheck :ensure t :defer t
   :diminish (flycheck-mode . "ⓕ")
   :init
@@ -562,6 +580,9 @@
   (setq ivy-use-virtual-buffers t)
   (setq ivy-height 20)
   (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-re-builders-alist
+        '((t . ivy--regex-fuzzy)))
   )
 
 ;;; -J-
@@ -578,7 +599,29 @@
   :commands lispy-mode
   :init
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-  )
+
+  :config
+  ;; adapté au bépo
+  (lispy-define-key lispy-mode-map "s" 'lispy-up)
+  (lispy-define-key lispy-mode-map "ß" 'lispy-move-up)
+  (lispy-define-key lispy-mode-map "t" 'lispy-down)
+  (lispy-define-key lispy-mode-map "þ" 'lispy-move-down)
+  (lispy-define-key lispy-mode-map "c" 'lispy-left)
+  (lispy-define-key lispy-mode-map "h" 'lispy-clone)
+  (lispy-define-key lispy-mode-map "r" 'lispy-right)
+  (lispy-define-key lispy-mode-map "®" 'lispy-forward)
+  (lispy-define-key lispy-mode-map "©" 'lispy-backward)
+  (lispy-define-key lispy-mode-map "C" 'lispy-ace-symbol-replace)
+  (lispy-define-key lispy-mode-map "H" 'lispy-convolute)
+  (lispy-define-key lispy-mode-map "»" 'lispy-slurp)
+  (lispy-define-key lispy-mode-map "«" 'lispy-barf)
+  (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
+  (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
+
+  ;; change avy-keys to default bépo home row keys.
+  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
+
+
 
 ;;; -M-
 (use-package magit :ensure t
@@ -627,9 +670,7 @@
      "W" 'git-timemachine-kill-revision)
     )
 
-  (setq magit-completing-read-function 'ivy-completing-read)
-
-  )
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package makefile-mode :defer t
   :init
@@ -815,12 +856,12 @@
 
   :general
   (:keymaps 'ranger-mode-map
-	    "t" 'ranger-next-file ; j
-	    "s" 'ranger-prev-file ; k
-	    "r" 'ranger-find-file ; l
-	    "c" 'ranger-up-directory ; c
-	    "j" 'ranger-toggle-mark ; t
-	    )
+   "t" 'ranger-next-file ; j
+   "s" 'ranger-prev-file ; k
+   "r" 'ranger-find-file ; l
+   "c" 'ranger-up-directory ; c
+   "j" 'ranger-toggle-mark ; t
+   )
 
   :config
   (setq ranger-cleanup-eagerly t)
@@ -962,6 +1003,7 @@
 ;; -------------------------------------------------------------------
 
 ;; TODO use lispy
+;; TODO use worf
 
 ;; personal functions
 (load-file "~/dotfile/emacs/functions.el")

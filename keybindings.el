@@ -195,7 +195,7 @@
    "s-w"   'delete-other-windows
    "s-m"   'delete-other-windows
    "s-SPC" 'set-mark-command
-   "s-TAB" 'sam--switch-to-other-buffer
+   "s-<tab>" 'sam--switch-to-other-buffer
    ;; HYPER map
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized

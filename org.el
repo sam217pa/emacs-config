@@ -10,6 +10,16 @@
    ("C-c C-l" . org-store-link))
 
   :config
+  (use-package worf :ensure t
+    :init
+    (add-hook 'org-mode-hook (lambda () (worf-mode)))
+    :config
+    (worf-define-key worf-mode-map "c" 'worf-left)
+    (worf-define-key worf-mode-map "t" 'worf-down)
+    (worf-define-key worf-mode-map "s" 'worf-up)
+    (worf-define-key worf-mode-map "r" 'worf-right)
+    (worf-define-key worf-mode-map "h" 'worf-change-mode)
+    )
 
   (use-package org-bullets :ensure t
     :init
@@ -31,9 +41,9 @@
   (require 'org-agenda)
   (setq
    org-modules '(org-crypt)
-   ;;; gtd with org
-   org-tags-column 80   ; aligne les tags très loin sur la droite
-   org-hide-block-startup t ; cache les blocks par défaut.
+;;; gtd with org
+   org-tags-column 80		       ; aligne les tags très loin sur la droite
+   org-hide-block-startup t	       ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
                         ("~/stage/TODO" :level . 1)
                         ("~/Org/someday.org" :level . 1)
@@ -45,18 +55,18 @@
      ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
      ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
      ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a"))
-   ;;; src block and babel
+;;; src block and babel
    org-src-preserve-indentation t
-   ;;; footnotes
+;;; footnotes
    org-footnote-auto-adjust t
    org-footnote-define-inline t
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
-   ;;; export
+;;; export
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
    org-export-backends '(ascii html icalendar latex md koma-letter)
-   ;;; latex
+;;; latex
    ;; moyen d'export latex
    org-latex-pdf-process
    (list "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
@@ -64,7 +74,7 @@
          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
    org-latex-image-default-width "1\\linewidth"
-   org-highlight-latex-and-related '(latex entities)   ; colore les macro LaTeX
+   org-highlight-latex-and-related '(latex entities) ; colore les macro LaTeX
    ;; tufte-handout class by default.
    org-latex-default-class "tufte-handout"
    ;; default package list with sensible options
@@ -129,6 +139,9 @@
    org-startup-indented t
    )
 
+  (use-package org-indent
+    :diminish "")
+
   ;; this function is used to append multiple elements to the list 'ox-latex
   (defun append-to-list (list-var elements)
     "Append ELEMENTS to the end of LIST-VAR. The return value is the new value of LIST-VAR."
@@ -179,9 +192,7 @@
     (org-insert-heading)
     (insert-timestamp)
     (org-move-subtree-down)
-    (end-of-line 1))
-
-  )
+    (end-of-line 1)))
 
 (use-package org-journal :ensure t
   :commands (org-journal-new-entry)
