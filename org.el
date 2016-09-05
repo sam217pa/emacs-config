@@ -10,6 +10,16 @@
    ("C-c C-l" . org-store-link))
 
   :config
+  (use-package worf :ensure t
+    :init
+    (add-hook 'org-mode-hook (lambda () (worf-mode)))
+    :config
+    (worf-define-key worf-mode-map "c" 'worf-left)
+    (worf-define-key worf-mode-map "t" 'worf-down)
+    (worf-define-key worf-mode-map "s" 'worf-up)
+    (worf-define-key worf-mode-map "r" 'worf-right)
+    (worf-define-key worf-mode-map "h" 'worf-change-mode)
+    )
 
   (use-package org-bullets :ensure t
     :init
@@ -182,9 +192,7 @@
     (org-insert-heading)
     (insert-timestamp)
     (org-move-subtree-down)
-    (end-of-line 1))
-
-  )
+    (end-of-line 1)))
 
 (use-package org-journal :ensure t
   :commands (org-journal-new-entry)

@@ -1,5 +1,6 @@
 ;; -*- emacs-lisp -*-
 
+;;; Sane default
 (setq gc-cons-threshold 2000000) ; augmente la taille du garbage collector
 
 (require 'package)
@@ -68,9 +69,7 @@
 (add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
 (set-face-attribute 'default nil :font "Fira Code Light 13")
 
-;;;
 ;;; keybindings
-;;;
 
 (when (eq system-type 'darwin)	; mac specific bindings
   (setq mac-right-command-modifier 'meta ; cmd de droite = meta
@@ -82,9 +81,8 @@
 	ns-right-alternate-modifier nil); cette touche n'existe pas.
   (setq locate-command "mdfind")
   )
-;;;
+
 ;;; global default mode
-;;;
 
 (defalias 'yes-or-no-p 'y-or-n-p) ; remplace yes no par y n
 (show-paren-mode) ; highlight delimiters
@@ -100,9 +98,9 @@
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 ;; -------------------------------------------------------------------
-;;;
-;;; Packages
-;;;
+;;
+;;; * Packages
+;;
 ;; -------------------------------------------------------------------
 
 ;;; -A-
@@ -163,7 +161,6 @@
   )
 
 ;;; -C-
-
 (use-package color-identifiers-mode :ensure t
   ;; colore les variables dans certains mode de programmation
   ;; par une couleur unique
@@ -197,10 +194,13 @@
   (global-company-mode)
   :config
 
-  (use-package flx :ensure t)
+  (use-package company-flx :ensure t
+    :config
+    (company-flx-mode +1)
+    )
 
   (progn
-    (setq company-idle-delay 0.2
+    (setq company-idle-delay 0.5
           company-selection-wrap-around t)
     (define-key company-active-map [tab] 'company-complete)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
@@ -514,6 +514,8 @@
 (use-package expand-region :ensure t :defer t)
 
 ;;; -F-
+(use-package flx :ensure t)
+
 (use-package flycheck :ensure t :defer t
   :diminish (flycheck-mode . "ⓕ")
   :init
@@ -606,7 +608,7 @@
   (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
 
-
+  ;; change avy-keys to default bépo home row keys.
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
 
 
