@@ -566,6 +566,11 @@
   ;; pour les keybindings de fou
   )
 
+(use-package hy-mode :ensure t
+  :mode (("\\.hy\\'" . hy-mode))
+  :init
+  (add-hook 'hy-mode-hook (lambda () (lispy-mode 1))))
+
 ;;; -I-
 (use-package ibuffer :ensure t
   :commands ibuffer
