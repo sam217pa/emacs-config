@@ -205,7 +205,17 @@
     (define-key company-active-map [tab] 'company-complete)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
-  )
+
+  (setq company-backends
+        '((company-css
+	   company-clang
+	   company-xcode
+	   company-cmake
+	   company-capf
+	   company-files
+	   company-gtags
+	   company-etags
+	   company-keywords))) )
 
 (use-package counsel :ensure t
   :bind*
