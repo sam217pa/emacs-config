@@ -11,8 +11,6 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")))
 (package-initialize)
 
-(exec-path-from-shell-initialize)
-
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -402,7 +400,7 @@
     "M-RET" 'ess-eval-function-or-paragraph-and-step
     )
 
-  (setq ess-completing-read 'ivy)
+  (setq ess-completing-read 'ivy-completing-read)
 
   (setq ess-R-font-lock-keywords '((ess-R-fl-keyword:modifiers . t)
                                    (ess-R-fl-keyword:fun-defs . t)
@@ -520,6 +518,10 @@
   (evil-lisp-state-leader "SPC l")
   )
 
+(use-package exec-path-from-shell :ensure t
+  :init
+  (exec-path-from-shell-initialize)
+  )
 
 (use-package expand-region :ensure t :defer t)
 
@@ -527,6 +529,9 @@
 (use-package fasd :ensure t
   :init
   (global-fasd-mode 1)
+  :config
+  (setq fasd-completing-read-function 'ivy-completing-read)
+  (setq fasd-enable-initial-prompt nil)
   )
 
 (use-package flx :ensure t)

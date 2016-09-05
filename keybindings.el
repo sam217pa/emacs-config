@@ -75,6 +75,7 @@
     "ff"  '(find-file :which-key "find file")
     "fo"  '(sam--open-in-external-app :which-key "open file")
     "fr"  '(counsel-recentf :which-key "recent files")
+    "fR"  '(fasd-find-file)
     "fs"  '(save-buffer :which-key "save file")
     "fS"  '(rename-file :which-key "rename file")
 
@@ -148,8 +149,7 @@
     "vS" 'magit-stage-file
     "vt" 'git-timemachine
     "vU" 'magit-unstage-file
-    "vv" 'magit-status
-    )
+    "vv" 'magit-status)
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
