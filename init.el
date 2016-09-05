@@ -734,7 +734,6 @@
   (turn-on-pbcopy))
 
 (use-package projectile :ensure t
-  :disabled t
   :defer 10
   :diminish (projectile-mode . "ⓟ")
   :init (projectile-global-mode 1)

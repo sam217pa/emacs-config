@@ -119,6 +119,10 @@
     "o" '(:ignore t :which-key "Org")
     "oa" 'org-agenda-list
 
+;;;; p
+    ;; Project
+    "p" '(:ignore t :which-key "Project")
+    "pf" 'counsel-git
 ;;;; q
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
