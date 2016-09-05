@@ -29,6 +29,7 @@
     "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
     "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
 
+;;;; a
     ;; Applications
     "a" '(:ignore t :which-key "Applications")
     "ar" 'ranger
@@ -41,6 +42,7 @@
     "af"  '(sam--finder-focus :which-key "finder")
     "aF"  '(sam--finder-goto-filedir-or-home :which-key "finder - goto dir")
 
+;;;; b
     ;; Buffer
     "b" '(:ignore t :which-key "Buffer")
     "bB"  '(ibuffer)
@@ -48,10 +50,12 @@
     "bd"  '(kill-buffer-and-window :which-key "delete buffer")
     "bn"  '(sam--new-empty-buffer :which-key "new empty buffer")
 
+;;;; c
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
 
+;;;; é
     ;; Window management
     "é" '(:ignore t :which-key "Window")
     "éc"  'other-window
@@ -64,6 +68,7 @@
     "é|"  '(split-window-horizontally :which-key "split vertical")
     "é-"  '(split-window-vertically :which-key "split horizontal")
 
+;;;; f
     ;; Find and Files
     "f" '(:ignore t :which-key "Files")
     "fd"  '(counsel-git :which-key "find in git dir")
@@ -80,6 +85,7 @@
     "fs"  '(save-buffer :which-key "save file")
     "fS"  '(rename-file :which-key "rename file")
 
+;;;; g
     ;; Jump to :
     "g" '(:ignore t :which-key "Go to")
     "gc" 'avy-goto-char
@@ -87,6 +93,7 @@
     "gl" 'avy-goto-line
     "gé" 'avy-goto-word-or-subword-1
 
+;;;; i
     ;; Insert
     "i" '(:ignore t :which-key "Insert")
     "it"  '(sam--insert-timestamp :which-key "timestamp")
@@ -99,27 +106,33 @@
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
 
+;;;; j
     ;; Journal
     "j" '(:ignore t :which-key "Journal")
 
+;;;; l
     ;; Lisp
     "l" '(:ignore t :which-key "Lisp")
 
+;;;; o
     ;; Org
     "o" '(:ignore t :which-key "Org")
     "oa" 'org-agenda-list
 
+;;;; q
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
     "qb" 'kill-buffer-if-not-modified
     "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
     "qr" '(restart-emacs :which-key "restart emacs")
 
+;;;; s
     ;; Save and search
     "s" '(:ignore t :which-key "Save/Search")
     "s."  'save-buffer
     "s,"  'server-edit
 
+;;;; t
     ;; text related
     "t" '(:ignore t :which-key "text")
     "ta" '(:ignore t :which-key "text align")
@@ -128,6 +141,7 @@
     "ti"  'indent-region
     "tr" '(vr/query-replace :which-key "text replace")
 
+;;;; T
     ;; Toggle UI elements
     "T" '(:ignore t :which-key "Toggle")
     "TF" '(toggle-frame-fullscreen :which-key "fullscreen")
@@ -139,6 +153,7 @@
     "Tn" '(linum-mode :which-key "line number")
     "Tw" 'blank-mode
 
+;;;; v
     ;; Git related stuff
     "v" '(:ignore t :which-key "Version Control")
     "vb" 'magit-blame
@@ -220,6 +235,8 @@
 ;;; HYPER map
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
+   "H-b" 'ivy-switch-buffer
+   "H-r" 'counsel-recentf
 ;;; META map
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
