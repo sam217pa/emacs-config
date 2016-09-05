@@ -106,6 +106,9 @@
 ;; -------------------------------------------------------------------
 
 ;;; -A-
+(use-package abbrev
+  :disabled t)
+
 (use-package ace-window :ensure t
   :commands
   ace-window
@@ -125,11 +128,10 @@
 (use-package auctex :ensure t :defer t)
 
 (use-package auto-fill
-  :diminish auto-fill-mode
+  :diminish (auto-fill-mode . "")
   :commands turn-on-auto-fill
   :init
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  )
+  (add-hook 'text-mode-hook 'turn-on-auto-fill))
 
 (use-package autorevert :defer t
   :diminish auto-revert-mode
@@ -194,6 +196,9 @@
   :init
   (global-company-mode)
   :config
+
+  (use-package flx :ensure t)
+
   (progn
     (setq company-idle-delay 0.2
           company-selection-wrap-around t)
@@ -259,7 +264,8 @@
   )
 
 (use-package emacs-lisp
-  :commands emacs-lisp-mode
+  :mode
+  (("\\.el\\'" . emacs-lisp-mode))
   :init
   (add-hook 'emacs-lisp-mode-hook
             (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
@@ -278,10 +284,10 @@
     "b" 'eval-buffer
     "c" '(sam--eval-current-form-sp :which-key "eval-current")
     "u" 'use-package-jump
-    )
+    "t" '(lispy-goto :which-key "goto tag"))
 
   (sp-local-pair 'emacs-lisp-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   )
 
 (use-package ess-site
@@ -578,7 +584,29 @@
   :commands lispy-mode
   :init
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-  )
+
+  :config
+  ;; adapté au bépo
+  (lispy-define-key lispy-mode-map "s" 'lispy-up)
+  (lispy-define-key lispy-mode-map "ß" 'lispy-move-up)
+  (lispy-define-key lispy-mode-map "t" 'lispy-down)
+  (lispy-define-key lispy-mode-map "þ" 'lispy-move-down)
+  (lispy-define-key lispy-mode-map "c" 'lispy-left)
+  (lispy-define-key lispy-mode-map "h" 'lispy-clone)
+  (lispy-define-key lispy-mode-map "r" 'lispy-right)
+  (lispy-define-key lispy-mode-map "®" 'lispy-forward)
+  (lispy-define-key lispy-mode-map "©" 'lispy-backward)
+  (lispy-define-key lispy-mode-map "C" 'lispy-ace-symbol-replace)
+  (lispy-define-key lispy-mode-map "H" 'lispy-convolute)
+  (lispy-define-key lispy-mode-map "»" 'lispy-slurp)
+  (lispy-define-key lispy-mode-map "«" 'lispy-barf)
+  (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
+  (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
+
+
+  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
+
+
 
 ;;; -M-
 (use-package magit :ensure t
@@ -627,9 +655,7 @@
      "W" 'git-timemachine-kill-revision)
     )
 
-  (setq magit-completing-read-function 'ivy-completing-read)
-
-  )
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package makefile-mode :defer t
   :init
@@ -815,12 +841,12 @@
 
   :general
   (:keymaps 'ranger-mode-map
-	    "t" 'ranger-next-file ; j
-	    "s" 'ranger-prev-file ; k
-	    "r" 'ranger-find-file ; l
-	    "c" 'ranger-up-directory ; c
-	    "j" 'ranger-toggle-mark ; t
-	    )
+   "t" 'ranger-next-file ; j
+   "s" 'ranger-prev-file ; k
+   "r" 'ranger-find-file ; l
+   "c" 'ranger-up-directory ; c
+   "j" 'ranger-toggle-mark ; t
+   )
 
   :config
   (setq ranger-cleanup-eagerly t)
@@ -962,6 +988,7 @@
 ;; -------------------------------------------------------------------
 
 ;; TODO use lispy
+;; TODO use worf
 
 ;; personal functions
 (load-file "~/dotfile/emacs/functions.el")

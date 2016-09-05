@@ -31,9 +31,9 @@
   (require 'org-agenda)
   (setq
    org-modules '(org-crypt)
-   ;;; gtd with org
-   org-tags-column 80   ; aligne les tags très loin sur la droite
-   org-hide-block-startup t ; cache les blocks par défaut.
+;;; gtd with org
+   org-tags-column 80		       ; aligne les tags très loin sur la droite
+   org-hide-block-startup t	       ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
                         ("~/stage/TODO" :level . 1)
                         ("~/Org/someday.org" :level . 1)
@@ -45,18 +45,18 @@
      ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
      ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
      ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a"))
-   ;;; src block and babel
+;;; src block and babel
    org-src-preserve-indentation t
-   ;;; footnotes
+;;; footnotes
    org-footnote-auto-adjust t
    org-footnote-define-inline t
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
-   ;;; export
+;;; export
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
    org-export-backends '(ascii html icalendar latex md koma-letter)
-   ;;; latex
+;;; latex
    ;; moyen d'export latex
    org-latex-pdf-process
    (list "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
@@ -64,7 +64,7 @@
          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
          "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
    org-latex-image-default-width "1\\linewidth"
-   org-highlight-latex-and-related '(latex entities)   ; colore les macro LaTeX
+   org-highlight-latex-and-related '(latex entities) ; colore les macro LaTeX
    ;; tufte-handout class by default.
    org-latex-default-class "tufte-handout"
    ;; default package list with sensible options
@@ -128,6 +128,9 @@
    org-startup-with-inline-images nil
    org-startup-indented t
    )
+
+  (use-package org-indent
+    :diminish "")
 
   ;; this function is used to append multiple elements to the list 'ox-latex
   (defun append-to-list (list-var elements)
