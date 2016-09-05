@@ -524,6 +524,11 @@
 (use-package expand-region :ensure t :defer t)
 
 ;;; -F-
+(use-package fasd :ensure t
+  :init
+  (global-fasd-mode 1)
+  )
+
 (use-package flx :ensure t)
 
 (use-package flycheck :ensure t :defer t
