@@ -280,13 +280,8 @@ Lisp function does not specify a special indentation."
   (find-file "~/Org/private.org")
   )
 
-(defun sam--get-file-dir-or-home ()
-  "If inside a file buffer, return the directory, else return home"
-  (interactive)
-  (let ((filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-	"~/"
-      (file-name-directory filename))))
+
+
 
 (defun sam--iterm-goto-filedir-or-home ()
   "Go to present working dir and focus iterm"
@@ -295,7 +290,8 @@ Lisp function does not specify a special indentation."
    (concat
     " tell application \"iTerm2\"\n"
     "   tell the current session of current window\n"
-    (format "     write text \"cd %s\" \n" (sam--get-file-dir-or-home))
+    (format "     write text \"cd %s\" \n"
+            (shell-quote-argument (or default-directory "~/")))
     "   end tell\n"
     " end tell\n"
     " do shell script \"open -a iTerm\"\n"
