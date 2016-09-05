@@ -93,6 +93,10 @@
     "ilm" '(sam--chrome-md-link :which-key "chrome - md")
     "ilo" '(sam--chrome-org-link :which-key "chrome - org")
     "ilf" '(sam--finder-md-link :which-key "finder - md")
+    "iL" '(:ignore t :which-key "lorem")
+    "iLs" 'lorem-ipsum-insert-sentences
+    "iLp" 'lorem-ipsum-insert-paragraphs
+    "iLl" 'lorem-ipsum-insert-list
 
     ;; Journal
     "j" '(:ignore t :which-key "Journal")

@@ -10,6 +10,9 @@
    ("C-c C-l" . org-store-link))
 
   :config
+
+;;;* Use-package
+;;;** worf
   (use-package worf :ensure t
     :init
     (add-hook 'org-mode-hook (lambda () (worf-mode)))
@@ -20,7 +23,11 @@
     (worf-define-key worf-mode-map "r" 'worf-right)
     (worf-define-key worf-mode-map "h" 'worf-change-mode)
     )
+;;;** ox-tufte
+  (use-package ox-tufte :ensure t
+    )
 
+;;;** org-bullets
   (use-package org-bullets :ensure t
     :init
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
@@ -28,7 +35,10 @@
     :config
     (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪"))
     )
-
+;;;** org-indent
+  (use-package org-indent
+    :diminish "")
+;;;* babel
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
                                  (python . t)
@@ -38,10 +48,12 @@
                                  (dot . t)
                                  (js . t)))
 
+;;;* sane default
+
   (require 'org-agenda)
   (setq
    org-modules '(org-crypt)
-;;; gtd with org
+;;;*** gtd with org
    org-tags-column 80		       ; aligne les tags très loin sur la droite
    org-hide-block-startup t	       ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
@@ -55,18 +67,18 @@
      ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
      ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
      ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a"))
-;;; src block and babel
+;;;*** src block and babel
    org-src-preserve-indentation t
-;;; footnotes
+;;;*** footnotes
    org-footnote-auto-adjust t
    org-footnote-define-inline t
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
-;;; export
+;;;*** export
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
    org-export-backends '(ascii html icalendar latex md koma-letter)
-;;; latex
+;;;*** latex
    ;; moyen d'export latex
    org-latex-pdf-process
    (list "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
@@ -139,9 +151,6 @@
    org-startup-indented t
    )
 
-  (use-package org-indent
-    :diminish "")
-
   ;; this function is used to append multiple elements to the list 'ox-latex
   (defun append-to-list (list-var elements)
     "Append ELEMENTS to the end of LIST-VAR. The return value is the new value of LIST-VAR."
@@ -194,6 +203,7 @@
     (org-move-subtree-down)
     (end-of-line 1)))
 
+;;;* Org-journal
 (use-package org-journal :ensure t
   :commands (org-journal-new-entry)
 
@@ -202,9 +212,19 @@
    :states '(normal)
    :prefix "SPC"
    :non-normal-prefix " "
-   "jn" 'org-journal-new-entry
-   )
+    "jn" 'org-journal-new-entry
+    )
 
   :config
   (setq org-journal-dir "~/Org/journal")
+  )
+
+;;;* Keybindings
+(general-define-key
+ :states '(normal visual insert emacs)
+ :keymaps 'org-mode-map
+ :prefix ","
+ :non-normal-prefix "’"
+  "e" 'org-export-dispatch
+
   )

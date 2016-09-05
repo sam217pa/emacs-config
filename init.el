@@ -1,8 +1,7 @@
 ;; -*- emacs-lisp -*-
 
-;;; Sane default
+;;; Package.el
 (setq gc-cons-threshold 2000000) ; augmente la taille du garbage collector
-
 (require 'package)
 (setq package-enable-at-startup nil)
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
@@ -27,6 +26,7 @@
 ;; met en place le serveur pour emacsclient
 (unless (server-running-p) (server-start))
 
+;;; Sane default
 (setq
  use-package-verbose t  ; use-package décrit les appels qu'il fait
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
@@ -46,11 +46,16 @@
  save-interprogram-paste-before-kill t
  )
 
-
-
-;; (setq select-enable-clipboard nil)
-
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
+
+(defalias 'yes-or-no-p 'y-or-n-p) ; remplace yes no par y n
+(show-paren-mode) ; highlight delimiters
+(line-number-mode) ; display line number in mode line
+(column-number-mode) ; display colum number in mode line
+(setq fill-column 80) ; élargit un peu la largeur de texte par défault.
+(setq initial-major-mode 'fundamental-mode)
+;; supprime les caractères en trop en sauvegardant.
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; apparences
 (when window-system
@@ -67,6 +72,9 @@
 (add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
 (set-face-attribute 'default nil :font "Fira Code Light 13")
 
+;; rend les scripts executable par défault si c'est un script.
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
 ;;; keybindings
 
 (when (eq system-type 'darwin)	; mac specific bindings
@@ -80,24 +88,12 @@
   (setq locate-command "mdfind")
   )
 
-;;; global default mode
 
-(defalias 'yes-or-no-p 'y-or-n-p) ; remplace yes no par y n
-(show-paren-mode) ; highlight delimiters
-(line-number-mode) ; display line number in mode line
-(column-number-mode) ; display colum number in mode line
-(setq fill-column 80) ; élargit un peu la largeur de texte par défault.
-(setq initial-major-mode 'fundamental-mode)
-;; supprime les caractères en trop en sauvegardant.
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-
-;; rend les scripts executable par défault si c'est un script.
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
 ;; -------------------------------------------------------------------
 ;;
-;;; * Packages
+;;; -------------------------------------------------------------------
+;;; Packages
 ;;
 ;; -------------------------------------------------------------------
 
@@ -636,7 +632,12 @@
   ;; change avy-keys to default bépo home row keys.
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
 
-
+(use-package lorem-ipsum :ensure t
+  :commands
+  (lorem-ipsum-insert-list
+   lorem-ipsum-insert-sentences
+   lorem-ipsum-insert-paragraph)
+  )
 
 ;;; -M-
 (use-package magit :ensure t
@@ -1014,20 +1015,18 @@
   )
 
 ;;; -Y-
+;;; -Z-
+;;; -------------------------------------------------------------------
 
-;; -------------------------------------------------------------------
+;;; ligatures ?
 
-;; TODO use lispy
-;; TODO use worf
-
-;; personal functions
+;;; personal functions
 (load-file "~/dotfile/emacs/functions.el")
-;; keybindings
+;;; keybindings
 (load-file "~/dotfile/emacs/keybindings.el")
-;; org
+;;; org
 (load-file "~/dotfile/emacs/org.el")
 
-;; custom goes after that
-;; -------------------------------------------------------------------
+;;; custom
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file)
