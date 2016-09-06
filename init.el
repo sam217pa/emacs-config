@@ -1036,6 +1036,24 @@
         whitespace-style '(face lines-tail))
   )
 
+(use-package web-mode :ensure t
+  :mode
+  (("\\.phtml\\'"      . web-mode)
+   ("\\.tpl\\.php\\'"  . web-mode)
+   ("\\.twig\\'"       . web-mode)
+   ("\\.html\\'"       . web-mode)
+   ("\\.htm\\'"        . web-mode)
+   ("\\.[gj]sp\\'"     . web-mode)
+   ("\\.as[cp]x?\\'"   . web-mode)
+   ("\\.eex\\'"        . web-mode)
+   ("\\.erb\\'"        . web-mode)
+   ("\\.mustache\\'"   . web-mode)
+   ("\\.handlebars\\'" . web-mode)
+   ("\\.hbs\\'"        . web-mode)
+   ("\\.eco\\'"        . web-mode)
+   ("\\.ejs\\'"        . web-mode)
+   ("\\.djhtml\\'"     . web-mode)))
+
 ;;; -X-
 
 ;;; -Y-
