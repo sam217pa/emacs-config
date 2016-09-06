@@ -115,12 +115,12 @@
     )
   )
 
-(use-package ag :ensure t :disabled t
-  :config (progn
-            (setq ag-highlight-search t)
-            (setq ag-reuse-buffers t)
-            (add-to-list 'ag-arguments "--word-regexp"))
-  )
+(use-package ag :ensure t
+  :config
+  (progn
+    (setq ag-highlight-search t)
+    (setq ag-reuse-buffers t)
+    (add-to-list 'ag-arguments "--word-regexp")))
 
 (use-package auctex :ensure t :defer t)
 
@@ -238,6 +238,9 @@
   (setq counsel-osx-app-location
         '("/Applications/" "~/Applications/" "~/sam_app/"))
   )
+
+(use-package css-mode :ensure t
+  :mode (("\\.css\\'" . css-mode)))
 
 ;;; -D-
 (use-package dired-x
@@ -1057,19 +1060,18 @@
 ;;; -X-
 
 ;;; -Y-
-
 (use-package yasnippet
-  :if (not noninteractive)
   :diminish yas-minor-mode
-  :commands (yas-global-mode yas-minor-mode)
-  :bind* ("C-o" . yas-expand)
+  :defer 10
+  :init
+  (with-eval-after-load 'yasnippet
+    (progn
+      (setq yas-snippet-dirs (append yas-snippet-dirs
+				     '("~/dotfile/emacs/snippets")))))
   :config
-  (progn
-    (setq yas-indent-line nil)
-    (setq yas-snippet-dirs
-	  '("~/dotfile/emacs/snippets"))))
+  (yas-global-mode)
+  (setq yas-indent-line nil))
 
-;;; -Y-
 ;;; -Z-
 ;;; -------------------------------------------------------------------
 

@@ -37,6 +37,7 @@
     "ab" '(:ignore t :which-key "Blog")
     "abn" 'hugo-new-post
     "abs" 'hugo-server
+    "abp" 'hugo-publish
     "ao"  'counsel-osx-app
     "ac"  '(sam--calendar-focus :which-key "calendar")
     "af"  '(sam--finder-focus :which-key "finder")
@@ -166,9 +167,11 @@
     "vC" 'magit-checkout
     "vd" 'magit-diff-unstaged
     "ve" 'magit-ediff-compare
+    "vf" 'git-gutter:next-hunk
     "vi" 'magit-init
     "vl" 'magit-log-current
     "vm" '(git-messenger:popup-message :which-key "git messenger")
+    "vp" 'git-gutter:previous-hunk
     "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
     "vS" 'magit-stage-file
     "vt" 'git-timemachine

@@ -58,7 +58,7 @@
 (defun sam--edit-init-file ()
   "Edit the emacs init file"
   (interactive)
-  (find-file "~/.emacs.d/init.el"))
+  (find-file "~/dotfile/emacs/init.el"))
 
 (defun sam--edit-keybindings ()
   (interactive)
@@ -188,7 +188,11 @@ pointing to the Hugo localhost server."
       (unless arg
         (browse-url "http://localhost:1313/")))))
 
-
+(defun hugo-publish ()
+  (interactive)
+  (let* ((default-directory (concat (expand-file-name hugo-base-dir) "/")))
+    (when (call-process "bash" nil hugo-buffer t  "./upload.sh")
+      (message "Blog published"))))
 ;;;
 ;; a redefinition of lisp-indent-function to make it respect sexp that start with a keyword
 ;; (:keymap patate
@@ -346,3 +350,15 @@ Lisp function does not specify a special indentation."
                   packages)))))
     (goto-char (cdr (assoc (ivy-completing-read "Package: " packages)
                            packages)))))
+
+;; goto line motion, jumping to the same column
+;; (follow "evil-integration.el")
+;; (evil-define-motion evil-avy-goto-line-keep-column (count)
+;;   "Evil motion for avy-goto-line, restoring column."
+;;   :type exclusive :jump t :repeat abort
+;;   (evil-without-repeat
+;;     (evil-enclose-avy-for-motion
+;;       (evil-save-column (avy-goto-line)))))
+;; goto-line motion map
+;; (define-key evil-motion-state-map (kbd "g l")
+;;   'evil-avy-goto-line-keep-column)
