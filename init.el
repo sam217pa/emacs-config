@@ -918,6 +918,9 @@
   )
 
 ;;; -S-
+(use-package scss-mode :ensure t
+  :mode ("\\.scss\\'" . scss-mode))
+
 (use-package sh-script :defer t
   ;; shell-scripts
   :init
