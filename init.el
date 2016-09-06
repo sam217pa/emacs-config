@@ -517,16 +517,6 @@
 
   )
 
-(use-package evil-lisp-state :ensure t
-  :commands (evil-lisp-state)
-  :init
-  (add-hook 'lisp-mode-hook (lambda () 'evil-lisp-state))
-  (add-hook 'emacs-lisp-mode-hook (lambda () 'evil-lisp-state))
-  (add-hook 'clojure-mode-hook (lambda () 'evil-lisp-state))
-  :config
-  (evil-lisp-state-leader "SPC l")
-  )
-
 (use-package exec-path-from-shell :ensure t
   :init
   (exec-path-from-shell-initialize)
