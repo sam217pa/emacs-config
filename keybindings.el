@@ -121,7 +121,7 @@
 
 ;;;; p
     ;; Project
-    "p" '(projectile-command-map t :which-key "Project")
+    "p" '(projectile-command-map :which-key "Project")
     ;; "pf" 'counsel-git
 ;;;; q
     ;; Quit

@@ -142,7 +142,9 @@
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
-  :init (global-aggressive-indent-mode 1)
+  :commands aggressive-indent-mode
+  :init
+  (add-hook 'prog-mode-hook 'aggressive-indent-mode)
   :config (progn
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
             (add-to-list 'aggressive-indent-excluded-modes 'perl-mode))
@@ -239,7 +241,7 @@
 
 ;;; -D-
 (use-package dired-x
-  :commands dired-x
+  :defer t
   :init
   (add-hook 'dired-load-hook
             (function (lambda () (load "dired-x"))))
@@ -266,6 +268,8 @@
 ;;; -E-
 (use-package edit-server :ensure t
   :if window-system
+  :commands (server-start
+	     edit-server-start)
   :init
   (add-hook 'after-init-hook 'server-start t)
   (add-hook 'after-init-hook 'edit-server-start t))
@@ -755,6 +759,9 @@
   :commands
   projectile-ag
   :config
+
+  (use-package counsel-projectile :ensure t)
+
   (progn
     (setq projectile-completion-system 'ivy)
     (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
@@ -1013,6 +1020,7 @@
 
 (use-package whitespace
   :diminish ""
+  :commands whitespace-mode
   :init
   (add-hook 'prog-mode-hook 'whitespace-mode)
   :config
@@ -1023,13 +1031,6 @@
 ;;; -X-
 
 ;;; -Y-
-;; TODO : setup yasnippet
-;; (use-package yasnippet :ensure t
-;;   :diminish (yas-minor-mode . "")
-;;   :init
-;;   (yas-global-mode)
-;;   (add-to-list 'yas-snippet-dirs "~/dotfile/emacs/snippets")
-;;   )
 
 (use-package yasnippet
   :if (not noninteractive)
