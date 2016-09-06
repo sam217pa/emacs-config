@@ -10,13 +10,22 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")))
 (package-initialize)
 
-;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; bootstrap `quelpa'
+(package-initialize)
+(setq quelpa-update-melpa-p nil)
 
-(eval-when-compile
-  (require 'use-package))
+(unless (require 'quelpa nil t)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
+    (eval-buffer)))
+
+;; Bootstrap `use-package'
+(quelpa
+ '(use-package
+    :fetcher github
+    :repo "jwiegley/use-package"))
+
+(eval-when-compile (require 'use-package))
 
 (use-package general :ensure t)
 (require 'diminish)
@@ -133,7 +142,9 @@
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
-  :init (global-aggressive-indent-mode 1)
+  :commands aggressive-indent-mode
+  :init
+  (add-hook 'prog-mode-hook 'aggressive-indent-mode)
   :config (progn
             (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
             (add-to-list 'aggressive-indent-excluded-modes 'perl-mode))
@@ -230,7 +241,7 @@
 
 ;;; -D-
 (use-package dired-x
-  :commands dired-x
+  :defer t
   :init
   (add-hook 'dired-load-hook
             (function (lambda () (load "dired-x"))))
@@ -257,6 +268,8 @@
 ;;; -E-
 (use-package edit-server :ensure t
   :if window-system
+  :commands (server-start
+	     edit-server-start)
   :init
   (add-hook 'after-init-hook 'server-start t)
   (add-hook 'after-init-hook 'edit-server-start t))
@@ -604,6 +617,7 @@
   )
 
 (use-package lispy :ensure t
+  :diminish (lispy-mode . "λ")
   :commands lispy-mode
   :init
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
@@ -722,6 +736,11 @@
   (osx-clipboard-mode +1)
   )
 
+(use-package outline
+  :defer t
+  :diminish ((outline-minor-mode . "")
+	     (outline-major-mode . "")))
+
 ;;; -P-
 (use-package paradox :ensure t
   :commands (paradox-list-packages
@@ -734,13 +753,18 @@
   (turn-on-pbcopy))
 
 (use-package projectile :ensure t
-  :defer 10
   :diminish (projectile-mode . "ⓟ")
-  :init (projectile-global-mode 1)
-  :commands projectile-ag
-  :config (progn
-            (setq projectile-completion-system 'ivy)
-            (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
+  :init
+  (projectile-global-mode 1)
+  :commands
+  projectile-ag
+  :config
+
+  (use-package counsel-projectile :ensure t)
+
+  (progn
+    (setq projectile-completion-system 'ivy)
+    (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
 
 
 (use-package python
@@ -853,6 +877,7 @@
   )
 
 ;;; -Q-
+(use-package quelpa-use-package :ensure t)
 
 ;;; -R-
 (use-package rainbow-delimiters  :ensure t :defer t
@@ -949,6 +974,10 @@
 
   )
 
+(use-package smex
+  :quelpa (smex :fetcher github :repo "abo-abo/smex")
+  )
+
 (use-package subword :defer t
   :init
   (add-hook 'prog-mode-hook (lambda () (subword-mode 1)))
@@ -991,6 +1020,7 @@
 
 (use-package whitespace
   :diminish ""
+  :commands whitespace-mode
   :init
   (add-hook 'prog-mode-hook 'whitespace-mode)
   :config
@@ -1001,13 +1031,6 @@
 ;;; -X-
 
 ;;; -Y-
-;; TODO : setup yasnippet
-;; (use-package yasnippet :ensure t
-;;   :diminish (yas-minor-mode . "")
-;;   :init
-;;   (yas-global-mode)
-;;   (add-to-list 'yas-snippet-dirs "~/dotfile/emacs/snippets")
-;;   )
 
 (use-package yasnippet
   :if (not noninteractive)
@@ -1023,37 +1046,6 @@
 ;;; -Y-
 ;;; -Z-
 ;;; -------------------------------------------------------------------
-
-;;; ligatures ?
-(let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-               (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-               (36 . ".\\(?:>\\)")
-               (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-               (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-               (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-               (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-               (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-               (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-               (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-               (48 . ".\\(?:x[a-zA-Z]\\)")
-               (58 . ".\\(?:::\\|[:=]\\)")
-               (59 . ".\\(?:;;\\|;\\)")
-               (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-               (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-               (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-               (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-               (91 . ".\\(?:]\\)")
-               (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-               (94 . ".\\(?:=\\)")
-               (119 . ".\\(?:ww\\)")
-               (123 . ".\\(?:-\\)")
-               (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-               (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-               )
-             ))
-  (dolist (char-regexp alist)
-    (set-char-table-range composition-function-table (car char-regexp)
-                          `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
 ;;; personal functions
 (load-file "~/dotfile/emacs/functions.el")

@@ -121,8 +121,8 @@
 
 ;;;; p
     ;; Project
-    "p" '(:ignore t :which-key "Project")
-    "pf" 'counsel-git
+    "p" '(projectile-command-map :which-key "Project")
+    ;; "pf" 'counsel-git
 ;;;; q
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
@@ -220,7 +220,8 @@
 		  "b" 'ivy-switch-buffer
 		  "c" 'avy-goto-word-1
                   "l" 'avy-goto-line
-                  "s" 'save-buffer))
+                  "s" 'save-buffer
+		  "p" 'projectile-command-map))
 
 ;;; MOTION map
   (mmap
