@@ -956,6 +956,18 @@
 
   :config
   (progn
+    ;; Only use smartparens in web-mode
+    (sp-local-pair 'web-mode "<% " " %>")
+    (sp-local-pair 'web-mode "{ " " }")
+    (sp-local-pair 'web-mode "<%= "  " %>")
+    (sp-local-pair 'web-mode "<%# "  " %>")
+    (sp-local-pair 'web-mode "<%$ "  " %>")
+    (sp-local-pair 'web-mode "<%@ "  " %>")
+    (sp-local-pair 'web-mode "<%: "  " %>")
+    (sp-local-pair 'web-mode "{{ "  " }}")
+    (sp-local-pair 'web-mode "{% "  " %}")
+    (sp-local-pair 'web-mode "{%- "  " %}")
+    (sp-local-pair 'web-mode "{# "  " #}")
     (sp-local-pair 'org-mode "$" "$")
     (sp-pair "'" nil :actions :rem))
 
