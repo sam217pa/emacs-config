@@ -304,6 +304,9 @@
     "t" '(lispy-goto :which-key "goto tag"))
   )
 
+(use-package ereader :ensure t
+  :mode (("\\.epub\\'" . ereader-mode)))
+
 (use-package ess-site
   :ensure ess
   :mode
