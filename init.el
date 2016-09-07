@@ -555,7 +555,75 @@
   :commands (global-git-gutter-mode)
   :init
   (global-git-gutter-mode +1)
-  )
+  (setq git-gutter:modified-sign "|")
+  (setq git-gutter:added-sign "|")
+  (setq git-gutter:deleted-sign "|")
+
+  :config
+  (use-package git-gutter-fringe :ensure t
+    :config
+    (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
+    (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
+    (set-face-foreground 'git-gutter-fr:deleted "#dc322f")  ;red
+
+    (fringe-helper-define 'git-gutter-fr:added nil
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      )
+    (fringe-helper-define 'git-gutter-fr:deleted nil
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      )
+    (fringe-helper-define 'git-gutter-fr:modified nil
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      "XX......"
+      )
+    ))
 
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
