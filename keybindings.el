@@ -172,6 +172,8 @@
     "vl" 'magit-log-current
     "vm" '(git-messenger:popup-message :which-key "git messenger")
     "vp" 'git-gutter:previous-hunk
+    "vr" 'git-gutter:revert-hunk
+    "vR" 'magit-revert
     "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
     "vS" 'magit-stage-file
     "vt" 'git-timemachine
