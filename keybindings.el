@@ -220,7 +220,7 @@
   ;; this one is genius from general. you press ".", it wait for another command
   ;; in the general-key-dispatch list of command or insert .
   ;; really useful in insert map, no need to go to escape map.
-  (general-imap "."
+  (general-imap ","
 		(general-key-dispatch 'self-insert-command
 		  "b" 'ivy-switch-buffer
 		  "c" 'avy-goto-word-1

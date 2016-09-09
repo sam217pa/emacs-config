@@ -193,6 +193,19 @@ pointing to the Hugo localhost server."
   (let* ((default-directory (concat (expand-file-name hugo-base-dir) "/")))
     (when (call-process "bash" nil hugo-buffer t  "./upload.sh")
       (message "Blog published"))))
+
+(defun hugo-undraft ()
+  (interactive)
+  (when (and (hugo-replace-key "date" (iso-timestamp))
+             (hugo-replace-key "draft" "false"))
+    (save-buffer)
+    (message "Removed draft status and updated timestamp")))
+
+(defun iso-timestamp ()
+  (concat (format-time-string "%Y-%m-%dT%T")
+          ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
+           (format-time-string "%z"))))
+
 ;;;
 ;; a redefinition of lisp-indent-function to make it respect sexp that start with a keyword
 ;; (:keymap patate
