@@ -32,17 +32,7 @@
 
 ;;;; a
     ;; Applications
-    "a" '(:ignore t :which-key "Applications")
-    "ar" 'ranger
-    "ad" 'dired
-    "ab" '(:ignore t :which-key "Blog")
-    "abn" 'hugo-new-post
-    "abs" 'hugo-server
-    "abp" 'hugo-publish
-    "ao"  'counsel-osx-app
-    "ac"  '(sam--calendar-focus :which-key "calendar")
-    "af"  '(sam--finder-focus :which-key "finder")
-    "aF"  '(sam--finder-goto-filedir-or-home :which-key "finder - goto dir")
+    "a" '(hydra-launcher/body :which-key "Applications")
 
 ;;;; b
     ;; Buffer
@@ -154,24 +144,6 @@
 ;;;; v
     ;; Git related stuff
     "v" '(hydra-git/body t :which-key "Version Control")
-    ;; "vb" 'magit-blame
-    ;; "vB" 'magit-blame-quit
-    ;; "vc" 'magit-commit
-    ;; "vC" 'magit-checkout
-    ;; "vd" 'magit-diff-unstaged
-    ;; "ve" 'magit-ediff-compare
-    ;; "vf" 'git-gutter:next-hunk
-    ;; "vi" 'magit-init
-    ;; "vl" 'magit-log-current
-    ;; "vm" '(git-messenger:popup-message :which-key "git messenger")
-    ;; "vp" 'git-gutter:previous-hunk
-    ;; "vr" 'git-gutter:revert-hunk
-    ;; "vR" 'magit-revert
-    ;; "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
-    ;; "vS" 'magit-stage-file
-    ;; "vt" 'git-timemachine
-    ;; "vU" 'magit-unstage-file
-    ;; "vv" 'magit-status
     )
 
   ;; this is the second prefix. It gives shorter access to common
@@ -428,3 +400,27 @@ _s-f_: file            _a_: ag                _i_: Ibuffer           _c_: cache 
   ("X"   projectile-cleanup-known-projects)
   ("z"   projectile-cache-current-file)
   ("q"   nil "cancel" :color blue))
+
+(defhydra hydra-launcher (:color blue :hint nil)
+  "
+^Web^        ^Blog^       ^Explorer^       ^Apps^
+^^^^^^^^--------------------------------------------------
+_g_oogle    _bn_ew post  _d_ired          _s_hell
+_r_eddit    _bp_ublish   _D_eer           _S_hell gotodir
+_w_iki      _bs_server   _r_anger         _a_pps
+_t_witter
+"
+  ("a" counsel-osx-apps)
+  ("bn" (hugo-new-post))
+  ("bp" (hugo-publish))
+  ("bs" (hugo-server))
+  ("d" dired)
+  ("D" deer)
+  ("r" ranger)
+  ("g" (browse-url "https://www.google.fr/") )
+  ("r" (browse-url "http://www.reddit.com/r/emacs/") )
+  ("w" (browse-url "http://www.emacswiki.org/") )
+  ("t" (browse-url "https://twitter.com/?lang=fr") )
+  ("s" (sam--iterm-focus) )
+  ("S" (sam--iterm-goto-filedir-or-home) )
+  ("q" nil "quit"))

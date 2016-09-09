@@ -710,9 +710,10 @@
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
 
 (use-package lispyville :ensure t
+  :disabled t
   :commands lispyville-mode
   :init
-  (add-hook 'lispy-mode-hook #'lispyville-mode)
+  ;; (add-hook 'lispy-mode-hook #'lispyville-mode)
   )
 
 (use-package lorem-ipsum :ensure t
@@ -1158,7 +1159,7 @@ undo               _u_: undo
   which-key-mode
   :config
   (which-key-mode)
-  (which-key-setup-side-window-right-bottom)
+  (which-key-setup-side-window-bottom)
   ;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-key-order-alpha)
   (setq which-key-popup-type 'side-window
