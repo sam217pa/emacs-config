@@ -1,5 +1,4 @@
 ;; -*- emacs-lisp -*-
-
 ;;; Package.el
 (setq gc-cons-threshold 8000000) ; augmente la taille du garbage collector
 (package-initialize t)
@@ -37,7 +36,7 @@
 
 ;;; Sane default
 (setq
- use-package-verbose t  ; use-package décrit les appels qu'il fait
+ use-package-verbose nil  ; use-package décrit les appels qu'il fait
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
  version-control t	; enable le version control
  vc-make-backup-files t	; backups file even when under vc
@@ -193,8 +192,12 @@
   (solarized-switch-to-dark)
   )
 
-(use-package company :ensure t :defer 6
+(use-package company :ensure t
   :diminish ""
+  :commands global-company-mode
+  :init
+  (add-hook 'after-init-hook #'global-company-mode)
+
   :config
   (global-company-mode)
 
@@ -493,31 +496,31 @@
 
   ;;première étape: avant de réaffecter c,t,s,r en h,j,k,l, il faut
   ;;retirer ces touches de l’agencement de clavier normal-state
-  (define-key evil-normal-state-map "c" nil)
-  (define-key evil-normal-state-map "C" nil)
-  (define-key evil-normal-state-map "s" nil)
-  (define-key evil-normal-state-map "S" nil)
-  (define-key evil-normal-state-map "r" nil)
-  (define-key evil-normal-state-map "R" nil)
-  (define-key evil-normal-state-map "j" nil)
-  (define-key evil-normal-state-map "J" nil)
+  ;; (define-key evil-normal-state-map "c" nil)
+  ;; (define-key evil-normal-state-map "C" nil)
+  ;; (define-key evil-normal-state-map "s" nil)
+  ;; (define-key evil-normal-state-map "S" nil)
+  ;; (define-key evil-normal-state-map "r" nil)
+  ;; (define-key evil-normal-state-map "R" nil)
+  ;; (define-key evil-normal-state-map "j" nil)
+  ;; (define-key evil-normal-state-map "J" nil)
   ;;je redéfinis certaines fonctions pour l’état normal
-  (define-key evil-normal-state-map "h" 'evil-change)
-  (define-key evil-normal-state-map "H" 'evil-change-line)
-  (define-key evil-normal-state-map "T" 'evil-join)
-  (define-key evil-normal-state-map "l" 'evil-replace)
-  (define-key evil-normal-state-map "L" 'evil-replace-state)
-  (define-key evil-normal-state-map "k" 'evil-substitute)
-  (define-key evil-normal-state-map "K" 'evil-change-whole-line)
+  ;; (define-key evil-normal-state-map "h" 'evil-change)
+  ;; (define-key evil-normal-state-map "H" 'evil-change-line)
+  ;; (define-key evil-normal-state-map "T" 'evil-join)
+  ;; (define-key evil-normal-state-map "l" 'evil-replace)
+  ;; (define-key evil-normal-state-map "L" 'evil-replace-state)
+  ;; (define-key evil-normal-state-map "k" 'evil-substitute)
+  ;; (define-key evil-normal-state-map "K" 'evil-change-whole-line)
   ;;même chose mais cette fois pour l’état motion
-  (define-key evil-motion-state-map "c" 'evil-backward-char)
-  (define-key evil-motion-state-map "C" 'evil-window-top)
-  (define-key evil-motion-state-map "t" 'evil-next-line)
-  (define-key evil-motion-state-map "s" 'evil-previous-line)
-  (define-key evil-motion-state-map "r" 'evil-forward-char)
-  (define-key evil-motion-state-map "R" 'evil-window-bottom)
-  (define-key evil-motion-state-map "j" 'evil-find-char-to)
-  (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
+  ;; (define-key evil-motion-state-map "c" 'evil-backward-char)
+  ;; (define-key evil-motion-state-map "C" 'evil-window-top)
+  ;; (define-key evil-motion-state-map "t" 'evil-next-line)
+  ;; (define-key evil-motion-state-map "s" 'evil-previous-line)
+  ;; (define-key evil-motion-state-map "r" 'evil-forward-char)
+  ;; (define-key evil-motion-state-map "R" 'evil-window-bottom)
+  ;; (define-key evil-motion-state-map "j" 'evil-find-char-to)
+  ;; (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
 
   )
 
@@ -721,8 +724,6 @@
 
 ;;; -M-
 (use-package magit :ensure t
-  :defer 10
-
   :commands
   (magit-blame-mode
    magit-commit-popup
@@ -731,7 +732,13 @@
    magit-log-popup
    magit-pull-popup
    magit-push-popup
-   magit-status)
+   magit-status
+   magit-diff-unstaged
+   magit-blame
+   magit-commit
+   magit-init
+   magit-unstage-file
+   )
 
   :config
   (global-git-commit-mode)
@@ -818,7 +825,6 @@
   (turn-on-pbcopy))
 
 (use-package projectile :ensure t
-  :defer 20
   :diminish (projectile-mode . "ⓟ")
   :commands
   projectile-ag
