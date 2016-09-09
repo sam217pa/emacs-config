@@ -160,7 +160,7 @@
 
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
-  (nvmap
+  (mmap
    "'" (general-simulate-keys "C-c")
    "é" 'evil-goto-mark
    "è" 'ace-window
@@ -183,7 +183,9 @@
    "L" 'evil-replace-state
    "k" 'evil-substitute
    "K" 'evil-change-whole-line
-   )
+   "M-b" 'ivy-switch-buffer
+   "p" #'hydra-paste/evil-paste-after
+   "P" #'hydra-paste/evil-paste-before  )
 
 ;;; INSERT map
   (imap
@@ -424,3 +426,17 @@ _t_witter
   ("s" (sam--iterm-focus) )
   ("S" (sam--iterm-goto-filedir-or-home) )
   ("q" nil "quit"))
+
+(defhydra hydra-paste (:color red :hint nil)
+  "
+   Paste : [%s(length kill-ring-yank-pointer)/%s(length kill-ring)]
+         _n_ → cycle next          _p_ → paste before
+         _N_ → cycle previous      _P_ → paste after
+"
+  ("N" evil-paste-pop-next)
+  ("n" evil-paste-pop)
+  ("p" evil-paste-after)
+  ("P" evil-paste-before)
+  ("u" undo "undo" :color red)
+  ("l" counsel-yank-pop "list" :color blue)
+  ("q" nil "quit" :color blue))
