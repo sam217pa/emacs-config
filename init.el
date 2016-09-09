@@ -1,43 +1,42 @@
 ;; -*- emacs-lisp -*-
-
 ;;; Package.el
-(setq gc-cons-threshold 2000000) ; augmente la taille du garbage collector
-(require 'package)
+(setq gc-cons-threshold 8000000) ; augmente la taille du garbage collector
+(package-initialize t)
 (setq package-enable-at-startup nil)
-(setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-                         ("gnu"       . "http://elpa.gnu.org/packages/")
-                         ("melpa"     . "https://melpa.org/packages/")
-                         ("marmalade" . "http://marmalade-repo.org/packages/")))
-(package-initialize)
+(let ((default-directory "~/.emacs.d/elpa"))
+  (normal-top-level-add-subdirs-to-load-path))
+(require 'use-package)
 
-;; bootstrap `quelpa'
-(package-initialize)
-(setq quelpa-update-melpa-p nil)
+(setq package-enable-at-startup nil)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")))
 
-(unless (require 'quelpa nil t)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
-    (eval-buffer)))
 
 ;; Bootstrap `use-package'
-(quelpa
- '(use-package
-    :fetcher github
-    :repo "jwiegley/use-package"))
-
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
+;; bootstrap `quelpa'
+(use-package quelpa :ensure t
+  :config
+  (setq quelpa-update-melpa-p nil)
+  (use-package quelpa-use-package :ensure t))
+
+
 (use-package general :ensure t)
-(require 'diminish)
-(require 'bind-key)
-(require 'server)
+(use-package diminish)
+(use-package bind-key)
+(use-package server
+  :config
+  (unless (server-running-p) (server-start)))
 
 ;; met en place le serveur pour emacsclient
-(unless (server-running-p) (server-start))
+;;(unless (server-running-p) (server-start))
 
 ;;; Sane default
 (setq
- use-package-verbose t  ; use-package décrit les appels qu'il fait
+ use-package-verbose nil  ; use-package décrit les appels qu'il fait
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
  version-control t	; enable le version control
  vc-make-backup-files t	; backups file even when under vc
@@ -115,12 +114,14 @@
     )
   )
 
-(use-package ag :ensure t :disabled t
-  :config (progn
-            (setq ag-highlight-search t)
-            (setq ag-reuse-buffers t)
-            (add-to-list 'ag-arguments "--word-regexp"))
-  )
+(use-package ag :ensure t
+  :commands (counsel-ag
+	     ag)
+  :config
+  (progn
+    (setq ag-highlight-search t)
+    (setq ag-reuse-buffers t)
+    (add-to-list 'ag-arguments "--word-regexp")))
 
 (use-package auctex :ensure t :defer t)
 
@@ -173,10 +174,12 @@
 
 (use-package color-theme-solarized :ensure t
   :init
-  ;; to make the byte compiler happy. emacs25 has no color-themes variable
   (setq color-themes '())
+  :config
+  ;; to make the byte compiler happy. emacs25 has no color-themes variable
   ;; load the theme, don't ask for confirmation
   (load-theme 'solarized t)
+
   (defun solarized-switch-to-dark ()
     (interactive)
     (set-frame-parameter nil 'background-mode 'dark)
@@ -189,11 +192,14 @@
   (solarized-switch-to-dark)
   )
 
-(use-package company :ensure t :defer t
+(use-package company :ensure t
   :diminish ""
+  :commands global-company-mode
   :init
-  (global-company-mode)
+  (add-hook 'after-init-hook #'global-company-mode)
+
   :config
+  (global-company-mode)
 
   (use-package company-flx :ensure t
     :config
@@ -239,6 +245,9 @@
         '("/Applications/" "~/Applications/" "~/sam_app/"))
   )
 
+(use-package css-mode :ensure t
+  :mode (("\\.css\\'" . css-mode)))
+
 ;;; -D-
 (use-package dired-x
   :defer t
@@ -262,18 +271,17 @@
   :config
   (setq display-time-24hr-format t
         display-time-day-and-date t
-        display-time-format)
-  )
+        display-time-format))
+
+;; (use-package doom
+;;   :quelpa (doom :fetcher github :repo "hlissner/emacs-doom-theme")
+;;   :init
+;;   (add-to-list 'custom-theme-load-path "~/.emacs.d/quelpa/build/doom/")
+;;   (load-theme 'doom-one t)
+;;   )
+
 
 ;;; -E-
-(use-package edit-server :ensure t
-  :if window-system
-  :commands (server-start
-	     edit-server-start)
-  :init
-  (add-hook 'after-init-hook 'server-start t)
-  (add-hook 'after-init-hook 'edit-server-start t))
-
 (use-package eldoc :ensure t
   :commands turn-on-eldoc-mode
   :diminish ""
@@ -447,39 +455,38 @@
 
   )
 
+(use-package esup :ensure t
+  :commands esup
+  )
+
 (use-package evil :ensure t
-  :init
-  (evil-mode 1)
   ;; change la couleur des curseurs
   :config
+  (evil-mode 1)
 
   (use-package evil-escape :ensure t
     :diminish
     (evil-escape-mode)
-    :init
-    (evil-escape-mode)
     :config
+    (evil-escape-mode)
     (setq-default evil-escape-key-sequence "xq"
                   evil-escape-delay 0.2)
-    (setq evil-escape-unordered-key-sequence t)
-    )
+    (setq evil-escape-unordered-key-sequence t))
 
   (use-package evil-matchit :ensure t
     :commands
     evilmi-jump-items
-    :init
+    :config
     (global-evil-matchit-mode 1)
     )
 
   (use-package evil-surround :ensure t
-    :init
-    (global-evil-surround-mode)
-    )
+    :config
+    (global-evil-surround-mode))
 
   (use-package evil-visualstar :ensure t
-    :init
-    (global-evil-visualstar-mode t)
-    )
+    :config
+    (global-evil-visualstar-mode t))
 
   (setq evil-insert-state-cursor  '("#268bd2" bar) ;; blue
         evil-normal-state-cursor  '("#b58900" box) ;; blue
@@ -489,66 +496,55 @@
 
   ;;première étape: avant de réaffecter c,t,s,r en h,j,k,l, il faut
   ;;retirer ces touches de l’agencement de clavier normal-state
-  (define-key evil-normal-state-map "c" nil)
-  (define-key evil-normal-state-map "C" nil)
-  (define-key evil-normal-state-map "s" nil)
-  (define-key evil-normal-state-map "S" nil)
-  (define-key evil-normal-state-map "r" nil)
-  (define-key evil-normal-state-map "R" nil)
-  (define-key evil-normal-state-map "j" nil)
-  (define-key evil-normal-state-map "J" nil)
+  ;; (define-key evil-normal-state-map "c" nil)
+  ;; (define-key evil-normal-state-map "C" nil)
+  ;; (define-key evil-normal-state-map "s" nil)
+  ;; (define-key evil-normal-state-map "S" nil)
+  ;; (define-key evil-normal-state-map "r" nil)
+  ;; (define-key evil-normal-state-map "R" nil)
+  ;; (define-key evil-normal-state-map "j" nil)
+  ;; (define-key evil-normal-state-map "J" nil)
   ;;je redéfinis certaines fonctions pour l’état normal
-  (define-key evil-normal-state-map "h" 'evil-change)
-  (define-key evil-normal-state-map "H" 'evil-change-line)
-  (define-key evil-normal-state-map "T" 'evil-join)
-  (define-key evil-normal-state-map "l" 'evil-replace)
-  (define-key evil-normal-state-map "L" 'evil-replace-state)
-  (define-key evil-normal-state-map "k" 'evil-substitute)
-  (define-key evil-normal-state-map "K" 'evil-change-whole-line)
+  ;; (define-key evil-normal-state-map "h" 'evil-change)
+  ;; (define-key evil-normal-state-map "H" 'evil-change-line)
+  ;; (define-key evil-normal-state-map "T" 'evil-join)
+  ;; (define-key evil-normal-state-map "l" 'evil-replace)
+  ;; (define-key evil-normal-state-map "L" 'evil-replace-state)
+  ;; (define-key evil-normal-state-map "k" 'evil-substitute)
+  ;; (define-key evil-normal-state-map "K" 'evil-change-whole-line)
   ;;même chose mais cette fois pour l’état motion
-  (define-key evil-motion-state-map "c" 'evil-backward-char)
-  (define-key evil-motion-state-map "C" 'evil-window-top)
-  (define-key evil-motion-state-map "t" 'evil-next-line)
-  (define-key evil-motion-state-map "s" 'evil-previous-line)
-  (define-key evil-motion-state-map "r" 'evil-forward-char)
-  (define-key evil-motion-state-map "R" 'evil-window-bottom)
-  (define-key evil-motion-state-map "j" 'evil-find-char-to)
-  (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
+  ;; (define-key evil-motion-state-map "c" 'evil-backward-char)
+  ;; (define-key evil-motion-state-map "C" 'evil-window-top)
+  ;; (define-key evil-motion-state-map "t" 'evil-next-line)
+  ;; (define-key evil-motion-state-map "s" 'evil-previous-line)
+  ;; (define-key evil-motion-state-map "r" 'evil-forward-char)
+  ;; (define-key evil-motion-state-map "R" 'evil-window-bottom)
+  ;; (define-key evil-motion-state-map "j" 'evil-find-char-to)
+  ;; (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
 
-  )
-
-(use-package evil-lisp-state :ensure t
-  :commands (evil-lisp-state)
-  :init
-  (add-hook 'lisp-mode-hook (lambda () 'evil-lisp-state))
-  (add-hook 'emacs-lisp-mode-hook (lambda () 'evil-lisp-state))
-  (add-hook 'clojure-mode-hook (lambda () 'evil-lisp-state))
-  :config
-  (evil-lisp-state-leader "SPC l")
   )
 
 (use-package exec-path-from-shell :ensure t
-  :init
-  (exec-path-from-shell-initialize)
-  )
+  :defer 5
+  :config
+  (exec-path-from-shell-initialize))
 
 (use-package expand-region :ensure t :defer t)
 
 ;;; -F-
 (use-package fasd :ensure t
-  :init
-  (global-fasd-mode 1)
   :config
+  (global-fasd-mode 1)
   (setq fasd-completing-read-function 'ivy-completing-read)
-  (setq fasd-enable-initial-prompt nil)
-  )
+  (setq fasd-enable-initial-prompt nil))
 
 (use-package flx :ensure t)
 
-(use-package flycheck :ensure t :defer t
+(use-package flycheck :ensure t
+  :commands global-flycheck-mode
   :diminish (flycheck-mode . "ⓕ")
   :init
-  (add-hook 'prog-mode-hook  'flycheck-mode)
+  (add-hook 'after-init-hook (global-flycheck-mode))
   :config
   (progn
     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
@@ -562,7 +558,80 @@
   :commands (global-git-gutter-mode)
   :init
   (global-git-gutter-mode +1)
-  )
+  (setq git-gutter:modified-sign "|")
+  (setq git-gutter:added-sign "|")
+  (setq git-gutter:deleted-sign "|")
+
+  :config
+  (add-to-list 'git-gutter:update-commands 'other-window)
+  (add-to-list 'git-gutter:update-commands 'save-buffer)
+
+  (use-package git-gutter-fringe :ensure t
+    :init
+    (setq-default left-fringe-width 5)
+    :config
+    (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
+    (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
+    (set-face-foreground 'git-gutter-fr:deleted "#dc322f")  ;red
+
+    (fringe-helper-define 'git-gutter-fr:added nil
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      )
+    (fringe-helper-define 'git-gutter-fr:deleted nil
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      )
+    (fringe-helper-define 'git-gutter-fr:modified nil
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      "...XX..."
+      )
+    ))
 
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
@@ -597,10 +666,10 @@
 
 (use-package ivy :ensure t
   :diminish (ivy-mode . "")
-  :init (ivy-mode 1)
   :bind (:map ivy-mode-map
          ("C-'" . ivy-avy))
   :config
+  (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
   (setq ivy-height 20)
   (setq ivy-count-format "(%d/%d) ")
@@ -655,9 +724,6 @@
 
 ;;; -M-
 (use-package magit :ensure t
-  :init
-  (global-git-commit-mode)
-
   :commands
   (magit-blame-mode
    magit-commit-popup
@@ -666,12 +732,18 @@
    magit-log-popup
    magit-pull-popup
    magit-push-popup
-   magit-status)
+   magit-status
+   magit-diff-unstaged
+   magit-blame
+   magit-commit
+   magit-init
+   magit-unstage-file
+   )
 
   :config
-  (use-package git-commit :ensure t
-    :defer t
-    )
+  (global-git-commit-mode)
+
+  (use-package git-commit :ensure t :defer t)
 
   (use-package magit-gitflow :ensure t
     :commands
@@ -680,14 +752,12 @@
     (:keymaps 'magit-mode-map
      "%" 'magit-gitflow-popup)
     :init
-    (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
-    )
+    (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
   (use-package git-messenger :ensure t
     :general
     (:keymaps 'git-messenger-map
-     "q" 'git-messenger:popup-close)
-    )
+     "q" 'git-messenger:popup-close))
 
   (use-package git-timemachine :ensure t
     :commands git-timemachine
@@ -697,8 +767,7 @@
      "p" 'git-timemachine-show-previous-revision
      "q" 'git-timemachine-quit
      "w" 'git-timemachine-kill-abbreviated-revision
-     "W" 'git-timemachine-kill-revision)
-    )
+     "W" 'git-timemachine-kill-revision))
 
   (setq magit-completing-read-function 'ivy-completing-read))
 
@@ -735,9 +804,9 @@
 ;;; -O-
 
 (use-package osx-clipboard :ensure t
+  :if (not (window-system))
   :init
-  (osx-clipboard-mode +1)
-  )
+  (osx-clipboard-mode +1))
 
 (use-package outline
   :defer t
@@ -757,11 +826,11 @@
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
-  :init
-  (projectile-global-mode 1)
   :commands
   projectile-ag
+  projectile-command-map
   :config
+  (projectile-global-mode 1)
 
   (use-package counsel-projectile :ensure t)
 
@@ -880,10 +949,10 @@
   )
 
 ;;; -Q-
-(use-package quelpa-use-package :ensure t)
 
 ;;; -R-
-(use-package rainbow-delimiters  :ensure t :defer t
+(use-package rainbow-delimiters  :ensure t
+  :commands rainbow-delimiters-mode
   :init
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
@@ -928,6 +997,9 @@
   )
 
 ;;; -S-
+(use-package scss-mode :ensure t
+  :mode ("\\.scss\\'" . scss-mode))
+
 (use-package sh-script :defer t
   ;; shell-scripts
   :init
@@ -946,6 +1018,7 @@
 (use-package smartparens
   :ensure t
   :diminish (smartparens-mode . "")
+  :commands smartparens-global-mode
   :bind (("C-M-f" . sp-forward-sexp)
          ("C-M-b" . sp-backward-sexp)
          ("C-M-d" . sp-down-sexp)
@@ -956,13 +1029,25 @@
          ("C-M-u" . sp-backward-up-sexp)
          )
   :init
-  (smartparens-global-mode)
+  (add-hook 'after-init-hook (lambda () (smartparens-global-mode)))
   ;; (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
   ;; (add-hook 'org-mode-hook #'smartparens-mode)
   ;; (add-hook 'ess-mode-hook #'smartparens-mode)
 
   :config
   (progn
+    ;; Only use smartparens in web-mode
+    (sp-local-pair 'web-mode "<% " " %>")
+    (sp-local-pair 'web-mode "{ " " }")
+    (sp-local-pair 'web-mode "<%= "  " %>")
+    (sp-local-pair 'web-mode "<%# "  " %>")
+    (sp-local-pair 'web-mode "<%$ "  " %>")
+    (sp-local-pair 'web-mode "<%@ "  " %>")
+    (sp-local-pair 'web-mode "<%: "  " %>")
+    (sp-local-pair 'web-mode "{{ "  " }}")
+    (sp-local-pair 'web-mode "{% "  " %}")
+    (sp-local-pair 'web-mode "{%- "  " %}")
+    (sp-local-pair 'web-mode "{# "  " #}")
     (sp-local-pair 'org-mode "$" "$")
     (sp-pair "'" nil :actions :rem))
 
@@ -1010,9 +1095,8 @@
 (use-package which-key :ensure t
   :diminish
   which-key-mode
-  :init
-  (which-key-mode)
   :config
+  (which-key-mode)
   (which-key-setup-side-window-right-bottom)
   ;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-key-order-alpha)
@@ -1031,22 +1115,39 @@
         whitespace-style '(face lines-tail))
   )
 
+(use-package web-mode :ensure t
+  :mode
+  (("\\.phtml\\'"      . web-mode)
+   ("\\.tpl\\.php\\'"  . web-mode)
+   ("\\.twig\\'"       . web-mode)
+   ("\\.html\\'"       . web-mode)
+   ("\\.htm\\'"        . web-mode)
+   ("\\.[gj]sp\\'"     . web-mode)
+   ("\\.as[cp]x?\\'"   . web-mode)
+   ("\\.eex\\'"        . web-mode)
+   ("\\.erb\\'"        . web-mode)
+   ("\\.mustache\\'"   . web-mode)
+   ("\\.handlebars\\'" . web-mode)
+   ("\\.hbs\\'"        . web-mode)
+   ("\\.eco\\'"        . web-mode)
+   ("\\.ejs\\'"        . web-mode)
+   ("\\.djhtml\\'"     . web-mode)))
+
 ;;; -X-
 
 ;;; -Y-
-
 (use-package yasnippet
-  :if (not noninteractive)
   :diminish yas-minor-mode
-  :commands (yas-global-mode yas-minor-mode)
-  :bind* ("C-o" . yas-expand)
+  :defer 10
+  :init
+  (with-eval-after-load 'yasnippet
+    (progn
+      (setq yas-snippet-dirs (append yas-snippet-dirs
+				     '("~/dotfile/emacs/snippets")))))
   :config
-  (progn
-    (setq yas-indent-line nil)
-    (setq yas-snippet-dirs
-	  '("~/dotfile/emacs/snippets"))))
+  (yas-global-mode)
+  (setq yas-indent-line nil))
 
-;;; -Y-
 ;;; -Z-
 ;;; -------------------------------------------------------------------
 
