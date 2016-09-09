@@ -2,11 +2,13 @@
 
 Ceci est mon repository emacs.
 
-- emacs.d contient le dossier emacs, avec ma configuration etc.
-- functions.el contient les fonctions que j'ai définies.
-- init.el est le fichier majeur. Il contient les définitions
-  d'use-package etc.
-- keybindings.el porte bien son nom.
-- org.el contient la configuration liée à org.
-- python.el contient la config liée à python.
-- r.el contient la config liée à ess.
+To install simply links `~/.emacs.d/init.el` to
+`~/wherever/you/put/this/repository/init.el`.
+
+Then edit `~/.emacs.d/init.el` and change the `(load-file )` declarations at the
+end of the file to point to the `org.el`, `functions.el` and `keybindings.el`.
+
+- functions.el: my own functions, taken from here and there.
+- init.el: the init file. use-package declaration and all.
+- keybindings.el: I let you guess this one.
+- org.el: org-mode setup.
