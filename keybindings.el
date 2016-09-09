@@ -27,7 +27,8 @@
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
     "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
-    "SPC" '(avy-goto-word-or-subword-1  :which-key "go to char")
+    "." '(avy-goto-word-or-subword-1  :which-key "go to char")
+    "SPC" '(counsel-M-x  :which-key "M-x")
 
 ;;;; a
     ;; Applications
