@@ -366,12 +366,21 @@ Lisp function does not specify a special indentation."
 
 ;; goto line motion, jumping to the same column
 ;; (follow "evil-integration.el")
-;; (evil-define-motion evil-avy-goto-line-keep-column (count)
-;;   "Evil motion for avy-goto-line, restoring column."
-;;   :type exclusive :jump t :repeat abort
-;;   (evil-without-repeat
-;;     (evil-enclose-avy-for-motion
-;;       (evil-save-column (avy-goto-line)))))
+(evil-define-motion evil-avy-goto-line-keep-column (count)
+  "Evil motion for avy-goto-line, restoring column."
+  :type exclusive :jump t :repeat abort
+  (evil-without-repeat
+    (evil-enclose-avy-for-motion
+      (evil-save-column (avy-goto-line)))))
 ;; goto-line motion map
-;; (define-key evil-motion-state-map (kbd "g l")
-;;   'evil-avy-goto-line-keep-column)
+(define-key evil-motion-state-map (kbd "g l")
+  'evil-avy-goto-line-keep-column)
+
+(evil-define-motion evil-avy-goto-word (count)
+  "evil motion for avy goto word"
+  :type exclusive :jump t :repeat abort
+  (evil-without-repeat
+    (evil-enclose-avy-for-motion
+      (avy-goto-word-or-subword-1))
+    )
+  )

@@ -7,8 +7,11 @@
   (normal-top-level-add-subdirs-to-load-path))
 (require 'use-package)
 
+(setq package-check-signature nil)
 (setq package-enable-at-startup nil)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("marmalade" . "https://marmalade-repo.org/packages/")
+			 ("gnu" . "https://elpa.gnu.org/packages/")))
 
 
 ;; Bootstrap `use-package'
@@ -52,6 +55,7 @@
  default-fill-column 80
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
+ help-window-select t			; focus help window when opened
  )
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
@@ -461,8 +465,17 @@
 
 (use-package evil :ensure t
   ;; change la couleur des curseurs
+  :init
+  (setq evil-want-fine-undo t)
+  (setq evil-want-C-i-jump nil)
+  (setq evil-disable-insert-state-bindings t)
+
   :config
   (evil-mode 1)
+
+  (evil-set-initial-state 'dired-mode 'emacs)
+  (evil-set-initial-state 'message-mode 'motion)
+  (evil-set-initial-state 'help-mode 'emacs)
 
   (use-package evil-escape :ensure t
     :diminish
@@ -477,8 +490,7 @@
     :commands
     evilmi-jump-items
     :config
-    (global-evil-matchit-mode 1)
-    )
+    (global-evil-matchit-mode 1))
 
   (use-package evil-surround :ensure t
     :config
@@ -488,41 +500,15 @@
     :config
     (global-evil-visualstar-mode t))
 
-  (setq evil-insert-state-cursor  '("#268bd2" bar) ;; blue
-        evil-normal-state-cursor  '("#b58900" box) ;; blue
-        evil-visual-state-cursor  '("#cb4b16" box) ;; orange
+  (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
+        evil-normal-state-cursor  '("#b58900" box)  ;; blue
+        evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
         evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
 
-  ;;première étape: avant de réaffecter c,t,s,r en h,j,k,l, il faut
-  ;;retirer ces touches de l’agencement de clavier normal-state
-  ;; (define-key evil-normal-state-map "c" nil)
-  ;; (define-key evil-normal-state-map "C" nil)
-  ;; (define-key evil-normal-state-map "s" nil)
-  ;; (define-key evil-normal-state-map "S" nil)
-  ;; (define-key evil-normal-state-map "r" nil)
-  ;; (define-key evil-normal-state-map "R" nil)
-  ;; (define-key evil-normal-state-map "j" nil)
-  ;; (define-key evil-normal-state-map "J" nil)
-  ;;je redéfinis certaines fonctions pour l’état normal
-  ;; (define-key evil-normal-state-map "h" 'evil-change)
-  ;; (define-key evil-normal-state-map "H" 'evil-change-line)
-  ;; (define-key evil-normal-state-map "T" 'evil-join)
-  ;; (define-key evil-normal-state-map "l" 'evil-replace)
-  ;; (define-key evil-normal-state-map "L" 'evil-replace-state)
-  ;; (define-key evil-normal-state-map "k" 'evil-substitute)
-  ;; (define-key evil-normal-state-map "K" 'evil-change-whole-line)
-  ;;même chose mais cette fois pour l’état motion
-  ;; (define-key evil-motion-state-map "c" 'evil-backward-char)
-  ;; (define-key evil-motion-state-map "C" 'evil-window-top)
-  ;; (define-key evil-motion-state-map "t" 'evil-next-line)
-  ;; (define-key evil-motion-state-map "s" 'evil-previous-line)
-  ;; (define-key evil-motion-state-map "r" 'evil-forward-char)
-  ;; (define-key evil-motion-state-map "R" 'evil-window-bottom)
-  ;; (define-key evil-motion-state-map "j" 'evil-find-char-to)
-  ;; (define-key evil-motion-state-map "J" 'evil-find-char-to-backward)
-
+  ;; patate
   )
+
 
 (use-package exec-path-from-shell :ensure t
   :defer 5
@@ -633,6 +619,11 @@
       )
     ))
 
+(use-package goto-chg :ensure t
+  :commands (goto-last-change
+             goto-last-change-reverse)
+  )
+
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
 
@@ -650,8 +641,10 @@
   (global-hl-line-mode)
   )
 
-(use-package hydra :ensure t :defer t
+(use-package hydra :ensure t
   ;; pour les keybindings de fou
+  :config
+  (use-package ivy-hydra :ensure t)
   )
 
 (use-package hy-mode :ensure t
@@ -666,6 +659,7 @@
 
 (use-package ivy :ensure t
   :diminish (ivy-mode . "")
+  :commands ivy-switch-buffer
   :bind (:map ivy-mode-map
          ("C-'" . ivy-avy))
   :config
@@ -714,6 +708,12 @@
 
   ;; change avy-keys to default bépo home row keys.
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
+
+(use-package lispyville :ensure t
+  :commands lispyville-mode
+  :init
+  (add-hook 'lispy-mode-hook #'lispyville-mode)
+  )
 
 (use-package lorem-ipsum :ensure t
   :commands
@@ -780,11 +780,51 @@
   :mode ("\\.md\\'" . markdown-mode)
   :config
 
+  (defhydra hydra-markdown (:hint nil)
+    "
+Formatting         _s_: bold          _e_: italic     _b_: blockquote   _p_: pre-formatted    _c_: code
+Headings           _h_: automatic     _1_: h1         _2_: h2           _3_: h3               _4_: h4
+Lists              _m_: insert item
+Demote/Promote     _l_: promote       _r_: demote     _U_: move up      _D_: move down
+Links, footnotes   _L_: link          _U_: uri        _F_: footnote     _W_: wiki-link      _R_: reference
+undo               _u_: undo
+"
+
+
+    ("s" markdown-insert-bold)
+    ("e" markdown-insert-italic)
+    ("b" markdown-insert-blockquote :color blue)
+    ("p" markdown-insert-pre :color blue)
+    ("c" markdown-insert-code)
+
+    ("h" markdown-insert-header-dwim)
+    ("1" markdown-insert-header-atx-1)
+    ("2" markdown-insert-header-atx-2)
+    ("3" markdown-insert-header-atx-3)
+    ("4" markdown-insert-header-atx-4)
+
+    ("m" markdown-insert-list-item)
+
+    ("l" markdown-promote)
+    ("r" markdown-demote)
+    ("D" markdown-move-down)
+    ("U" markdown-move-up)
+
+    ("L" markdown-insert-link :color blue)
+    ("U" markdown-insert-uri :color blue)
+    ("F" markdown-insert-footnote :color blue)
+    ("W" markdown-insert-wiki-link :color blue)
+    ("R" markdown-insert-reference-link-dwim :color blue)
+
+    ("u" undo :color teal)
+    )
+
   (general-define-key
    :states '(normal visual insert emacs)
    :keymaps 'markdown-mode-map
    :prefix ","
    :non-normal-prefix "’"               ; Alt-, => ’
+    "," 'hydra-markdown/body
     "=" 'markdown-promote
     "°" 'markdown-promote-subtree
     "-" 'markdown-demote
@@ -800,6 +840,8 @@
   )
 
 ;;; -N-
+(use-package nlinum :ensure t
+  :commands nlinum-mode)
 
 ;;; -O-
 
@@ -827,8 +869,27 @@
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
   :commands
-  projectile-ag
-  projectile-command-map
+  (projectile-ag
+   projectile-switch-to-buffer
+   projectile-invalidate-cache
+   projectile-find-dir
+   projectile-find-file
+   projectile-find-file-dwim
+   projectile-find-file-in-directory
+   projectile-ibuffer
+   projectile-kill-buffers
+   projectile-kill-buffers
+   projectile-multi-occur
+   projectile-multi-occur
+   projectile-switch-project
+   projectile-switch-project
+   projectile-switch-project
+   projectile-recentf
+   projectile-remove-known-project
+   projectile-cleanup-known-projects
+   projectile-cache-current-file
+   projectile-project-root
+   )
   :config
   (projectile-global-mode 1)
 
