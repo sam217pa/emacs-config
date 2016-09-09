@@ -149,37 +149,30 @@
 
 ;;;; T
     ;; Toggle UI elements
-    "T" '(:ignore t :which-key "Toggle")
-    "TF" '(toggle-frame-fullscreen :which-key "fullscreen")
-    "Tf" '(toggle-frame-maximized  :which-key "maximize")
-    "Td" '(solarized-switch-to-dark :which-key "dark background")
-    "Tl" '(solarized-switch-to-light :which-key "light background")
-    "Tm" '(:ignore t :which-key "modeline")
-    "Tmt" 'display-time-mode
-    "Tn" '(nlinum-mode :which-key "line number")
-    "Tw" 'blank-mode
+    "T" '(hydra-toggle/body t :which-key "Toggle")
 
 ;;;; v
     ;; Git related stuff
-    "v" '(:ignore t :which-key "Version Control")
-    "vb" 'magit-blame
-    "vB" 'magit-blame-quit
-    "vc" 'magit-commit
-    "vC" 'magit-checkout
-    "vd" 'magit-diff-unstaged
-    "ve" 'magit-ediff-compare
-    "vf" 'git-gutter:next-hunk
-    "vi" 'magit-init
-    "vl" 'magit-log-current
-    "vm" '(git-messenger:popup-message :which-key "git messenger")
-    "vp" 'git-gutter:previous-hunk
-    "vr" 'git-gutter:revert-hunk
-    "vR" 'magit-revert
-    "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
-    "vS" 'magit-stage-file
-    "vt" 'git-timemachine
-    "vU" 'magit-unstage-file
-    "vv" 'magit-status)
+    "v" '(hydra-git/body t :which-key "Version Control")
+    ;; "vb" 'magit-blame
+    ;; "vB" 'magit-blame-quit
+    ;; "vc" 'magit-commit
+    ;; "vC" 'magit-checkout
+    ;; "vd" 'magit-diff-unstaged
+    ;; "ve" 'magit-ediff-compare
+    ;; "vf" 'git-gutter:next-hunk
+    ;; "vi" 'magit-init
+    ;; "vl" 'magit-log-current
+    ;; "vm" '(git-messenger:popup-message :which-key "git messenger")
+    ;; "vp" 'git-gutter:previous-hunk
+    ;; "vr" 'git-gutter:revert-hunk
+    ;; "vR" 'magit-revert
+    ;; "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
+    ;; "vS" 'magit-stage-file
+    ;; "vt" 'git-timemachine
+    ;; "vU" 'magit-unstage-file
+    ;; "vv" 'magit-status
+    )
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
@@ -226,12 +219,6 @@
    "C-|" 'ivy-switch-buffer
    )
 
-;;; OPERATOR map
-  (general-omap
-   :prefix "SPC"
-    "." 'avy-goto-word-or-subword-1
-    "l" 'evil-avy-goto-line
-    "é" 'evil-avy-goto-subword-0 )
 
   ;; this one is genius from general. you press ".", it wait for another command
   ;; in the general-key-dispatch list of command or insert .
@@ -243,6 +230,12 @@
 		  "l" 'avy-goto-line
 		  "s" 'save-buffer
 		  "p" 'projectile-command-map))
+;;; OPERATOR map
+  (general-omap
+   :prefix "SPC"
+    "." 'avy-goto-word-or-subword-1
+    "l" 'evil-avy-goto-line
+    "é" 'evil-avy-goto-subword-0 )
 
 ;;; MOTION map
   (mmap
@@ -250,6 +243,9 @@
    "s" 'evil-previous-visual-line
    )
 
+;;; MODE specifique map
+  (general-define-key :keymaps 'Buffer-menu-mode-map
+    "." 'hydra-buffer-menu/body)
 
   (general-define-key
 ;;; SUPER map
@@ -290,33 +286,38 @@
 ;; Hydra
 ;;
 
-(defhydra hydra-toggle (:hint nil)
+(defhydra hydra-toggle (:hint nil :color amaranth)
   "
-^UI^
-^^^^^^^^----
-_n_: linenumber
-_f_: fullscreen
-_q_: quit
+^themes^     ^modes^           ^modeline^          ^frame
+^^^^^^^^--------------------------------------------------------
+_d_: dark    _f_: flycheck     _t_: time           _F_: fullscreen
+_l_: light   _n_: linum        ^ ^                 _m_: maximized
+^ ^          _w_: whitespace   ^ ^                 ^ ^
 "
+  ("d" solarized-switch-to-dark)
+  ("l" solarized-switch-to-light)
+  ("f" flycheck-mode :color blue)
   ("n" nlinum-mode)
-  ("f" toggle-frame-fullscreen)
-  ("q" nil "quit")
-  )
-
-
+  ("t" display-time-mode)
+  ("m" toggle-frame-maximized)
+  ("F" toggle-frame-fullscreen)
+  ("w" blank-mode)
+  ("q" nil "quit" :color blue))
 
 (defhydra hydra-buffer-menu
   (:color pink
    :hint nil)
   "
-^Mark^             ^Unmark^           ^Actions^          ^Search
-^^^^^^^^-----------------------------------------------------------------
-_m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
-_s_: save          _U_: unmark up     _b_: bury          _I_: isearch
-_d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
-_D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
-_~_: modified
+^Nav^      ^Mark^         ^Unmark^        ^Actions^          ^Search
+^^^^^^^^----------------------------------------------------------
+_p_: prev  _m_: mark      _u_: unmark     _x_: execute       _R_: re-isearch
+_n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
+^ ^        _d_: delete    ^ ^             _g_: refresh       _O_: multi-occur
+^ ^        _D_: delete up ^ ^             _T_: files only: % -28`Buffer-menu-files-only
+^ ^        _~_: modified
 "
+  ("p" previous-line)
+  ("n" next-line)
   ("m" Buffer-menu-mark)
   ("u" Buffer-menu-unmark)
   ("U" Buffer-menu-backup-unmark)
@@ -336,47 +337,61 @@ _~_: modified
   ("o" Buffer-menu-other-window "other-window" :color blue)
   ("q" quit-window "quit" :color blue))
 
-(defhydra hydra-apropos (:color blue)
-  "Apropos"
-  ("a" apropos "apropos")
-  ("c" apropos-command "cmd")
-  ("d" apropos-documentation "doc")
-  ("e" apropos-value "val")
-  ("l" apropos-library "lib")
-  ("o" apropos-user-option "option")
-  ("u" apropos-user-option "option")
-  ("v" apropos-variable "var")
-  ("i" info-apropos "info")
-  ("t" tags-apropos "tags")
-  ("z" hydra-customize-apropos/body "customize"))
-
-(defhydra hydra-git-gutter
+(defhydra hydra-git
   (:body-pre (git-gutter-mode 1) :hint nil)
   "
-Git gutter:
-  _n_: next hunk        _s_tage hunk     _q_uit
-  _p_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
-  ^ ^                   _p_opup hunk
-  _P_: first hunk
-  _N_: last hunk        set start _R_evision
+^Nav^                 ^Hunk^            ^Files^        ^Actions^
+^^^^^^^^----------------------------------------------------------
+_n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
+_p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
+_P_: first hunk       _p_opup hunk      _d_iff         _C_heckout
+_N_: last hunk        _R_evision start  _t_imemachine
 "
   ("n" git-gutter:next-hunk)
   ("p" git-gutter:previous-hunk)
-  ("P" (progn (goto-char (point-min))
-              (git-gutter:next-hunk 1)))
-  ("N" (progn (goto-char (point-min))
-              (git-gutter:previous-hunk 1)))
+  ("P" (progn (goto-char (point-min)) (git-gutter:next-hunk 1)))
+  ("N" (progn (goto-char (point-min)) (git-gutter:previous-hunk 1)))
   ("s" git-gutter:stage-hunk)
   ("r" git-gutter:revert-hunk)
   ("p" git-gutter:popup-hunk)
   ("R" git-gutter:set-start-revision)
-  ("q" nil :color blue)
-  ("Q" (progn (git-gutter-mode -1)
-              ;; git-gutter-fringe doesn't seem to
-              ;; clear the markup right away
-              (sit-for 0.1)
-              (git-gutter:clear))
+  ("S" magit-stage)
+  ("R" magit-revert)
+  ("d" magit-diff-unstaged)
+  ("t" git-timemachine)
+  ("c" magit-commit)
+  ("b" magit-blame)
+  ("C" magit-checkout)
+  ("v" magit-status "status" :color blue)
+  ("q" nil "quit" :color blue)
+  ("Q" (progn
+	 (git-gutter-mode -1)
+	 ;; git-gutter-fringe doesn't seem to
+	 ;; clear the markup right away
+	 (sit-for 0.1)
+	 (git-gutter:clear))
+   "quit git-gutter"
    :color blue))
+
+
+;; "vb" 'magit-blame
+;; "vB" 'magit-blame-quit
+;; "vc" 'magit-commit
+;; "vC" 'magit-checkout
+;; "vd" 'magit-diff-unstaged
+;; "ve" 'magit-ediff-compare
+;; "vf" 'git-gutter:next-hunk
+;; "vi" 'magit-init
+;; "vl" 'magit-log-current
+;; "vm" '(git-messenger:popup-message :which-key "git messenger")
+;; "vp" 'git-gutter:previous-hunk
+;; "vr" 'git-gutter:revert-hunk
+;; "vR" 'magit-revert
+;; "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
+;; "vS" 'magit-stage-file
+;; "vt" 'git-timemachine
+;; "vU" 'magit-unstage-file
+;; "vv" 'magit-status)
 
 (defhydra hydra-projectile
   (:color teal :hint nil)
@@ -390,7 +405,6 @@ _s-f_: file            _a_: ag                _i_: Ibuffer           _c_: cache 
  _fd_: file curr dir   _o_: multi-occur     _s-k_: Kill all buffers  _X_: cleanup non-existing
   _r_: recent file                                               ^^^^_z_: cache current
   _d_: dir
-
 "
   ("a"   projectile-ag)
   ("b"   projectile-switch-to-buffer)
@@ -413,5 +427,4 @@ _s-f_: file            _a_: ag                _i_: Ibuffer           _c_: cache 
   ("x"   projectile-remove-known-project)
   ("X"   projectile-cleanup-known-projects)
   ("z"   projectile-cache-current-file)
-  ("`"   hydra-projectile-other-window/body "other window")
   ("q"   nil "cancel" :color blue))
