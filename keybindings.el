@@ -160,7 +160,7 @@
 
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
-  (mmap
+  (nvmap
    "'" (general-simulate-keys "C-c")
    "é" 'evil-goto-mark
    "è" 'ace-window
@@ -191,6 +191,7 @@
   (imap
    "C-z" 'undo-tree-undo
    "C-|" 'ivy-switch-buffer
+   "C-." 'hydra-move/body
    )
 
 
@@ -260,7 +261,7 @@
 ;; Hydra
 ;;
 
-(defhydra hydra-toggle (:hint nil :color amaranth)
+(defhydra hydra-toggle (:hint nil :color red)
   "
 ^themes^     ^modes^           ^modeline^          ^frame
 ^^^^^^^^--------------------------------------------------------
@@ -439,4 +440,28 @@ _t_witter
   ("P" evil-paste-before)
   ("u" undo "undo" :color red)
   ("l" counsel-yank-pop "list" :color blue)
+  ("q" nil "quit" :color blue))
+
+(defhydra hydra-move
+  (:body-pre (next-line)
+   :hint nil)
+  "
+ ^ ^ ^ ^ ^ ^ ^V^ ^ ^ ^ ^ ^ ^
+ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
+ ^ ^ ^ ^ ^ ^ ^p^ ^ ^ ^ ^ ^ ^
+ ^a^ ^ ^ ^b^ ^l^ ^f^ ^ ^ ^e^
+ ^ ^ ^ ^ ^ ^ ^n^ ^ ^ ^ ^ ^ ^
+ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
+ ^ ^ ^ ^ ^ ^ ^v^ ^ ^ ^ ^ ^ ^
+"
+  ("n" next-line)
+  ("p" previous-line)
+  ("f" forward-char)
+  ("b" backward-char)
+  ("a" beginning-of-line)
+  ("e" move-end-of-line)
+  ("v" scroll-up-command)
+  ;; Converting M-v to V here by analogy.
+  ("V" scroll-down-command)
+  ("l" recenter-top-bottom)
   ("q" nil "quit" :color blue))
