@@ -159,12 +159,6 @@
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
-(use-package browse-kill-ring :ensure t
-  :commands browse-kill-ring
-  :diminish ""
-  :config
-  (setq browse-kill-ring-separator "———")
-  )
 
 ;;; -C-
 (use-package color-identifiers-mode :ensure t
@@ -705,6 +699,38 @@
   (lispy-define-key lispy-mode-map "«" 'lispy-barf)
   (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
+
+
+  (imap :keymaps 'emacs-lisp-mode-map
+    "ê" 'hydra-lispy/body)
+
+  (defhydra hydra-lispy (:hint nil)
+    "
+                 ^Nav^                            | ^Action^
+-----^-^----------^-^-^-^----------^-^--^-^-------+-^-^-------
+     ^ ^          ^ ^ _ß_: mv up   ^ ^  ^ ^       | _l_: raise
+     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       | _h_: clone
+     ^ ^          ^ ^ _s_: up      ^ ^  ^ ^       | _j_: teleport
+     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
+bwd: _C_ <- left: _c_ ^+^ _r_: right -> _R_: fwd  |
+     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
+     ^ ^          ^ ^ _t_: down    ^ ^  ^ ^       |
+     _b_: back    ^ ^ ^|^          ^ ^  _f_: flow |
+     ^ ^          ^ ^ _þ_: mv dn   ^ ^  ^ ^       |
+"
+    ("s" lispy-up)
+    ("ß" lispy-move-up)
+    ("t" lispy-down)
+    ("þ" lispy-move-down)
+    ("c" lispy-left)
+    ("r" lispy-right)
+    ("h" lispy-clone)
+    ("C" lispy-backward)
+    ("R" lispy-forward)
+    ("l" lispy-raise)
+    ("j" lispy-teleport)
+    ("f" lispy-flow)
+    ("b" lispy-back))
 
   ;; change avy-keys to default bépo home row keys.
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
