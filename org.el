@@ -48,6 +48,17 @@
                                  (dot . t)
                                  (js . t)))
 
+  (defun org-babel-tangle-all-block-same-file ()
+    "tangle all blocks which belong to the same file."
+    (interactive)
+    (let ((current-prefix-arg '(16)))
+      (call-interactively #'org-babel-tangle)))
+
+  (general-define-key
+   :keymaps 'org-mode-map
+    "s-e" 'org-babel-tangle-all-block-same-file
+    )
+
 ;;;* sane default
 
   (require 'org-agenda)
