@@ -130,8 +130,8 @@
 
 (use-package auctex :ensure t :defer t)
 
-(use-package auto-fill
-  :diminish (auto-fill-mode . "")
+(use-package auto-fill-mode
+  :diminish (auto-fill-function . "")
   :commands turn-on-auto-fill
   :init
   (add-hook 'text-mode-hook 'turn-on-auto-fill))
@@ -491,6 +491,10 @@
     :config
     (global-evil-surround-mode))
 
+  (use-package evil-visual-mark-mode :ensure t
+    :config
+    (evil-visual-mark-mode))
+
   (use-package evil-visualstar :ensure t
     :config
     (global-evil-visualstar-mode t))
@@ -499,7 +503,7 @@
         evil-normal-state-cursor  '("#b58900" box)  ;; blue
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
-        evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
+	evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
 
   ;; patate
   )
@@ -746,20 +750,21 @@
 ;;; -M-
 (use-package magit :ensure t
   :commands
-  (magit-blame-mode
+  (magit-blame
+   magit-commit
    magit-commit-popup
    magit-diff-popup
+   magit-diff-unstaged
    magit-fetch-popup
+   magit-init
    magit-log-popup
    magit-pull-popup
    magit-push-popup
+   magit-revert
+   magit-stage-file
    magit-status
-   magit-diff-unstaged
-   magit-blame
-   magit-commit
-   magit-init
    magit-unstage-file
-   )
+   magit-blame-mode)
 
   :config
   (global-git-commit-mode)
@@ -886,6 +891,17 @@ undo               _u_: undo
   :if (not (display-graphic-p))
   :init
   (turn-on-pbcopy))
+
+(use-package prettify-symbols-mode
+  :init
+  (global-prettify-symbols-mode))
+
+(use-package pretty-mode :ensure t
+  :disabled t
+  :commands turn-on-pretty-mode
+  :init
+  (add-hook 'ess-mode-hook 'turn-on-pretty-mode)
+  )
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
@@ -1151,27 +1167,11 @@ undo               _u_: undo
   :config
   (use-package spaceline-config
     :init
-
-    ;; (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
-    ;; 	  evil-normal-state-cursor  '("#b58900" box)  ;; blue
-    ;; 	  evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
-    ;; 	  evil-replace-state-cursor '("#859900" hbar) ;; green
-    ;; 	  evil-emacs-state-cursor   '("#d33682" box))
-    ;; magenta
-    (setq spaceline-evil-normal	:background "#b58900" )
-    (setq spaceline-evil-insert	:background "#268bd2" )
-    (setq spaceline-evil-emacs	:background "#d33682" )
-    (setq spaceline-evil-replace :background "#859900" )
-    (setq spaceline-evil-visual	:background "#cb4b16" )
-    (setq spaceline-evil-motion	:background "#cb4b16" )
-
     (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
     (setq powerline-default-separator 'utf-8)
 
     :config
-    (spaceline-emacs-theme)
-    )
-  )
+    (spaceline-emacs-theme)))
 
 (use-package subword :defer t
   :init
@@ -1199,6 +1199,9 @@ undo               _u_: undo
   )
 
 ;;; -W-
+(use-package wgrep :ensure t
+  :commands wgrep)
+
 (use-package which-key :ensure t
   :diminish
   which-key-mode
