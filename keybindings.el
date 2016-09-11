@@ -49,16 +49,7 @@
 
 ;;;; é
     ;; Window management
-    "é" '(:ignore t :which-key "Window")
-    "éc"  'other-window
-    "éd"  'ace-delete-window
-    "ér"  'other-window
-    "éé"  'hydra-window/body
-    "éh"  '(split-window-vertically :which-key "split horizontal")
-    "ém"  '(delete-other-windows :which-key "maximize current")
-    "év"  '(split-window-horizontally :which-key "split vertical")
-    "é|"  '(split-window-horizontally :which-key "split vertical")
-    "é-"  '(split-window-vertically :which-key "split horizontal")
+    "é" '(hydra-window/body :which-key "Window")
 
 ;;;; f
     ;; Find and Files
@@ -143,8 +134,7 @@
 
 ;;;; v
     ;; Git related stuff
-    "v" '(hydra-git/body t :which-key "Version Control")
-    )
+    "v" '(hydra-git/body t :which-key "Version Control"))
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
@@ -192,6 +182,7 @@
    "C-z" 'undo-tree-undo
    "C-|" 'ivy-switch-buffer
    "C-." 'hydra-move/body
+   "C-é" 'hydra-window/body
    )
 
 
@@ -348,26 +339,6 @@ _N_: last hunk        _R_evision start  _t_imemachine
    "quit git-gutter"
    :color blue))
 
-
-;; "vb" 'magit-blame
-;; "vB" 'magit-blame-quit
-;; "vc" 'magit-commit
-;; "vC" 'magit-checkout
-;; "vd" 'magit-diff-unstaged
-;; "ve" 'magit-ediff-compare
-;; "vf" 'git-gutter:next-hunk
-;; "vi" 'magit-init
-;; "vl" 'magit-log-current
-;; "vm" '(git-messenger:popup-message :which-key "git messenger")
-;; "vp" 'git-gutter:previous-hunk
-;; "vr" 'git-gutter:revert-hunk
-;; "vR" 'magit-revert
-;; "vs" '(git-gutter:stage-hunk :which-key "stage hunk")
-;; "vS" 'magit-stage-file
-;; "vt" 'git-timemachine
-;; "vU" 'magit-unstage-file
-;; "vv" 'magit-status)
-
 (defhydra hydra-projectile
   (:color teal :hint nil)
   "
@@ -443,8 +414,7 @@ _t_witter
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-move
-  (:body-pre (next-line)
-   :hint nil)
+  (:hint nil)
   "
  ^ ^ ^ ^ ^ ^ ^V^ ^ ^ ^ ^ ^ ^
  ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
@@ -464,4 +434,46 @@ _t_witter
   ;; Converting M-v to V here by analogy.
   ("V" scroll-down-command)
   ("l" recenter-top-bottom)
+  ("q" nil "quit" :color blue))
+
+
+(defhydra hydra-window
+  (:hint nil
+   :color amaranth
+   :columns 4
+   )
+  "
+ ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^
+
+ ^ ^ ^ ^ ^S^ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete
+ ^ ^ ^ ^ ^s^ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize
+ ^C^ ^c^ ^a^ ^r^ ^R^   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew
+ ^ ^ ^ ^ ^t^ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
+ ^ ^ ^ ^ ^T^ ^ ^ ^ ^   ^ ^
+"
+  ("c" evil-window-left )
+  ("r" evil-window-right )
+  ("t" evil-window-bottom )
+  ("s" evil-window-top )
+  ("C" evil-window-move-far-left )
+  ("R" evil-window-move-far-right )
+  ("T" evil-window-move-very-bottom )
+  ("S" evil-window-move-very-top )
+  ;; splt
+  ("it" evil-window-split )
+  ("-" evil-window-split )
+  ("|" evil-window-vsplit )
+  ("ir" evil-window-vsplit )
+  ;; delete other
+  ("m" delete-other-windows )
+  ("d" evil-window-delete )
+  ;; change height and width
+  ("f" evil-window-decrease-width )
+  ("b" evil-window-increase-width )
+  ("p" evil-window-decrease-height )
+  ("n" evil-window-increase-height )
+
+  ("N" evil-window-new :color blue)
+  ("=" balance-windows )
+  ("a" ace-window )
   ("q" nil "quit" :color blue))
