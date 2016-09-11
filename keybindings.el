@@ -266,7 +266,7 @@ _l_: light   _n_: linum        ^ ^                 _m_: maximized
   ("n" nlinum-mode)
   ("t" display-time-mode)
   ("m" toggle-frame-maximized)
-  ("F" toggle-frame-fullscreen)
+  ("F" toggle-frame-fullscreen :color blue)
   ("w" blank-mode)
   ("q" nil "quit" :color blue))
 
@@ -304,7 +304,10 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
   ("q" quit-window "quit" :color blue))
 
 (defhydra hydra-git
-  (:body-pre (git-gutter-mode 1) :hint nil)
+  (:body-pre (git-gutter-mode 1)
+   :post (progn (kill-diff-buffers)
+		(message "killed diff buffers"))
+   :hint nil)
   "
 ^Nav^                 ^Hunk^            ^Files^        ^Actions^
 ^^^^^^^^----------------------------------------------------------
@@ -445,16 +448,16 @@ _t_witter
   "
  ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^
 
- ^ ^ ^ ^ ^S^ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete
- ^ ^ ^ ^ ^s^ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize
- ^C^ ^c^ ^a^ ^r^ ^R^   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew
- ^ ^ ^ ^ ^t^ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
- ^ ^ ^ ^ ^T^ ^ ^ ^ ^   ^ ^
+ ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete
+ ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize
+ _C_ _c_ _a_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew
+ ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
+ ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
 "
-  ("c" evil-window-left )
-  ("r" evil-window-right )
-  ("t" evil-window-bottom )
-  ("s" evil-window-top )
+  ("c" evil-window-left :color blue)
+  ("r" evil-window-right :color blue)
+  ("t" evil-window-bottom :color blue )
+  ("s" evil-window-top :color blue)
   ("C" evil-window-move-far-left )
   ("R" evil-window-move-far-right )
   ("T" evil-window-move-very-bottom )
@@ -464,6 +467,7 @@ _t_witter
   ("-" evil-window-split )
   ("|" evil-window-vsplit )
   ("ir" evil-window-vsplit )
+  ("v" evil-window-vsplit :color blue)
   ;; delete other
   ("m" delete-other-windows )
   ("d" evil-window-delete )
