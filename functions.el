@@ -384,3 +384,13 @@ Lisp function does not specify a special indentation."
       (avy-goto-word-or-subword-1))
     )
   )
+
+;; adapted from
+;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers
+(defun kill-diff-buffers ()
+  (interactive)
+  (mapc (lambda (buffer)
+	  (when (member (buffer-local-value 'major-mode buffer)
+			'(diff-mode magit-diff-mode magit-process-mode))
+	    (kill-buffer buffer)))
+	(buffer-list)))
