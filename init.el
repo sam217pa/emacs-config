@@ -64,6 +64,7 @@
 (show-paren-mode) ; highlight delimiters
 (line-number-mode) ; display line number in mode line
 (column-number-mode) ; display colum number in mode line
+(save-place-mode)    ; save cursor position between sessions
 (setq fill-column 80) ; élargit un peu la largeur de texte par défault.
 (setq initial-major-mode 'fundamental-mode)
 ;; supprime les caractères en trop en sauvegardant.
@@ -506,6 +507,8 @@
 
 (use-package exec-path-from-shell :ensure t
   :defer 5
+  :init
+  (setq exec-path-from-shell-check-startup-files nil)
   :config
   (exec-path-from-shell-initialize))
 
@@ -521,10 +524,8 @@
 (use-package flx :ensure t)
 
 (use-package flycheck :ensure t
-  :commands global-flycheck-mode
+  :commands flycheck-mode
   :diminish (flycheck-mode . "ⓕ")
-  :init
-  (add-hook 'after-init-hook (global-flycheck-mode))
   :config
   (progn
     (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
@@ -691,8 +692,8 @@
   (lispy-define-key lispy-mode-map "c" 'lispy-left)
   (lispy-define-key lispy-mode-map "h" 'lispy-clone)
   (lispy-define-key lispy-mode-map "r" 'lispy-right)
-  (lispy-define-key lispy-mode-map "®" 'special-lispy-forward)
-  (lispy-define-key lispy-mode-map "©" 'special-lispy-backward)
+  (lispy-define-key lispy-mode-map "®" 'lispy-forward)
+  (lispy-define-key lispy-mode-map "©" 'lispy-backward)
   (lispy-define-key lispy-mode-map "C" 'lispy-ace-symbol-replace)
   (lispy-define-key lispy-mode-map "H" 'lispy-convolute)
   (lispy-define-key lispy-mode-map "»" 'lispy-slurp)
@@ -701,23 +702,23 @@
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
 
 
-  (imap :keymaps 'emacs-lisp-mode-map
+  (general-define-key
+   :states 'insert
+   :keymaps 'emacs-lisp-mode-map
     "ê" 'hydra-lispy/body)
 
   (defhydra hydra-lispy (:hint nil)
     "
-                 ^Nav^                            | ^Action^
------^-^----------^-^-^-^----------^-^--^-^-------+-^-^-------
-     ^ ^          ^ ^ _ß_: mv up   ^ ^  ^ ^       | _l_: raise
-     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       | _h_: clone
-     ^ ^          ^ ^ _s_: up      ^ ^  ^ ^       | _j_: teleport
-     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
-bwd: _C_ <- left: _c_ ^+^ _r_: right -> _R_: fwd  |
-     ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
-     ^ ^          ^ ^ _t_: down    ^ ^  ^ ^       |
-     _b_: back    ^ ^ ^|^          ^ ^  _f_: flow |
-     ^ ^          ^ ^ _þ_: mv dn   ^ ^  ^ ^       |
-"
+       ^ ^          ^ ^ _ß_: mv up   ^ ^  ^ ^       | _l_: raise
+       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       | _h_: clone
+       ^ ^          ^ ^ _s_: up      ^ ^  ^ ^       | _j_: teleport
+       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
+  bwd: _C_ <- left: _c_ ^+^ _r_: right -> _R_: fwd  |
+       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
+       ^ ^          ^ ^ _t_: down    ^ ^  ^ ^       |
+       _b_: back    ^ ^ ^|^          ^ ^  _f_: flow |
+       ^ ^          ^ ^ _þ_: mv dn   ^ ^  ^ ^       |
+  "
     ("s" lispy-up)
     ("ß" lispy-move-up)
     ("t" lispy-down)
@@ -734,13 +735,6 @@ bwd: _C_ <- left: _c_ ^+^ _r_: right -> _R_: fwd  |
 
   ;; change avy-keys to default bépo home row keys.
   (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
-
-(use-package lispyville :ensure t
-  :disabled t
-  :commands lispyville-mode
-  :init
-  ;; (add-hook 'lispy-mode-hook #'lispyville-mode)
-  )
 
 (use-package lorem-ipsum :ensure t
   :commands
@@ -1151,7 +1145,32 @@ undo               _u_: undo
   )
 
 (use-package smex
-  :quelpa (smex :fetcher github :repo "abo-abo/smex")
+  :quelpa (smex :fetcher github :repo "abo-abo/smex"))
+
+(use-package spaceline :ensure t
+  :config
+  (use-package spaceline-config
+    :init
+
+    ;; (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
+    ;; 	  evil-normal-state-cursor  '("#b58900" box)  ;; blue
+    ;; 	  evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
+    ;; 	  evil-replace-state-cursor '("#859900" hbar) ;; green
+    ;; 	  evil-emacs-state-cursor   '("#d33682" box))
+    ;; magenta
+    (setq spaceline-evil-normal	:background "#b58900" )
+    (setq spaceline-evil-insert	:background "#268bd2" )
+    (setq spaceline-evil-emacs	:background "#d33682" )
+    (setq spaceline-evil-replace :background "#859900" )
+    (setq spaceline-evil-visual	:background "#cb4b16" )
+    (setq spaceline-evil-motion	:background "#cb4b16" )
+
+    (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
+    (setq powerline-default-separator 'utf-8)
+
+    :config
+    (spaceline-emacs-theme)
+    )
   )
 
 (use-package subword :defer t
