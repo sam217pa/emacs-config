@@ -652,8 +652,6 @@
 (use-package ibuffer :ensure t
   :commands ibuffer)
 
-(use-package icicles :ensure t)
-
 (use-package ivy :ensure t
   :diminish (ivy-mode . "")
   :commands ivy-switch-buffer
