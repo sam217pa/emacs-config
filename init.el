@@ -134,7 +134,9 @@
   :diminish auto-fill-function
   :commands turn-on-auto-fill
   :init
-  (add-hook 'text-mode-hook 'turn-on-auto-fill))
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  :config
+  (diminish 'auto-fill-function))
 
 (use-package autorevert :defer t
   :diminish auto-revert-mode
@@ -173,9 +175,10 @@
 
 (use-package color-theme-solarized :ensure t
   :init
+  ;; to make the byte compiler happy.
+  ;; emacs25 has no color-themes variable
   (setq color-themes '())
   :config
-  ;; to make the byte compiler happy. emacs25 has no color-themes variable
   ;; load the theme, don't ask for confirmation
   (load-theme 'solarized t)
 
@@ -188,8 +191,10 @@
     (set-frame-parameter nil 'background-mode 'light)
     (enable-theme 'solarized))
 
-  (solarized-switch-to-dark)
-  )
+  (solarized-switch-to-dark))
+
+(use-package command-log-mode :ensure t
+  :commands clm/open-command-load-buffer)
 
 (use-package company :ensure t
   :diminish ""
@@ -202,8 +207,7 @@
 
   (use-package company-flx :ensure t
     :config
-    (company-flx-mode +1)
-    )
+    (company-flx-mode +1))
 
   (progn
     (setq company-idle-delay 0.5
@@ -646,8 +650,9 @@
 
 ;;; -I-
 (use-package ibuffer :ensure t
-  :commands ibuffer
-  )
+  :commands ibuffer)
+
+(use-package icicles :ensure t)
 
 (use-package ivy :ensure t
   :diminish (ivy-mode . "")
