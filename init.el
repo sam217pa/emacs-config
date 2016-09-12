@@ -131,7 +131,7 @@
 (use-package auctex :ensure t :defer t)
 
 (use-package auto-fill-mode
-  :diminish (auto-fill-function . "")
+  :diminish auto-fill-function
   :commands turn-on-auto-fill
   :init
   (add-hook 'text-mode-hook 'turn-on-auto-fill))
@@ -232,7 +232,8 @@
    ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
    ("C-c /"   . counsel-ag)
-   ("C-c l"   . counsel-locate))
+   ("C-c l"   . counsel-locate)
+   ("M-/"     . counsel-company))
   )
 
 (use-package counsel-osx-app :ensure t
@@ -271,14 +272,6 @@
   (setq display-time-24hr-format t
         display-time-day-and-date t
         display-time-format))
-
-;; (use-package doom
-;;   :quelpa (doom :fetcher github :repo "hlissner/emacs-doom-theme")
-;;   :init
-;;   (add-to-list 'custom-theme-load-path "~/.emacs.d/quelpa/build/doom/")
-;;   (load-theme 'doom-one t)
-;;   )
-
 
 ;;; -E-
 (use-package eldoc :ensure t
@@ -664,11 +657,12 @@
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
-  (setq ivy-height 20)
+  (setq ivy-height 10)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-re-builders-alist
-        '((t . ivy--regex-fuzzy)))
+        '((nil . ivy--regex-fuzzy)
+	  (t   . ivy--regex-ignore-order)))
   )
 
 ;;; -J-
@@ -1199,8 +1193,7 @@ undo               _u_: undo
   )
 
 ;;; -W-
-(use-package wgrep :ensure t
-  :commands wgrep)
+(use-package wgrep :ensure t :defer t)
 
 (use-package which-key :ensure t
   :diminish
