@@ -456,8 +456,8 @@ _t_witter
 "
   ("c" evil-window-left :color blue)
   ("r" evil-window-right :color blue)
-  ("t" evil-window-bottom :color blue )
-  ("s" evil-window-top :color blue)
+  ("t" evil-window-down :color blue )
+  ("s" evil-window-up :color blue)
   ("C" evil-window-move-far-left )
   ("R" evil-window-move-far-right )
   ("T" evil-window-move-very-bottom )

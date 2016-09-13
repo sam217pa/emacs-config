@@ -52,7 +52,7 @@
  coding-system-for-read 'utf-8          ; use UTF8 pour tous les fichiers
  coding-system-for-write 'utf-8         ; idem
  sentence-end-double-space nil          ; sentences does not end with double space.
- default-fill-column 80
+ default-fill-column 70
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
  help-window-select t			; focus help window when opened
@@ -65,7 +65,6 @@
 (line-number-mode) ; display line number in mode line
 (column-number-mode) ; display colum number in mode line
 (save-place-mode)    ; save cursor position between sessions
-(setq fill-column 80) ; élargit un peu la largeur de texte par défault.
 (setq initial-major-mode 'fundamental-mode)
 ;; supprime les caractères en trop en sauvegardant.
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -135,8 +134,7 @@
   :commands turn-on-auto-fill
   :init
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  :config
-  (diminish 'auto-fill-function))
+  (diminish 'auto-fill-function ""))
 
 (use-package autorevert :defer t
   :diminish auto-revert-mode
@@ -624,6 +622,8 @@
   :commands grab-mac-link)
 
 ;;; -H-
+(use-package helm :ensure t :disabled t)
+
 (use-package hideshow
   :commands hs-minor-mode
   :diminish hs-minor-mode
@@ -1085,6 +1085,8 @@ undo               _u_: undo
   :init
   (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
   (recentf-mode 1)
+  :config
+  (setq recentf-max-saved-items 50)
   )
 
 (use-package restart-emacs :ensure t
@@ -1161,6 +1163,7 @@ undo               _u_: undo
   :quelpa (smex :fetcher github :repo "abo-abo/smex"))
 
 (use-package spaceline :ensure t
+  :defer 1
   :config
   (use-package spaceline-config
     :init
