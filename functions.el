@@ -394,3 +394,8 @@ Lisp function does not specify a special indentation."
 			'(diff-mode magit-diff-mode magit-process-mode))
 	    (kill-buffer buffer)))
 	(buffer-list)))
+
+;; syntax highlight hugo src block
+(font-lock-add-keywords
+ 'markdown-mode
+ '(("src\\|{{< figure\\|caption\\|link\\|>}}" . font-lock-keyword-face)))
