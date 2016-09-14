@@ -635,8 +635,7 @@
 (use-package hl-line
   ;; souligne la ligne du curseur
   :init
-  (global-hl-line-mode)
-  )
+  (global-hl-line-mode))
 
 (use-package hydra :ensure t
   ;; pour les keybindings de fou
@@ -653,7 +652,9 @@
 (use-package ibuffer :ensure t
   :commands ibuffer
   :init
-  (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body))
+  (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
+  :config
+  (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
 (use-package ivy
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")

@@ -201,8 +201,6 @@
   (general-define-key :keymaps 'Buffer-menu-mode-map
     "." 'hydra-buffer-menu/body)
 
-  (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body)
-
   (general-define-key
 ;;; SUPER map
    "s-l"   'sam--comment-or-uncomment-region-or-line
