@@ -623,7 +623,34 @@
   :commands grab-mac-link)
 
 ;;; -H-
-(use-package helm :ensure t :disabled t)
+(use-package helm
+  ;; disabled for now, but I've copy and pasted here the advice from
+  ;; tuhdo about helm.
+  :disabled t
+  :commands (helm-mode)
+  :bind (("M-x" . helm-M-x))
+  :config
+  (setq
+   ;; open helm buffer inside current window, not occupy whole other window
+   helm-split-window-in-side-p t
+   ;; input close to where I type
+   helm-echo-input-in-header-line t)
+
+  (defun helm-hide-minibuffer-maybe ()
+    "Hide minibuffer in Helm session if we use the header line as input field."
+    (when (with-helm-buffer helm-echo-input-in-header-line)
+      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+	(overlay-put ov 'window (selected-window))
+	(overlay-put ov 'face
+		     (let ((bg-color (face-background 'default nil)))
+		       `(:background ,bg-color :foreground ,bg-color)))
+	(setq-local cursor-type nil))))
+
+  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1))
 
 (use-package hideshow
   :commands hs-minor-mode
