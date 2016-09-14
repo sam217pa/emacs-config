@@ -243,9 +243,21 @@
   :defer 1
   :config
   (setq key-chord-two-keys-delay 0.2)
-  (key-chord-define evil-insert-state-map "xb" #'hydra-buffer/body)
-  (key-chord-define evil-insert-state-map "xf" #'ivy-switch-buffer)
-  (key-chord-define evil-insert-state-map "xv" #'git-gutter:stage-hunk))
+  ;; need to use key-seq. otherwise key order does not matter. that's bad.
+  ;; i want latency only on x. not on everytouch.
+  (use-package key-seq :ensure t
+    :config
+    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/body)
+    (key-seq-define evil-insert-state-map "xf" #'ivy-switch-buffer)
+    (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
+    (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
+    (key-seq-define evil-insert-state-map "xs" #'save-buffer)
+    (key-seq-define evil-insert-state-map "xp" #'hydra-projectile/body)
+    (key-seq-define evil-insert-state-map "XV" #'magit-status)))
+
+;; this one is genius from general. you press ".", it wait for another command
+;; in the general-key-dispatch list of command or insert .
+;; really useful in insert map, no need to go to escape map.
 
 ;;
 ;; Hydra

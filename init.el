@@ -688,6 +688,10 @@
   :config
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
 
+(use-package imenu-anywhere
+  :quelpa (imenu-anywhere :fetcher github :repo "vspinu/imenu-anywhere")
+  :commands ivy-imenu-anywhere)
+
 (use-package ivy
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
   :diminish (ivy-mode . "")
