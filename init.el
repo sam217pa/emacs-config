@@ -13,7 +13,6 @@
 			 ("marmalade" . "https://marmalade-repo.org/packages/")
 			 ("gnu" . "https://elpa.gnu.org/packages/")))
 
-
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -106,8 +105,13 @@
 ;;; Packages
 
 ;;; -A-
-(use-package abbrev
-  :disabled t)
+(use-package abbrev :defer t
+  :diminish "α"
+  :init
+  (add-hook 'text-mode-hook (lambda () (abbrev-mode 1)))
+  ;; tell emacs where to read abbrev definitions from...
+  (setq abbrev-file-name "~/dotfile/emacs/.abbrev_defs")
+  (setq save-abbrevs 'silently))
 
 (use-package ace-window :ensure t
   :commands
