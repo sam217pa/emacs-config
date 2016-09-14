@@ -262,14 +262,12 @@
             (function (lambda () (load "dired-x"))))
 
   :config
-                                        ; use GNU ls instead of BSD ls
+  ;; use GNU ls instead of BSD ls
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
 	(setq insert-directory-program gls)))
-
-                                        ; change default arguments to ls. must include -l
-  (setq dired-listing-switches "-XGalg --human-readable --dired")
-  )
+  ;; change default arguments to ls. must include -l
+  (setq dired-listing-switches "-XGalg --human-readable --dired"))
 
 (use-package display-time
   :commands
@@ -470,6 +468,7 @@
   (evil-set-initial-state 'dired-mode 'emacs)
   (evil-set-initial-state 'message-mode 'motion)
   (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'ivy-occur-mode 'emacs)
 
   (use-package evil-escape :ensure t
     :diminish
@@ -503,8 +502,6 @@
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
 	evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
-
-  ;; patate
   )
 
 
@@ -552,7 +549,8 @@
 
   (use-package git-gutter-fringe :ensure t
     :init
-    (setq-default left-fringe-width 5)
+    ;; (setq-default left-fringe-width 10)
+    (setq-default right-fringe-width 0)
     :config
     (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
     (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
@@ -655,11 +653,12 @@
 (use-package ibuffer :ensure t
   :commands ibuffer)
 
-(use-package ivy :ensure t
+(use-package ivy
+  :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
   :diminish (ivy-mode . "")
   :commands ivy-switch-buffer
   :bind (:map ivy-mode-map
-         ("C-'" . ivy-avy))
+	 ("C-'" . ivy-avy))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -667,7 +666,7 @@
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-re-builders-alist
-        '((nil . ivy--regex-fuzzy)
+	'((nil . ivy--regex-fuzzy)
 	  (t   . ivy--regex-ignore-order)))
   )
 
