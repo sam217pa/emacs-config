@@ -27,6 +27,7 @@
 
 
 (use-package general :ensure t)
+(use-package use-package-chords :config (key-chord-mode 1))
 (use-package diminish)
 (use-package bind-key)
 (use-package server
@@ -146,6 +147,10 @@
   )
 
 (use-package avy :ensure t :defer t
+  :chords
+  (:map evil-normal-state-map
+   (".." . avy-goto-word-1)
+   (".'" . avy-goto-line))
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
   )
@@ -155,9 +160,9 @@
   :commands aggressive-indent-mode
   :init
   (add-hook 'prog-mode-hook 'aggressive-indent-mode)
-  :config (progn
-            (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-            (add-to-list 'aggressive-indent-excluded-modes 'perl-mode))
+  :config
+  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+  (add-to-list 'aggressive-indent-excluded-modes 'perl-mode)
   )
 
 ;;; -B-

@@ -236,6 +236,16 @@
   "C-x r"   "rectangle"
   "C-x v"   "version control")
 
+;;
+;;; Key-chord
+;;
+(use-package key-chord :ensure t
+  :defer 1
+  :config
+  (setq key-chord-two-keys-delay 0.2)
+  (key-chord-define evil-insert-state-map "xb" #'hydra-buffer/body)
+  (key-chord-define evil-insert-state-map "xf" #'ivy-switch-buffer)
+  (key-chord-define evil-insert-state-map "xv" #'git-gutter:stage-hunk))
 
 ;;
 ;; Hydra
