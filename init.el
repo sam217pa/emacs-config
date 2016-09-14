@@ -651,7 +651,9 @@
 
 ;;; -I-
 (use-package ibuffer :ensure t
-  :commands ibuffer)
+  :commands ibuffer
+  :init
+  (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body))
 
 (use-package ivy
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
@@ -666,7 +668,7 @@
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-re-builders-alist
-	'((nil . ivy--regex-fuzzy)
+	'((t . ivy--regex-fuzzy)
 	  (t   . ivy--regex-ignore-order)))
   )
 
