@@ -30,24 +30,15 @@
     "." '(avy-goto-word-or-subword-1  :which-key "go to char")
     "SPC" '(counsel-M-x  :which-key "M-x")
 
-;;;; a
     ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")
-
-;;;; b
-    ;; Buffer
-    "b" '(:ignore t :which-key "Buffer")
-    "bB"  '(ibuffer)
-    "bb"  '(ivy-switch-buffer :which-key "switch buffer")
-    "bd"  '(kill-buffer-and-window :which-key "delete buffer")
-    "bn"  '(sam--new-empty-buffer :which-key "new empty buffer")
+    "b" '(hydra-buffer/body t :which-key "Buffer")
 
 ;;;; c
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
 
-;;;; é
     ;; Window management
     "é" '(hydra-window/body :which-key "Window")
 
@@ -64,7 +55,7 @@
     "ff"  '(find-file :which-key "find file")
     "fF"  '(find-file-other-window :which-key "ff other  window")
     "fo"  '(sam--open-in-external-app :which-key "open file")
-    "fr"  '(counsel-recentf :which-key "recent files")
+    "fr"  '(ivy-switch-buffer :which-key "recent files")
     "fR"  '(fasd-find-file)
     "fs"  '(save-buffer :which-key "save file")
     "fS"  '(rename-file :which-key "rename file")
@@ -90,13 +81,9 @@
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
 
-;;;; j
     ;; Journal
     "j" '(:ignore t :which-key "Journal")
 
-;;;; l
-    ;; Lisp
-    "l" '(:ignore t :which-key "Lisp")
 
 ;;;; o
     ;; Org
@@ -106,7 +93,7 @@
 ;;;; p
     ;; Project
     "p" '(hydra-projectile/body :which-key "Project")
-    ;; "pf" 'counsel-git
+
 ;;;; q
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
@@ -214,6 +201,8 @@
   (general-define-key :keymaps 'Buffer-menu-mode-map
     "." 'hydra-buffer-menu/body)
 
+  (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body)
+
   (general-define-key
 ;;; SUPER map
    "s-l"   'sam--comment-or-uncomment-region-or-line
@@ -313,18 +302,18 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
   "
 ^Nav^                 ^Hunk^            ^Files^        ^Actions^
 ^^^^^^^^----------------------------------------------------------
-_C-n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
-_C-p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
-_C-P_: first hunk       _p_opup hunk      _d_iff         _C_heckout
-_C-N_: last hunk        _R_evision start  _t_imemachine
+_n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
+_p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
+_C-P_: first hunk     _P_opup hunk      _d_iff         _C_heckout
+_C-N_: last hunk      _R_evision start  _t_imemachine
 "
-  ("C-n" git-gutter:next-hunk)
-  ("C-p" git-gutter:previous-hunk)
+  ("n" git-gutter:next-hunk)
+  ("p" git-gutter:previous-hunk)
   ("C-P" (progn (goto-char (point-min)) (git-gutter:next-hunk 1)))
   ("C-N" (progn (goto-char (point-min)) (git-gutter:previous-hunk 1)))
   ("s" git-gutter:stage-hunk)
   ("r" git-gutter:revert-hunk)
-  ("p" git-gutter:popup-hunk)
+  ("P" git-gutter:popup-hunk)
   ("R" git-gutter:set-start-revision)
   ("S" magit-stage-file)
   ("R" magit-revert)
@@ -487,3 +476,104 @@ _t_witter
 (defhydra hydra-error ()
   ("t" next-error "next")
   ("s" previous-error "previous"))
+
+(defhydra hydra-buffer (:color blue)
+  ("b" ivy-switch-buffer "switch")
+  ("B" ibuffer "ibuffer")
+  ("C-b" buffer-menu "buffer menu")
+  ("d" (kill-buffer-if-not-modified (buffer-name)) "delete" :color red)
+  ("n" evil-buffer-new "new"))
+
+
+;;; Ibuffer
+;; this is genius hydra making from
+;; https://github.com/abo-abo/hydra/wiki/Ibuffer
+(defhydra hydra-ibuffer-main (:color pink :hint nil)
+  "
+ ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
+-^----------^-+-^----^--------+-^-------^--------+-^----^-------
+  _s_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
+ _RET_: visit | _u_: unmark   | _S_: save        | _O_: sort
+  _t_:    v   | _*_: specific | _a_: all actions | _/_: filter
+-^----------^-+-^----^--------+-^-------^--------+-^----^-------
+"
+  ("t" ibuffer-forward-line)
+  ("RET" ibuffer-visit-buffer :color blue)
+  ("s" ibuffer-backward-line)
+
+  ("m" ibuffer-mark-forward)
+  ("u" ibuffer-unmark-forward)
+  ("*" hydra-ibuffer-mark/body :color blue)
+
+  ("D" ibuffer-do-delete)
+  ("S" ibuffer-do-save)
+  ("a" hydra-ibuffer-action/body :color blue)
+
+  ("g" ibuffer-update)
+  ("O" hydra-ibuffer-sort/body :color blue)
+  ("/" hydra-ibuffer-filter/body :color blue)
+
+  ("o" ibuffer-visit-buffer-other-window "other window" :color blue)
+  ("q" ibuffer-quit "quit ibuffer" :color blue)
+  ("." nil "toggle hydra" :color blue))
+
+(defhydra hydra-ibuffer-mark (:color teal :columns 5
+                              :after-exit (hydra-ibuffer-main/body))
+  "Mark"
+  ("*" ibuffer-unmark-all "unmark all")
+  ("M" ibuffer-mark-by-mode "mode")
+  ("m" ibuffer-mark-modified-buffers "modified")
+  ("u" ibuffer-mark-unsaved-buffers "unsaved")
+  ("s" ibuffer-mark-special-buffers "special")
+  ("r" ibuffer-mark-read-only-buffers "read-only")
+  ("/" ibuffer-mark-dired-buffers "dired")
+  ("e" ibuffer-mark-dissociated-buffers "dissociated")
+  ("h" ibuffer-mark-help-buffers "help")
+  ("z" ibuffer-mark-compressed-file-buffers "compressed")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
+
+(defhydra hydra-ibuffer-action (:color teal :columns 4
+                                :after-exit
+                                (if (eq major-mode 'ibuffer-mode)
+                                    (hydra-ibuffer-main/body)))
+  "Action"
+  ("A" ibuffer-do-view "view")
+  ("E" ibuffer-do-eval "eval")
+  ("F" ibuffer-do-shell-command-file "shell-command-file")
+  ("I" ibuffer-do-query-replace-regexp "query-replace-regexp")
+  ("H" ibuffer-do-view-other-frame "view-other-frame")
+  ("N" ibuffer-do-shell-command-pipe-replace "shell-cmd-pipe-replace")
+  ("M" ibuffer-do-toggle-modified "toggle-modified")
+  ("O" ibuffer-do-occur "occur")
+  ("P" ibuffer-do-print "print")
+  ("Q" ibuffer-do-query-replace "query-replace")
+  ("R" ibuffer-do-rename-uniquely "rename-uniquely")
+  ("T" ibuffer-do-toggle-read-only "toggle-read-only")
+  ("U" ibuffer-do-replace-regexp "replace-regexp")
+  ("V" ibuffer-do-revert "revert")
+  ("W" ibuffer-do-view-and-eval "view-and-eval")
+  ("X" ibuffer-do-shell-command-pipe "shell-command-pipe")
+  ("b" nil "back"))
+
+(defhydra hydra-ibuffer-sort (:color amaranth :columns 3)
+  "Sort"
+  ("i" ibuffer-invert-sorting "invert")
+  ("a" ibuffer-do-sort-by-alphabetic "alphabetic")
+  ("v" ibuffer-do-sort-by-recency "recently used")
+  ("s" ibuffer-do-sort-by-size "size")
+  ("f" ibuffer-do-sort-by-filename/process "filename")
+  ("m" ibuffer-do-sort-by-major-mode "mode")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
+
+(defhydra hydra-ibuffer-filter (:color amaranth :columns 4)
+  "Filter"
+  ("m" ibuffer-filter-by-used-mode "mode")
+  ("M" ibuffer-filter-by-derived-mode "derived mode")
+  ("n" ibuffer-filter-by-name "name")
+  ("c" ibuffer-filter-by-content "content")
+  ("e" ibuffer-filter-by-predicate "predicate")
+  ("f" ibuffer-filter-by-filename "filename")
+  (">" ibuffer-filter-by-size-gt "size")
+  ("<" ibuffer-filter-by-size-lt "size")
+  ("/" ibuffer-filter-disable "disable")
+  ("b" hydra-ibuffer-main/body "back" :color blue))
