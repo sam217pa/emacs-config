@@ -62,6 +62,7 @@
     "fef" '(sam--edit-functions :which-key "edit functions")
     "fep" '(sam--edit-password :which-key "edit password")
     "ff"  '(find-file :which-key "find file")
+    "fF"  '(find-file-other-window :which-key "ff other  window")
     "fo"  '(sam--open-in-external-app :which-key "open file")
     "fr"  '(counsel-recentf :which-key "recent files")
     "fR"  '(fasd-find-file)
@@ -228,6 +229,7 @@
 ;;; META map
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
+   "M-g" 'hydra-error/body
    ))
 
 ;;
@@ -252,11 +254,11 @@
 ;; Hydra
 ;;
 
-(defhydra hydra-toggle (:hint nil :color red)
+(defhydra hydra-toggle (:hint nil :color blue)
   "
 ^themes^     ^modes^           ^modeline^          ^frame
 ^^^^^^^^--------------------------------------------------------
-_d_: dark    _f_: flycheck     _t_: time           _F_: fullscreen
+_d_: dark    _f_: flycheck     _T_: time           _F_: fullscreen
 _l_: light   _n_: linum        ^ ^                 _m_: maximized
 ^ ^          _w_: whitespace   ^ ^                 ^ ^
 "
@@ -264,10 +266,10 @@ _l_: light   _n_: linum        ^ ^                 _m_: maximized
   ("l" solarized-switch-to-light)
   ("f" flycheck-mode :color blue)
   ("n" nlinum-mode)
-  ("t" display-time-mode)
+  ("T" display-time-mode)
   ("m" toggle-frame-maximized)
   ("F" toggle-frame-fullscreen :color blue)
-  ("w" blank-mode)
+  ("w" blank-mode :color red)
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-buffer-menu
@@ -311,15 +313,15 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
   "
 ^Nav^                 ^Hunk^            ^Files^        ^Actions^
 ^^^^^^^^----------------------------------------------------------
-_n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
-_p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
-_P_: first hunk       _p_opup hunk      _d_iff         _C_heckout
-_N_: last hunk        _R_evision start  _t_imemachine
+_C-n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
+_C-p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
+_C-P_: first hunk       _p_opup hunk      _d_iff         _C_heckout
+_C-N_: last hunk        _R_evision start  _t_imemachine
 "
-  ("n" git-gutter:next-hunk)
-  ("p" git-gutter:previous-hunk)
-  ("P" (progn (goto-char (point-min)) (git-gutter:next-hunk 1)))
-  ("N" (progn (goto-char (point-min)) (git-gutter:previous-hunk 1)))
+  ("C-n" git-gutter:next-hunk)
+  ("C-p" git-gutter:previous-hunk)
+  ("C-P" (progn (goto-char (point-min)) (git-gutter:next-hunk 1)))
+  ("C-N" (progn (goto-char (point-min)) (git-gutter:previous-hunk 1)))
   ("s" git-gutter:stage-hunk)
   ("r" git-gutter:revert-hunk)
   ("p" git-gutter:popup-hunk)
@@ -481,3 +483,7 @@ _t_witter
   ("=" balance-windows )
   ("a" ace-window )
   ("q" nil "quit" :color blue))
+
+(defhydra hydra-error ()
+  ("t" next-error "next")
+  ("s" previous-error "previous"))
