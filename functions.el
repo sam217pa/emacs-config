@@ -399,3 +399,26 @@ Lisp function does not specify a special indentation."
 (font-lock-add-keywords
  'markdown-mode
  '(("src\\|{{< figure\\|caption\\|link\\|>}}" . font-lock-keyword-face)))
+
+(defun sam--ivy-solarized ()
+  "Return HEX code from solarized color map."
+  (interactive)
+  (ivy-read
+   "Select hex from solarized color: "
+   '(( brblack  . "#002b36" )
+     ( black    . "#073642" )
+     ( brgreen  . "#586e75" )
+     ( bryellow . "#657b83" )
+     ( brblue   . "#839496" )
+     ( brcyan   . "#93a1a1" )
+     ( white    . "#eee8d5" )
+     ( brwhite  . "#fdf6e3" )
+     ( yellow   . "#b58900" )
+     ( brred    . "#cb4b16" )
+     ( red      . "#dc322f" )
+     ( magenta  . "#d33682" )
+     ( brmagenta . "#6c71c4" )
+     ( blue     . "#268bd2" )
+     ( cyan     . "#2aa198" )
+     ( green    . "#859900" ))
+   :action (lambda (x) (insert (cdr x)))))
