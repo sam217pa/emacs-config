@@ -153,7 +153,9 @@
    (".'" . avy-goto-line))
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
-  )
+  (setq avy-styles-alist
+        '((avy-goto-char-in-line . post)
+          (avy-goto-word-or-subword-1 . post))))
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
@@ -216,23 +218,53 @@
     :config
     (company-flx-mode +1))
 
-  (progn
-    (setq company-idle-delay 0.5
-          company-selection-wrap-around t)
-    (define-key company-active-map [tab] 'company-complete)
-    (define-key company-active-map (kbd "C-n") 'company-select-next)
-    (define-key company-active-map (kbd "C-p") 'company-select-previous))
+  (define-key company-active-map [tab] 'company-complete)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+
+  (setq
+   company-idle-delay 0.2
+   company-selection-wrap-around t
+   company-minimum-prefix-length 3
+   company-require-match nil
+   company-dabbrev-ignore-case nil
+   company-dabbrev-downcase nil)
 
   (setq company-backends
         '((company-css
 	   company-clang
+           company-capf
 	   company-xcode
 	   company-cmake
-	   company-capf
 	   company-files
 	   company-gtags
 	   company-etags
-	   company-keywords))) )
+	   company-keywords)))
+
+  ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/auto-completion/packages.el
+  (setq hippie-expand-try-functions-list
+        '(
+          ;; Try to expand word "dynamically", searching the current buffer.
+          try-expand-dabbrev
+          ;; Try to expand word "dynamically", searching all other buffers.
+          try-expand-dabbrev-all-buffers
+          ;; Try to expand word "dynamically", searching the kill ring.
+          try-expand-dabbrev-from-kill
+          ;; Try to complete text as a file name, as many characters as unique.
+          try-complete-file-name-partially
+          ;; Try to complete text as a file name.
+          try-complete-file-name
+          ;; Try to expand word before point according to all abbrev tables.
+          try-expand-all-abbrevs
+          ;; Try to complete the current line to an entire line in the buffer.
+          try-expand-list
+          ;; Try to complete the current line to an entire line in the buffer.
+          try-expand-line
+          ;; Try to complete as an Emacs Lisp symbol, as many characters as
+          ;; unique.
+          try-complete-lisp-symbol-partially
+          ;; Try to complete word as an Emacs Lisp symbol.
+          try-complete-lisp-symbol)))
 
 (use-package counsel :ensure t
   :bind*
@@ -244,7 +276,7 @@
    ("C-c s"   . counsel-git-grep)
    ("C-c /"   . counsel-ag)
    ("C-c l"   . counsel-locate)
-   ("M-/"     . counsel-company))
+   )
   :config
   (defun counsel-package-install ()
     (interactive)
@@ -256,8 +288,7 @@
 			    package-archive-contents))
 	      :action (lambda (x)
 			(package-install (intern x)))
-	      :caller 'counsel-package-install))
-  )
+	      :caller 'counsel-package-install)))
 
 (use-package counsel-osx-app :ensure t
   :commands counsel-osx-app
@@ -527,16 +558,16 @@
   :init
   (setq exec-path-from-shell-check-startup-files nil)
   :config
-  (exec-path-from-shell-initialize))
+  (exec-path-from-shell-initialize)
+  ;; wrap fasd in epfs config to make sure the fasd executable is found
+  (use-package fasd :ensure t
+    :config
+    (global-fasd-mode 1)
+    (setq fasd-completing-read-function 'ivy-completing-read)
+    (setq fasd-enable-initial-prompt nil)))
 
 (use-package expand-region :ensure t :defer t)
-
 ;;; -F-
-(use-package fasd :ensure t
-  :config
-  (global-fasd-mode 1)
-  (setq fasd-completing-read-function 'ivy-completing-read)
-  (setq fasd-enable-initial-prompt nil))
 
 (use-package flx :ensure t)
 
@@ -1017,7 +1048,8 @@ undo               _u_: undo
     :commands (elpy-mode
                elpy-enable
                )
-    :bind* ("M-/" . elpy-company-backend)
+    :bind (:map python-mode-map
+           ("M-/" . elpy-company-backend))
     :init
     (add-hook 'python-mode-hook 'elpy-mode)
     :config
@@ -1099,9 +1131,7 @@ undo               _u_: undo
       "s" 'elpy-nav-move-line-or-region-up
       "c" 'elpy-nav-indent-shift-left
       "r" 'elpy-nav-indent-shift-right
-      )
-
-    )
+      ))
 
   (use-package pyenv-mode :ensure t
     :commands pyenv-mode

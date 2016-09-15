@@ -2,20 +2,42 @@
 ;; Most of the keybindings should have a clear and precise prefix.
 ;; common functions should be under the same prefix (leader)
 ;;
-;; Emacs related functions goes to the prefix `e'.
-;; Major-mode related functions goes to the prefix `,'.
 
+;; I define most of my frequently used keybindings under the SPC
+;; prefix. Free keyboard touch are ê, à, ç, é, è.
+;;
+;; The META map can be used in different ways between the normal map
+;; and the insert map. In insert state, in should respect emacs
+;; default, since it is often used by packages. It is free in normal
+;; state map.
+;;
+;; The SUPER and HYPER key are kind of hard to use, but they can be
+;; used as placeholder for common functions. In ess, one can give
+;; different function to M-RET, C-RET, S-RET or H-RET for example. It
+;; should nonetheless stay consistent and obvious what each keypress
+;; does. When it's not, consider wrapping it with which-key or an hydra.
+;;
+;; I tend to attribute the same meaning to S-x and H-x, but the H-x
+;; must feel stronger than the S-x. Like maximise with S-x and
+;; fullscreen with H-x. It is not really consistent for now, as the
+;; S-x is sometimes more useful than the H-x definition.
+;;
+;; I also and finally use key-seq, a key-chord related packages, but
+;; the order of keys matters. I constructed a prefix around x, a touch
+;; that I do not press that often in french. Like xs to save the
+;; buffer, without leaving the insert mode. Or xv to stage the current
+;; hunk. They key-seq keymap must be strictly reserved to really
+;; frequent functions. The xs sequence for example allow me to save
+;; the buffer with two keypress instead of having to press `C-x C-s`,
+;; or `xq (ESC) SPC s .`. It must not be bloated. I reserve it for
+;; function that I use often in insert state.
 
 (use-package general :ensure t
   :config
 
   (general-evil-setup t)
 
-  ;; This chunks contains all the keybindings that I use regularly.
-  ;; They are placed under the prefix SPC, as in spacemacs.
-  ;; Absolutely all functions that I use must be referenced here.
-  ;; There is another leader via C-SPC which gives shorter keybindings
-  ;; for stuff that I use more often.
+
 ;;; SPC-map
   (general-define-key
    :states '(normal visual insert emacs)
@@ -99,18 +121,6 @@
     ;; Git related stuff
     "v" '(hydra-git/body :which-key "Version Control"))
 
-  ;; this is the second prefix. It gives shorter access to common
-  ;; functions. Like avy goto line.
-;;; C-SPC map
-  (general-define-key
-   :states '(normal insert emacs)
-   :prefix "C-SPC"
-   :non-normal-prefix "C-SPC"
-    "l" '(avy-goto-line)
-    "a" 'align-regexp
-    )
-
-
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
   (nvmap
@@ -120,6 +130,7 @@
    "s-b" 'ivy-switch-buffer
    "s-g" 'avy-goto-char
    "C-p" 'counsel-yank-pop
+   "?" 'avy-goto-char-in-line
    "|" 'ivy-switch-buffer
    "c" 'evil-backward-char
    "C" 'evil-window-top
@@ -138,7 +149,7 @@
    "K" 'evil-change-whole-line
    "M-b" 'ivy-switch-buffer
    "p" #'hydra-paste/evil-paste-after
-   "P" #'hydra-paste/evil-paste-before  )
+   "P" #'hydra-paste/evil-paste-before)
 
 ;;; INSERT map
   (imap
@@ -162,23 +173,24 @@
    "s" 'evil-previous-visual-line
    )
 
-;;; MODE specifique map
-  (general-define-key :keymaps 'Buffer-menu-mode-map
-    "." 'hydra-buffer-menu/body)
+;;; MODE specific map
+  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 
   (general-define-key
-;;; SUPER map
+;;; SUPER map (alt left)
    "s-l"   'sam--comment-or-uncomment-region-or-line
    "s-w"   'delete-other-windows
    "s-m"   'delete-other-windows
    "s-SPC" 'set-mark-command
    "s-<tab>" 'sam--switch-to-other-buffer
-;;; HYPER map
+;;; HYPER map (ctlr left)
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
    "H-r" 'counsel-recentf
-;;; META map
+;;; META map (cmd right)
+
+   "M-/" 'hippie-expand
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
    "M-g" 'hydra-error/body
@@ -213,7 +225,7 @@
   ;; i want latency only on x. not on everytouch.
   (use-package key-seq :ensure t
     :config
-    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/body)
+    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/)
     (key-seq-define evil-insert-state-map "xf" #'ivy-switch-buffer)
     (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
     (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
@@ -476,12 +488,12 @@ _t_witter
  ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
 -^----------^-+-^----^--------+-^-------^--------+-^----^-------
   _s_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
- _RET_: visit | _u_: unmark   | _S_: save        | _O_: sort
+  _r_: visit | _u_: unmark   | _S_: save        | _O_: sort
   _t_:    v   | _*_: specific | _a_: all actions | _/_: filter
 -^----------^-+-^----^--------+-^-------^--------+-^----^-------
 "
   ("t" ibuffer-forward-line)
-  ("RET" ibuffer-visit-buffer :color blue)
+  ("r" ibuffer-visit-buffer :color blue)
   ("s" ibuffer-backward-line)
 
   ("m" ibuffer-mark-forward)
