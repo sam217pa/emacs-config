@@ -400,6 +400,7 @@ Lisp function does not specify a special indentation."
  'markdown-mode
  '(("src\\|{{< figure\\|caption\\|link\\|>}}" . font-lock-keyword-face)))
 
+
 (defun sam--ivy-solarized ()
   "Return HEX code from solarized color map."
   (interactive)

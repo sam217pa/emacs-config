@@ -245,6 +245,18 @@
    ("C-c /"   . counsel-ag)
    ("C-c l"   . counsel-locate)
    ("M-/"     . counsel-company))
+  :config
+  (defun counsel-package-install ()
+    (interactive)
+    (ivy-read "Install package: "
+	      (delq nil
+		    (mapcar (lambda (elt)
+			      (unless (package-installed-p (car elt))
+				(symbol-name (car elt))))
+			    package-archive-contents))
+	      :action (lambda (x)
+			(package-install (intern x)))
+	      :caller 'counsel-package-install))
   )
 
 (use-package counsel-osx-app :ensure t
@@ -704,10 +716,30 @@
   (setq ivy-height 10)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
+  ;; if ivy-flip is t, presents results on top of query.
+  (setq ivy-flip nil)
   (setq ivy-re-builders-alist
 	'((t . ivy--regex-fuzzy)
 	  (t   . ivy--regex-ignore-order)))
-  )
+
+  (defun ivy-switch-project ()
+    (interactive)
+    (ivy-read
+     "Switch to project: "
+     (if (projectile-project-p)
+	 (cons (abbreviate-file-name (projectile-project-root))
+	       (projectile-relevant-known-projects))
+       projectile-known-projects)
+     :action #'projectile-switch-project-by-name))
+
+  (global-set-key (kbd "C-c m") 'ivy-switch-project)
+
+  (ivy-set-actions
+   'ivy-switch-project
+   '(("d" dired "Open Dired in project's directory")
+     ("v" counsel-projectile "Open project root in vc-dir or magit")
+     ("c" projectile-compile-project "Compile project")
+     ("r" projectile-remove-known-project "Remove project(s)"))))
 
 ;;; -J-
 
@@ -716,8 +748,7 @@
 ;;; -L-
 (use-package linum :defer t
   :init
-  (add-hook 'linum-mode-hook 'sam--fix-linum-size)
-  )
+  (add-hook 'linum-mode-hook 'sam--fix-linum-size))
 
 (use-package lispy :ensure t
   :diminish (lispy-mode . "λ")
@@ -837,8 +868,7 @@
 
 (use-package makefile-mode :defer t
   :init
-  (add-hook 'makefile-bsdmake-mode-hook 'makefile-gmake-mode)
-  )
+  (add-hook 'makefile-bsdmake-mode-hook 'makefile-gmake-mode))
 
 (use-package markdown-mode :ensure t
   :mode ("\\.md\\'" . markdown-mode)
@@ -922,8 +952,7 @@ undo               _u_: undo
 ;;; -P-
 (use-package paradox :ensure t
   :commands (paradox-list-packages
-             package-list-packages)
-  )
+             package-list-packages))
 
 (use-package pbcopy :ensure t
   :if (not (display-graphic-p))
@@ -938,8 +967,7 @@ undo               _u_: undo
   :disabled t
   :commands turn-on-pretty-mode
   :init
-  (add-hook 'ess-mode-hook 'turn-on-pretty-mode)
-  )
+  (add-hook 'ess-mode-hook 'turn-on-pretty-mode))
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
@@ -1091,26 +1119,25 @@ undo               _u_: undo
   :commands rainbow-delimiters-mode
   :init
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  )
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package ranger :ensure t
-  :commands (ranger
-             deer)
+  :commands
+  (ranger
+   deer)
   :bind (("C-x d" . deer))
 
   :general
   (:keymaps 'ranger-mode-map
-   "t" 'ranger-next-file ; j
-   "s" 'ranger-prev-file ; k
-   "r" 'ranger-find-file ; l
-   "c" 'ranger-up-directory ; c
-   "j" 'ranger-toggle-mark ; t
+   "t" 'ranger-next-file		; j
+   "s" 'ranger-prev-file		; k
+   "r" 'ranger-find-file		; l
+   "c" 'ranger-up-directory		; c
+   "j" 'ranger-toggle-mark		; t
    )
 
   :config
-  (setq ranger-cleanup-eagerly t)
-  )
+  (setq ranger-cleanup-eagerly t))
 
 (use-package recentf
   :preface
@@ -1127,19 +1154,16 @@ undo               _u_: undo
   (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
   (recentf-mode 1)
   :config
-  (setq recentf-max-saved-items 50)
-  )
+  (setq recentf-max-saved-items 50))
 
 (use-package restart-emacs :ensure t
-  :commands restart-emacs
-  )
+  :commands restart-emacs)
 
 ;;; -S-
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
 (use-package sh-script :defer t
-  ;; shell-scripts
   :init
   ;; Use sh-mode when opening `.zsh' files, and when opening
   ;; Prezto runcoms.
@@ -1164,41 +1188,34 @@ undo               _u_: undo
          ("C-S-d" . sp-beginning-of-sexp)
          ("C-S-a" . sp-end-of-sexp)
          ("C-M-e" . sp-up-sexp)
-         ("C-M-u" . sp-backward-up-sexp)
-         )
+         ("C-M-u" . sp-backward-up-sexp))
   :init
   (add-hook 'after-init-hook (lambda () (smartparens-global-mode)))
-  ;; (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
-  ;; (add-hook 'org-mode-hook #'smartparens-mode)
-  ;; (add-hook 'ess-mode-hook #'smartparens-mode)
 
   :config
-  (progn
-    ;; Only use smartparens in web-mode
-    (sp-local-pair 'web-mode "<% " " %>")
-    (sp-local-pair 'web-mode "{ " " }")
-    (sp-local-pair 'web-mode "<%= "  " %>")
-    (sp-local-pair 'web-mode "<%# "  " %>")
-    (sp-local-pair 'web-mode "<%$ "  " %>")
-    (sp-local-pair 'web-mode "<%@ "  " %>")
-    (sp-local-pair 'web-mode "<%: "  " %>")
-    (sp-local-pair 'web-mode "{{ "  " }}")
-    (sp-local-pair 'web-mode "{% "  " %}")
-    (sp-local-pair 'web-mode "{%- "  " %}")
-    (sp-local-pair 'web-mode "{# "  " #}")
-    (sp-local-pair 'org-mode "$" "$")
-    (sp-pair "'" nil :actions :rem))
+  ;; Only use smartparens in web-mode
+  (sp-local-pair 'web-mode "<% " " %>")
+  (sp-local-pair 'web-mode "{ " " }")
+  (sp-local-pair 'web-mode "<%= "  " %>")
+  (sp-local-pair 'web-mode "<%# "  " %>")
+  (sp-local-pair 'web-mode "<%$ "  " %>")
+  (sp-local-pair 'web-mode "<%@ "  " %>")
+  (sp-local-pair 'web-mode "<%: "  " %>")
+  (sp-local-pair 'web-mode "{{ "  " }}")
+  (sp-local-pair 'web-mode "{% "  " %}")
+  (sp-local-pair 'web-mode "{%- "  " %}")
+  (sp-local-pair 'web-mode "{# "  " #}")
+  (sp-local-pair 'org-mode "$" "$")
+  (sp-pair "'" nil :actions :rem)
 
 
   (defun sam--create-newline-and-enter-sexp (&rest _ignored)
     "Open a new brace or bracket expression, with relevant newlines and indent. "
-    ;; from [Newline and indent on appropriate pairs · Issue #80 · ;; Fuco1/smartparens](https://github.com/Fuco1/smartparens/issues/80)
+    ;; from https://github.com/Fuco1/smartparens/issues/80
     (newline)
     (indent-according-to-mode)
     (forward-line -1)
-    (indent-according-to-mode))
-
-  )
+    (indent-according-to-mode)))
 
 (use-package smex
   :quelpa (smex :fetcher github :repo "abo-abo/smex"))
@@ -1220,31 +1237,24 @@ undo               _u_: undo
   :diminish "")
 
 (use-package swiper :ensure t
-  :commands swiper
-  )
+  :commands swiper)
 
 ;;; -T-
 
 ;;; -U-
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
-  :bind* (("C-x u" . undo-tree-visualize))
-  )
+  :bind* (("C-x u" . undo-tree-visualize)))
 
 ;;; -V-
 (use-package visual-regexp-steroids :ensure t
-  :commands (
-             vr/replace
-             vr/query-replace
-             )
-  )
+  :commands (vr/replace vr/query-replace))
 
 ;;; -W-
 (use-package wgrep :ensure t :defer t)
 
 (use-package which-key :ensure t
-  :diminish
-  which-key-mode
+  :diminish which-key-mode
   :config
   (which-key-mode)
   (which-key-setup-side-window-bottom)
@@ -1252,8 +1262,7 @@ undo               _u_: undo
   (setq which-key-sort-order 'which-key-key-order-alpha)
   (setq which-key-popup-type 'side-window
 	which-key-side-window-max-width 0.33
-	which-key-idle-delay 0.05)
-  )
+	which-key-idle-delay 0.05))
 
 (use-package whitespace
   :diminish ""
@@ -1262,8 +1271,7 @@ undo               _u_: undo
   (add-hook 'prog-mode-hook 'whitespace-mode)
   :config
   (setq whitespace-line-column 100
-        whitespace-style '(face lines-tail))
-  )
+        whitespace-style '(face lines-tail)))
 
 (use-package web-mode :ensure t
   :mode
@@ -1292,8 +1300,8 @@ undo               _u_: undo
   :init
   (with-eval-after-load 'yasnippet
     (progn
-      (setq yas-snippet-dirs (append yas-snippet-dirs
-				     '("~/dotfile/emacs/snippets")))))
+      (setq yas-snippet-dirs
+	    (append yas-snippet-dirs '("~/dotfile/emacs/snippets")))))
   :config
   (yas-global-mode)
   (setq yas-indent-line nil))

@@ -1,2 +1,4 @@
 emacs.d/
 /.abbrev_defs
+
+*.elc
