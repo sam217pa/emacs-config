@@ -32,17 +32,13 @@
 
     ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")
+    ;; buffer
     "b" '(hydra-buffer/body t :which-key "Buffer")
-
-;;;; c
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
-
     ;; Window management
     "é" '(hydra-window/body :which-key "Window")
-
-;;;; f
     ;; Find and Files
     "f" '(:ignore t :which-key "Files")
     "fd"  '(counsel-git :which-key "find in git dir")
@@ -59,16 +55,12 @@
     "fR"  '(fasd-find-file)
     "fs"  '(save-buffer :which-key "save file")
     "fS"  '(rename-file :which-key "rename file")
-
-;;;; g
     ;; Jump to :
     "g" '(:ignore t :which-key "Go to")
     "gc" 'avy-goto-char
     "gC" 'avy-goto-char-2
     "gl" 'avy-goto-line
     "gé" 'avy-goto-word-or-subword-1
-
-;;;; i
     ;; Insert
     "i" '(:ignore t :which-key "Insert")
     "it"  '(sam--insert-timestamp :which-key "timestamp")
@@ -80,49 +72,32 @@
     "iLs" 'lorem-ipsum-insert-sentences
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
-
     ;; Journal
     "j" '(:ignore t :which-key "Journal")
-
-
-;;;; o
     ;; Org
     "o" '(:ignore t :which-key "Org")
     "oa" 'org-agenda-list
-
-;;;; p
     ;; Project
     "p" '(hydra-projectile/body :which-key "Project")
-
-;;;; q
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
     "qb" 'kill-buffer-if-not-modified
     "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
     "qr" '(restart-emacs :which-key "restart emacs")
-
-;;;; s
     ;; Save and search
     "s" '(:ignore t :which-key "Save/Search")
     "s."  'save-buffer
     "s,"  'server-edit
-
-;;;; t
     ;; text related
     "t" '(:ignore t :which-key "text")
     "ta" '(:ignore t :which-key "text align")
-    "tar" 'align-region
-    "taR" 'align-regexp
+    "tar" 'align-regexp
     "ti"  'indent-region
     "tr" '(vr/query-replace :which-key "text replace")
-
-;;;; T
     ;; Toggle UI elements
     "T" '(hydra-toggle/body t :which-key "Toggle")
-
-;;;; v
     ;; Git related stuff
-    "v" '(hydra-git/body t :which-key "Version Control"))
+    "v" '(hydra-git/body :which-key "Version Control"))
 
   ;; this is the second prefix. It gives shorter access to common
   ;; functions. Like avy goto line.
@@ -170,20 +145,10 @@
    "C-z" 'undo-tree-undo
    "C-|" 'ivy-switch-buffer
    "C-." 'hydra-move/body
-   "C-é" 'hydra-window/body
-   )
+   "C-é" 'hydra-window/body)
 
 
-  ;; this one is genius from general. you press ".", it wait for another command
-  ;; in the general-key-dispatch list of command or insert .
-  ;; really useful in insert map, no need to go to escape map.
-  (general-imap ","
-		(general-key-dispatch 'self-insert-command
-		  "b" 'ivy-switch-buffer
-		  "c" 'avy-goto-word-1
-		  "l" 'avy-goto-line
-		  "s" 'save-buffer
-		  "p" 'projectile-command-map))
+
 ;;; OPERATOR map
   (general-omap
    :prefix "SPC"
@@ -236,6 +201,26 @@
   "C-x r"   "rectangle"
   "C-x v"   "version control")
 
+;;
+;;; Key-chord
+;;
+
+(use-package key-chord :ensure t
+  :defer 1
+  :config
+  (setq key-chord-two-keys-delay 0.2)
+  ;; need to use key-seq. otherwise key order does not matter. that's bad.
+  ;; i want latency only on x. not on everytouch.
+  (use-package key-seq :ensure t
+    :config
+    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/body)
+    (key-seq-define evil-insert-state-map "xf" #'ivy-switch-buffer)
+    (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
+    (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
+    (key-seq-define evil-insert-state-map "xl" #'avy-goto-line)
+    (key-seq-define evil-insert-state-map "xs" #'save-buffer)
+    (key-seq-define evil-insert-state-map "xp" #'hydra-projectile/body)
+    (key-seq-define evil-insert-state-map "XV" #'magit-status)))
 
 ;;
 ;; Hydra
@@ -315,7 +300,7 @@ _C-N_: last hunk      _R_evision start  _t_imemachine
   ("R" git-gutter:set-start-revision)
   ("S" magit-stage-file)
   ("R" magit-revert)
-  ("d" magit-diff-unstaged)
+  ("d" magit-diff-unstaged :color blue)
   ("t" git-timemachine :color blue)
   ("c" magit-commit :color blue)
   ("b" magit-blame)
