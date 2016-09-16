@@ -130,6 +130,7 @@
    "s-b" 'ivy-switch-buffer
    "s-g" 'avy-goto-char
    "C-p" 'counsel-yank-pop
+   "C-'" 'eshell-here
    "?" 'avy-goto-char-in-line
    "|" 'ivy-switch-buffer
    "c" 'evil-backward-char
