@@ -359,6 +359,17 @@
 (use-package ereader :ensure t
   :mode (("\\.epub\\'" . ereader-mode)))
 
+(use-package eshell
+  :commands eshell
+  :config
+  (require 'em-smart)
+  (setq eshell-where-to-jump 'begin
+	eshell-review-quick-commands nil
+	eshell-smart-space-goes-to-end t)
+  (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
+  (setq eshell-directory-name "~/dotfile/emacs/eshell/")
+  )
+
 (use-package ess-site
   :ensure ess
   :mode
@@ -478,11 +489,11 @@
   (setq ess-offset-continued 2          ; offset after first statement
         ess-expression-offset 2         ; offset for expression
         ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
-        ess-default-style 'DEFAULT)      ; set default style for R source file
+        ess-default-style 'DEFAULT) ; set default style for R source file
 
   (add-to-list
-   'aggressive-indent-dont-indent-if    ; do not indent line if
-   '(and (derived-mode-p 'ess-mode)     ; in ess mode
+   'aggressive-indent-dont-indent-if	     ; do not indent line if
+   '(and (derived-mode-p 'ess-mode)	     ; in ess mode
          (null (string-match "\\(#+ .+ $\\)" ; and in a roxygen block
                              (thing-at-point 'line)))))
 
@@ -554,7 +565,8 @@
 
 
 (use-package exec-path-from-shell :ensure t
-  :defer 5
+  :defer 2
+  :commands (exec-path-from-shell-initialize)
   :init
   (setq exec-path-from-shell-check-startup-files nil)
   :config
@@ -564,7 +576,98 @@
     :config
     (global-fasd-mode 1)
     (setq fasd-completing-read-function 'ivy-completing-read)
-    (setq fasd-enable-initial-prompt nil)))
+    (setq fasd-enable-initial-prompt nil))
+  ;; Install epdfinfo via 'brew install pdf-tools' and then install the
+  ;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
+  ;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
+  ;; pdf-tools package using Emacs package system. If things get messed
+  ;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
+  ;; pdf-tools package and reinstall both as at the start.
+
+  (use-package pdf-tools :ensure t
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :config
+
+    (setq-default pdf-view-display-size 'fit-width)
+    (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo")
+
+    (bind-keys
+     :map pdf-view-mode-map
+      ("." . hydra-pdftools/body)
+      ("<s-spc>" .  pdf-view-scroll-down-or-next-page)
+      ("g"  . pdf-view-first-page)
+      ("G"  . pdf-view-last-page)
+      ("r"  . image-forward-hscroll)
+      ("c"  . image-backward-hscroll)
+      ("t"  . pdf-view-next-page)
+      ("s"  . pdf-view-previous-page)
+      ("e"  . pdf-view-goto-page)
+      ("u"  . pdf-view-revert-buffer)
+      ("al" . pdf-annot-list-annotations)
+      ("ad" . pdf-annot-delete)
+      ("aa" . pdf-annot-attachment-dired)
+      ("am" . pdf-annot-add-markup-annotation)
+      ("at" . pdf-annot-add-text-annotation)
+      ("y"  . pdf-view-kill-ring-save)
+      ("i"  . pdf-misc-display-metadata)
+      ("/"  . pdf-occur)
+      ("b"  . pdf-view-set-slice-from-bounding-box)
+      ("r"  . pdf-view-reset-slice))
+
+    (use-package pdf-occur)
+    (use-package pdf-annot)
+    (use-package pdf-outline)
+    (use-package pdf-history)
+    (use-package pdf-view)
+    ;; TODO fix hydra. messed up.
+    (defhydra hydra-pdftools (:color blue :hint nil)
+      "
+       Move          History   Scale/Fit           Annot      Search/Link     Do
+       ────────────────────────────────────────────────────────────────────────────
+         ^^_g_^^      _B_    ^ ^    _+_    ^ ^     _al_ist    _s_earch       _u_ revert buffer
+         ^^^↑^^^      ^↑^    _H_    ^↑^    _W_     _am_arkup  _o_utline      _i_ info
+         ^^_p_^^      ^ ^    ^↥^    _0_    ^ ^     _at_ext    _F_ link       _d_ dark mode
+         ^^^↑^^^      ^↓^    ^─^─   ^↓^    ^ ^     _ad_elete  _f_ search link
+    _c_ ←pag_e_→ _r_  _N_    _P_    _-_    _b_     _aa_dired
+         ^^^↓^^^      ^ ^    ^ ^    ^ ^    ^ ^     _y_ank
+         ^^_n_^^      ^ ^    _R_eset slice box
+         ^^^↓^^^
+         ^^_G_^^
+        "
+      ("\\" hydra-master/body "back")
+      ("<ESC>" nil "quit")
+      ("al" pdf-annot-list-annotations)
+      ("ad" pdf-annot-delete)
+      ("aa" pdf-annot-attachment-dired)
+      ("am" pdf-annot-add-markup-annotation)
+      ("at" pdf-annot-add-text-annotation)
+      ("y"  pdf-view-kill-ring-save)
+      ("+" pdf-view-enlarge :color red)
+      ("-" pdf-view-shrink :color red)
+      ("0" pdf-view-scale-reset)
+      ("H" pdf-view-fit-height-to-window)
+      ("W" pdf-view-fit-width-to-window)
+      ("P" pdf-view-fit-page-to-window)
+      ("n" pdf-view-next-page-command :color red)
+      ("p" pdf-view-previous-page-command :color red)
+      ("d" pdf-view-dark-minor-mode)
+      ("b" pdf-view-set-slice-from-bounding-box)
+      ("R" pdf-view-reset-slice)
+      ("g" pdf-view-first-page)
+      ("G" pdf-view-last-page)
+      ("e" pdf-view-goto-page)
+      ("o" pdf-outline)
+      ("s" pdf-occur)
+      ("i" pdf-misc-display-metadata)
+      ("u" pdf-view-revert-buffer)
+      ("F" pdf-links-action-perfom)
+      ("f" pdf-links-isearch-link)
+      ("B" pdf-history-backward :color red)
+      ("N" pdf-history-forward :color red)
+      ("r" image-forward-hscroll :color red)
+      ("c" image-backward-hscroll :color red))
+
+    ))
 
 (use-package expand-region :ensure t :defer t)
 ;;; -F-
