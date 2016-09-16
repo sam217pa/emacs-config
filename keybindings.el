@@ -182,6 +182,7 @@
    "s-l"   'sam--comment-or-uncomment-region-or-line
    "s-w"   'delete-other-windows
    "s-m"   'delete-other-windows
+   "s-d"   'kill-buffer-and-window
    "s-SPC" 'set-mark-command
    "s-<tab>" 'sam--switch-to-other-buffer
 ;;; HYPER map (ctlr left)

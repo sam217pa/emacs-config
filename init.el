@@ -363,12 +363,12 @@
   :commands eshell
   :config
   (require 'em-smart)
-  (require 'em-smart)
   (setq eshell-where-to-jump 'begin
 	eshell-review-quick-commands nil
 	eshell-smart-space-goes-to-end t)
   (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
-  (setq eshell-directory-name "~/dotfile/emacs/eshell/"))
+  (setq eshell-directory-name "~/dotfile/emacs/eshell/")
+  )
 
 (use-package ess-site
   :ensure ess
