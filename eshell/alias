@@ -1,3 +1,6 @@
+alias b ibuffer
+alias ga magit-stage-file $1
+alias gs magit-status
 alias d dired $1
 alias ff find-file $1
 alias ll = ls -l
