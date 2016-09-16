@@ -1,6 +1,9 @@
-alias b ibuffer
-alias ga magit-stage-file $1
-alias gs magit-status
-alias d dired $1
-alias ff find-file $1
+alias ee find-file-other-window $1
+alias e find-file $1
+alias er counsel-recentf
 alias ll = ls -l
+alias ff find-file $1
+alias d dired $1
+alias gs magit-status
+alias ga magit-stage-file $1
+alias b ibuffer

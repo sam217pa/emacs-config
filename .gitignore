@@ -2,3 +2,4 @@ emacs.d/
 /.abbrev_defs
 
 *.elc
+/eshell/history
