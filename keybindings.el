@@ -227,7 +227,7 @@
   ;; i want latency only on x. not on everytouch.
   (use-package key-seq :ensure t
     :config
-    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/)
+    (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/ivy-switch-buffer-and-exit)
     (key-seq-define evil-insert-state-map "xf" #'ivy-switch-buffer)
     (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
     (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
