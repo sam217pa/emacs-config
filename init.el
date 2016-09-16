@@ -362,13 +362,17 @@
 (use-package eshell
   :commands eshell
   :config
+  (use-package eshell-z :ensure t)
+  (use-package eshell-git-prompt :ensure t
+    :config
+    (eshell-git-prompt-use-theme 'powerline))
+
   (require 'em-smart)
   (setq eshell-where-to-jump 'begin
 	eshell-review-quick-commands nil
 	eshell-smart-space-goes-to-end t)
   (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
-  (setq eshell-directory-name "~/dotfile/emacs/eshell/")
-  )
+  (setq eshell-directory-name "~/dotfile/emacs/eshell/"))
 
 (use-package ess-site
   :ensure ess
@@ -612,7 +616,9 @@
       ("i"  . pdf-misc-display-metadata)
       ("/"  . pdf-occur)
       ("b"  . pdf-view-set-slice-from-bounding-box)
-      ("r"  . pdf-view-reset-slice))
+      ("R"  . pdf-view-reset-slice)
+      ("M-n" . pdf-occur-next-error)
+      )
 
     (use-package pdf-occur)
     (use-package pdf-annot)
@@ -624,13 +630,13 @@
       "
        Move          History   Scale/Fit           Annot      Search/Link     Do
        ────────────────────────────────────────────────────────────────────────────
-         ^^_g_^^      _B_    ^ ^    _+_    ^ ^     _al_ist    _s_earch       _u_ revert buffer
-         ^^^↑^^^      ^↑^    _H_    ^↑^    _W_     _am_arkup  _o_utline      _i_ info
-         ^^_p_^^      ^ ^    ^↥^    _0_    ^ ^     _at_ext    _F_ link       _d_ dark mode
-         ^^^↑^^^      ^↓^    ^─^─   ^↓^    ^ ^     _ad_elete  _f_ search link
-    _c_ ←pag_e_→ _r_  _N_    _P_    _-_    _b_     _aa_dired
-         ^^^↓^^^      ^ ^    ^ ^    ^ ^    ^ ^     _y_ank
-         ^^_n_^^      ^ ^    _R_eset slice box
+         ^^_g_^^      _B_    ^ ^    _+_    ^ ^     _al_ist    _//_earch       _u_ revert buffer
+         ^^^↑^^^      ^↑^    _H_    ^↑^    _W_     _am_arkup  _/n_earch next  _i_ info
+         ^^_s_^^      ^ ^    ^↥^    _0_    ^ ^     _at_ext    _/p_earch prev  _d_ dark mode
+         ^^^↑^^^      ^↓^    ^─^─   ^↓^    ^ ^     _ad_elete  _o_utline
+    _c_ ←pag_e_→ _r_  _N_    _P_    _-_    _b_     _aa_dired  _F_ link
+         ^^^↓^^^      ^ ^    ^ ^    ^ ^    ^ ^     _y_ank     _f_ search link
+         ^^_t_^^      ^ ^    _R_eset slice box
          ^^^↓^^^
          ^^_G_^^
         "
@@ -648,8 +654,8 @@
       ("H" pdf-view-fit-height-to-window)
       ("W" pdf-view-fit-width-to-window)
       ("P" pdf-view-fit-page-to-window)
-      ("n" pdf-view-next-page-command :color red)
-      ("p" pdf-view-previous-page-command :color red)
+      ("t" pdf-view-next-page-command :color red)
+      ("s" pdf-view-previous-page-command :color red)
       ("d" pdf-view-dark-minor-mode)
       ("b" pdf-view-set-slice-from-bounding-box)
       ("R" pdf-view-reset-slice)
@@ -657,7 +663,9 @@
       ("G" pdf-view-last-page)
       ("e" pdf-view-goto-page)
       ("o" pdf-outline)
-      ("s" pdf-occur)
+      ("//" pdf-occur)
+      ("/n" pdf-occur-next-error )
+      ("/p" pdf-occur-history)
       ("i" pdf-misc-display-metadata)
       ("u" pdf-view-revert-buffer)
       ("F" pdf-links-action-perfom)
@@ -1390,12 +1398,12 @@ undo               _u_: undo
   :diminish which-key-mode
   :config
   (which-key-mode)
-  (which-key-setup-side-window-bottom)
+  (which-key-setup-side-window-right-bottom)
   ;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-key-order-alpha)
   (setq which-key-popup-type 'side-window
 	which-key-side-window-max-width 0.33
-	which-key-idle-delay 0.05))
+	which-key-idle-delay 0.5))
 
 (use-package whitespace
   :diminish ""

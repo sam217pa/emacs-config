@@ -153,7 +153,7 @@
    "P" #'hydra-paste/evil-paste-before)
 
 ;;; INSERT map
-  (imap
+  (iemap
    "C-z" 'undo-tree-undo
    "C-|" 'ivy-switch-buffer
    "C-." 'hydra-move/body
