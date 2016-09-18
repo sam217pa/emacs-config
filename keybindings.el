@@ -478,7 +478,7 @@ _t_witter
   ("b" ivy-switch-buffer "switch")
   ("B" ibuffer "ibuffer")
   ("C-b" buffer-menu "buffer menu")
-  ("d" (kill-buffer-if-not-modified (buffer-name)) "delete" :color red)
+  ("d" kill-this-buffer "delete" :color red)
   ("n" evil-buffer-new "new"))
 
 
@@ -574,3 +574,19 @@ _t_witter
   ("<" ibuffer-filter-by-size-lt "size")
   ("/" ibuffer-filter-disable "disable")
   ("b" hydra-ibuffer-main/body "back" :color blue))
+
+;; dired hydra. WIP
+(defhydra hydra-dired-main (:color pink :hint nil :columns 4)
+  ("n" dired-next-line "next")
+  ("p" dired-previous-line "prev")
+  ("o" dired-find-file-other-window "ff ow")
+  ("u" dired-unmark "unmark")
+  ("m" dired-mark "mark")
+  ("d" hydra-dired-delete/body "delete" :color blue)
+  ("q" quit-window "quit" :color blue))
+
+(defhydra hydra-dired-delete (:color pink :hint nil :columns 4)
+  ("d" dired-flag-file-deletion "flag delete")
+  ("x" dired-do-flagged-delete "DEL flagged")
+  ("D" dired-do-delete "delete this")
+  ("q" hydra-dired-main/body "back" :color blue))
