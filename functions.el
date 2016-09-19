@@ -68,6 +68,14 @@
   (interactive)
   (find-file "~/dotfile/emacs/functions.el"))
 
+(defun sam--edit-todo ()
+  (interactive)
+  (find-file "~/TODO"))
+
+(defun sam--chrome-plain-link ()
+  (interactive)
+  (insert (concat " " (grab-mac-link 'chrome 'plain))))
+
 (defun sam--chrome-org-link ()
   (interactive)
   (insert (concat " " (grab-mac-link 'chrome 'org))))
@@ -406,23 +414,25 @@ Lisp function does not specify a special indentation."
   (interactive)
   (ivy-read
    "Select hex from solarized color: "
-   '(( brblack  . "#002b36" )
-     ( black    . "#073642" )
-     ( brgreen  . "#586e75" )
-     ( bryellow . "#657b83" )
-     ( brblue   . "#839496" )
-     ( brcyan   . "#93a1a1" )
-     ( white    . "#eee8d5" )
-     ( brwhite  . "#fdf6e3" )
-     ( yellow   . "#b58900" )
-     ( brred    . "#cb4b16" )
-     ( red      . "#dc322f" )
-     ( magenta  . "#d33682" )
-     ( brmagenta . "#6c71c4" )
-     ( blue     . "#268bd2" )
-     ( cyan     . "#2aa198" )
-     ( green    . "#859900" ))
-   :action (lambda (x) (insert (cdr x)))))
+   '(("brblack  " "#002b36")
+     ("black    " "#073642")
+     ("brgreen  " "#586e75")
+     ("bryellow " "#657b83")
+     ("brblue   " "#839496")
+     ("brcyan   " "#93a1a1")
+     ("white    " "#eee8d5")
+     ("brwhite  " "#fdf6e3")
+     ("yellow   " "#b58900")
+     ("brred    " "#cb4b16")
+     ("red      " "#dc322f")
+     ("magenta  " "#d33682")
+     ("brmagenta" "#6c71c4")
+     ("blue     " "#268bd2")
+     ("cyan     " "#2aa198")
+     ("green    " "#859900"))
+   :action '(1 ("o" (lambda (x)
+		      (with-ivy-window
+			(insert (elt x 1))))))))
 
 ;; from http://www.howardism.org/Technical/Emacs/eshell-fun.html
 (defun eshell-here ()
@@ -447,3 +457,12 @@ directory to make multiple eshell windows easier."
   (insert "exit")
   (eshell-send-input)
   (delete-window))
+
+;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
+(defun unfill-paragraph (&optional region)
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive (progn (barf-if-buffer-read-only) '(t)))
+  (let ((fill-column (point-max))
+        ;; This would override `fill-column' if it's an integer.
+        (emacs-lisp-docstring-fill-column t))
+    (fill-paragraph nil region)))
