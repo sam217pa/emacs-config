@@ -62,11 +62,34 @@
 ;;;* sane default
 
   (require 'org-agenda)
+
+  ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
+  (setq org-agenda-files
+	(delq nil
+	      (mapcar (lambda (x) (and (file-exists-p x) x))
+		      '("~/Org/TODO"))))
+  (setq org-agenda-span 7)
+  (setq org-agenda-tags-column -100) ; take advantage of the screen width
+  (setq org-agenda-sticky nil)
+  (setq org-agenda-inhibit-startup t)
+  (setq org-agenda-use-tag-inheritance t)
+  (setq org-agenda-show-log t)
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-skip-deadline-if-done t)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
+  (setq org-agenda-time-grid
+	'((daily today require-timed)
+	  "----------------"
+	  (800 1000 1200 1400 1600 1800)))
+  (setq org-agenda-start-on-weekday 6)
+
+
+
   (setq
    org-modules '(org-crypt)
 ;;;*** gtd with org
-   org-tags-column 80		       ; aligne les tags très loin sur la droite
-   org-hide-block-startup t	       ; cache les blocks par défaut.
+   org-tags-column 80	     ; aligne les tags très loin sur la droite
+   org-hide-block-startup t  ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
                         ("~/stage/TODO" :level . 1)
                         ("~/Org/someday.org" :level . 1)
@@ -212,7 +235,19 @@
     (org-insert-heading)
     (insert-timestamp)
     (org-move-subtree-down)
-    (end-of-line 1)))
+    (end-of-line 1))
+
+;;;* Key-Seq
+  (key-seq-define org-mode-map ",c" 'org-shiftcontrolleft)
+  (key-seq-define org-mode-map ",t" 'org-shiftcontroldown)
+  (key-seq-define org-mode-map ",s" 'org-shiftcontrolup)
+  (key-seq-define org-mode-map ",r" 'org-shiftcontrolright)
+  (key-seq-define org-mode-map ",C" 'org-metaleft)
+  (key-seq-define org-mode-map ",T" 'org-metadown)
+  (key-seq-define org-mode-map ",S" 'org-metaup)
+  (key-seq-define org-mode-map ",R" 'org-metaright)
+
+  )
 
 ;;;* Org-journal
 (use-package org-journal :ensure t
@@ -227,8 +262,7 @@
     )
 
   :config
-  (setq org-journal-dir "~/Org/journal")
-  )
+  (setq org-journal-dir "~/Org/journal"))
 
 ;;;* Keybindings
 (general-define-key
@@ -236,6 +270,4 @@
  :keymaps 'org-mode-map
  :prefix ","
  :non-normal-prefix "’"
-  "e" 'org-export-dispatch
-
-  )
+  "e" 'org-export-dispatch)

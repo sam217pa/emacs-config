@@ -147,10 +147,6 @@
   )
 
 (use-package avy :ensure t :defer t
-  :chords
-  (:map evil-normal-state-map
-   (".." . avy-goto-word-1)
-   (".'" . avy-goto-line))
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
   (setq avy-styles-alist
@@ -210,6 +206,13 @@
   :commands global-company-mode
   :init
   (add-hook 'after-init-hook #'global-company-mode)
+  (setq
+   company-idle-delay 0.2
+   company-selection-wrap-around t
+   company-minimum-prefix-length 3
+   company-require-match nil
+   company-dabbrev-ignore-case nil
+   company-dabbrev-downcase nil)
 
   :config
   (global-company-mode)
@@ -222,13 +225,6 @@
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
 
-  (setq
-   company-idle-delay 0.2
-   company-selection-wrap-around t
-   company-minimum-prefix-length 3
-   company-require-match nil
-   company-dabbrev-ignore-case nil
-   company-dabbrev-downcase nil)
 
   (setq company-backends
         '((company-css
@@ -296,18 +292,22 @@
   ("C-c a" . counsel-osx-app)
   :config
   (setq counsel-osx-app-location
-        '("/Applications/" "~/Applications/" "~/sam_app/"))
-  )
+        '("/Applications/" "~/Applications/" "~/sam_app/")))
 
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
 ;;; -D-
-(use-package dired-x
-  :defer t
+(use-package dired
   :init
-  (add-hook 'dired-load-hook
-            (function (lambda () (load "dired-x"))))
+  ;; (add-hook 'dired-mode-hook #'hydra-dired-main/body)
+  :config
+  (bind-keys :map dired-mode-map
+    ("." . hydra-dired-main/body)
+    ("t" . dired-next-line)
+    ("s" . dired-previous-line)
+    ("r" . dired-find-file)
+    ("c" . dired-up-directory))
 
   :config
   ;; use GNU ls instead of BSD ls
@@ -315,7 +315,12 @@
     (if (file-exists-p gls)
 	(setq insert-directory-program gls)))
   ;; change default arguments to ls. must include -l
-  (setq dired-listing-switches "-XGalg --human-readable --dired"))
+  (setq dired-listing-switches "-XGalg --human-readable --dired")
+
+  (use-package dired-x
+    :init
+    (add-hook 'dired-load-hook (lambda () (load "dired-x")))))
+
 
 (use-package display-time
   :commands
@@ -331,8 +336,7 @@
   :diminish ""
   :init
   (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-  )
+  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode))
 
 (use-package emacs-lisp-mode
   :mode
@@ -363,9 +367,7 @@
   :commands eshell
   :config
   (use-package eshell-z :ensure t)
-  (use-package eshell-git-prompt :ensure t
-    :config
-    (eshell-git-prompt-use-theme 'powerline))
+
 
   (require 'em-smart)
   (setq eshell-where-to-jump 'begin
@@ -565,7 +567,21 @@
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
 	evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
-  )
+
+  ;; maps that overrides evil-map.
+  ;; keeps default keybindings.
+  (setq evil-overriding-maps '((dired-mode-map)
+			       (Buffer-menu-mode-map)
+			       (color-theme-mode-map)
+			       (comint-mode-map)
+			       (compilation-mode-map)
+			       (grep-mode-map)
+			       (dictionary-mode-map)
+			       (ert-results-mode-map . motion)
+			       (Info-mode-map . motion)
+			       (speedbar-key-map)
+			       (speedbar-file-key-map)
+			       (speedbar-buffers-key-map))))
 
 
 (use-package exec-path-from-shell :ensure t
@@ -1167,7 +1183,8 @@ undo               _u_: undo
                elpy-enable
                )
     :bind (:map python-mode-map
-           ("M-/" . elpy-company-backend))
+           ("M-/" . elpy-company-backend)
+           ("RET" . electric-newline-and-maybe-indent))
     :init
     (add-hook 'python-mode-hook 'elpy-mode)
     :config
@@ -1273,8 +1290,6 @@ undo               _u_: undo
   :commands
   (ranger
    deer)
-  :bind (("C-x d" . deer))
-
   :general
   (:keymaps 'ranger-mode-map
    "t" 'ranger-next-file		; j

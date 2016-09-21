@@ -77,6 +77,7 @@
     "fR"  '(fasd-find-file)
     "fs"  '(save-buffer :which-key "save file")
     "fS"  '(rename-file :which-key "rename file")
+    "ft"  '(sam--edit-todo)
     ;; Jump to :
     "g" '(:ignore t :which-key "Go to")
     "gc" 'avy-goto-char
@@ -132,6 +133,7 @@
    "C-p" 'counsel-yank-pop
    "C-'" 'eshell-here
    "?" 'avy-goto-char-in-line
+   "f" 'avy-goto-char-in-line
    "|" 'ivy-switch-buffer
    "c" 'evil-backward-char
    "C" 'evil-window-top
@@ -141,11 +143,11 @@
    "R" 'evil-window-bottom
    "j" 'evil-avy-goto-char-in-line
    "J" 'evil-find-char-to-backward
-   "h" 'evil-change
-   "H" 'evil-change-line
+   "l" 'evil-change
+   "L" 'evil-change-line
    "T" 'evil-join
-   "l" 'evil-replace
-   "L" 'evil-replace-state
+   "h" 'evil-replace
+   "H" 'evil-replace-state
    "k" 'evil-substitute
    "K" 'evil-change-whole-line
    "M-b" 'ivy-switch-buffer
@@ -176,8 +178,11 @@
 
 ;;; MODE specific map
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+  (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
 
   (general-define-key
+;;; C-x MAP
+   "C-x C-b" 'ibuffer
 ;;; SUPER map (alt left)
    "s-l"   'sam--comment-or-uncomment-region-or-line
    "s-w"   'delete-other-windows
@@ -190,13 +195,12 @@
    "H-f" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
    "H-r" 'counsel-recentf
+   "H-m" 'delete-other-frames
 ;;; META map (cmd right)
-
    "M-/" 'hippie-expand
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
-   "M-g" 'hydra-error/body
-   ))
+   "M-g" 'hydra-error/body))
 
 ;;
 ;;; Which-key
@@ -227,14 +231,24 @@
   ;; i want latency only on x. not on everytouch.
   (use-package key-seq :ensure t
     :config
+    ;; insert
     (key-seq-define evil-insert-state-map "xb" #'hydra-buffer/ivy-switch-buffer-and-exit)
+    (key-seq-define evil-insert-state-map "xd" #'kill-this-buffer)
     (key-seq-define evil-insert-state-map "xf" #'ivy-switch-buffer)
     (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
     (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
     (key-seq-define evil-insert-state-map "xl" #'avy-goto-line)
     (key-seq-define evil-insert-state-map "xs" #'save-buffer)
     (key-seq-define evil-insert-state-map "xp" #'hydra-projectile/body)
-    (key-seq-define evil-insert-state-map "XV" #'magit-status)))
+    (key-seq-define evil-insert-state-map "XV" #'magit-status)
+    (key-seq-define evil-insert-state-map "qq" #'fill-paragraph)
+    (key-seq-define evil-insert-state-map "QQ" #'unfill-paragraph)
+    ;; normal
+    (key-seq-define evil-normal-state-map "xd" #'kill-this-buffer)
+    (key-seq-define evil-normal-state-map "ff" #'counsel-find-file)
+    (key-seq-define evil-normal-state-map "xl" #'avy-goto-line)
+    (key-seq-define evil-normal-state-map "xc" #'avy-goto-word-1)
+    (key-seq-define evil-normal-state-map "xs" #'save-buffer)))
 
 ;;
 ;; Hydra
@@ -383,7 +397,7 @@ _t_witter
   ("D" deer)
   ("r" ranger)
   ("g" (browse-url "https://www.google.fr/") )
-  ("r" (browse-url "http://www.reddit.com/r/emacs/") )
+  ("R" (browse-url "http://www.reddit.com/r/emacs/"))
   ("w" (browse-url "http://www.emacswiki.org/") )
   ("t" (browse-url "https://twitter.com/?lang=fr") )
   ("s" (sam--iterm-focus) )
@@ -474,12 +488,17 @@ _t_witter
   ("t" next-error "next")
   ("s" previous-error "previous"))
 
-(defhydra hydra-buffer (:color blue)
+(defhydra hydra-buffer (:color blue :columns 3)
+  "
+                Buffers :
+  "
+  ("n" next-buffer "next" :color red)
   ("b" ivy-switch-buffer "switch")
   ("B" ibuffer "ibuffer")
+  ("p" previous-buffer "prev" :color red)
   ("C-b" buffer-menu "buffer menu")
   ("d" kill-this-buffer "delete" :color red)
-  ("n" evil-buffer-new "new"))
+  ("N" evil-buffer-new "new"))
 
 
 ;;; Ibuffer
@@ -490,7 +509,7 @@ _t_witter
  ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
 -^----------^-+-^----^--------+-^-------^--------+-^----^-------
   _s_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
-  _r_: visit | _u_: unmark   | _S_: save        | _O_: sort
+  _r_:  visit | _u_: unmark   | _S_: save        | _O_: sort
   _t_:    v   | _*_: specific | _a_: all actions | _/_: filter
 -^----------^-+-^----^--------+-^-------^--------+-^----^-------
 "
@@ -577,16 +596,53 @@ _t_witter
 
 ;; dired hydra. WIP
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
-  ("n" dired-next-line "next")
-  ("p" dired-previous-line "prev")
-  ("o" dired-find-file-other-window "ff ow")
+  ("t" dired-next-line "next")
+  ("s" dired-previous-line "prev")
+  ("r" dired-find-file "ff" :color blue)
+  ("c" dired-up-directory "up dir")
+  ("o" dired-find-file-other-window "ff ow" :color blue)
+  ("R" dired-rename-file "rename")
+  ("S" dired-sort-toggle-or-edit "sort")
   ("u" dired-unmark "unmark")
   ("m" dired-mark "mark")
   ("d" hydra-dired-delete/body "delete" :color blue)
-  ("q" quit-window "quit" :color blue))
+  ("q" nil "quit" :color blue))
 
 (defhydra hydra-dired-delete (:color pink :hint nil :columns 4)
   ("d" dired-flag-file-deletion "flag delete")
   ("x" dired-do-flagged-delete "DEL flagged")
   ("D" dired-do-delete "delete this")
   ("q" hydra-dired-main/body "back" :color blue))
+
+;;
+;;; Global
+;;
+
+;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
+(when (eq system-type 'darwin)
+  (defvar *my-previous-buffer* t
+    "can we switch?")
+
+  (defun my-previous-buffer ()
+    (interactive)
+    (message "custom prev: *my-previous-buffer*=%s" *my-previous-buffer*)
+    (when *my-previous-buffer*
+      (previous-buffer)
+      (setq *my-previous-buffer* nil)
+      (run-at-time "1 sec" nil (lambda ()
+                                 (setq *my-previous-buffer* t)))))
+
+  (defvar *my-next-buffer* t
+    "can we switch?")
+
+  (defun my-next-buffer ()
+    (interactive)
+    (message "custom prev: *my-next-buffer*=%s" *my-next-buffer*)
+    (when *my-next-buffer*
+      (next-buffer)
+      (setq *my-next-buffer* nil)
+      (run-at-time "1 sec" nil (lambda ()
+                                 (setq *my-next-buffer* t)))))
+
+  (global-set-key [double-wheel-right] 'my-previous-buffer)
+  (global-set-key [double-wheel-left] 'my-next-buffer))
