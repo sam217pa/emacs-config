@@ -1077,7 +1077,14 @@ undo               _u_: undo
 
 ;;; -N-
 (use-package nlinum :ensure t
-  :commands nlinum-mode)
+  :init
+  (defun sam--fix-linum-size ()
+    "Fixe la taille de charactère dans linum mode"
+    (interactive)
+    (set-face-attribute 'linum nil :height 100 :foreground "#93a1a1"))
+  :config
+  (add-hook 'nlinum-mode-hook 'sam--fix-linum-size)
+  (global-nlinum-mode))
 
 ;;; -O-
 

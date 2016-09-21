@@ -48,9 +48,9 @@
     "'"   '(sam--iterm-focus :which-key "iterm")
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
-    "TAB" '(sam--switch-to-other-buffer :which-key "prev buffer")
+    "TAB" '(ivy-switch-buffer :which-key "prev buffer")
     "." '(avy-goto-word-or-subword-1  :which-key "go to char")
-    "SPC" '(counsel-M-x  :which-key "M-x")
+    "SPC" '(counsel-M-x)
 
     ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")

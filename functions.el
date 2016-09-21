@@ -50,11 +50,6 @@
   (interactive)
   (switch-to-buffer (other-buffer)))
 
-(defun sam--fix-linum-size ()
-  "Fixe la taille de charactère dans linum mode"
-  (interactive)
-  (set-face-attribute 'linum nil :height 80))
-
 (defun sam--edit-init-file ()
   "Edit the emacs init file"
   (interactive)
@@ -346,8 +341,8 @@ Lisp function does not specify a special indentation."
   (interactive)
   (do-applescript
    (format " do shell script \"open -a Finder %s\"\n"
-	   (sam--get-file-dir-or-home)))
-  )
+           (replace-regexp-in-string "\\\\" "\\\\\\\\"
+                                     (shell-quote-argument (or default-directory "~"))))))
 
 (defun sam--new-empty-buffer ()
   "Create a new buffer called untitled(<n>)"
