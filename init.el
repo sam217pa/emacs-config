@@ -891,7 +891,8 @@
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip nil)
   (setq ivy-re-builders-alist
-	'((t . ivy--regex-fuzzy)
+	'((swiper . ivy--regex-ignore-order)
+	  (t . ivy--regex-fuzzy)
 	  (t   . ivy--regex-ignore-order)))
 
   (defun ivy-switch-project ()
