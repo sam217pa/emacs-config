@@ -118,7 +118,9 @@
     "ti"  'indent-region
     "tr" '(vr/query-replace :which-key "text replace")
     ;; Toggle UI elements
-    "T" '(hydra-toggle/body t :which-key "Toggle")
+    "T" '(hydra-toggle/body :which-key "Toggle")
+    ;; zoom
+    "z" '(hydra-zoom/body :which-key "zoom")
     ;; Git related stuff
     "v" '(hydra-git/body :which-key "Version Control"))
 
@@ -697,5 +699,18 @@ Journal
   ("N" org-journal-new-date-entry)
   ("b" hydra-journal/body :color blue :exit-function (calendar-exit))
   ("q" nil "quit" :color blue :exit-function (calendar-exit)))
+
+(defhydra hydra-zoom (:hint nil)
+  "
+^Zoom Buffer^  ^Zoom Frame^   ^Action^
+_t_: in        _T_: in        _0_: reset
+_s_: out       _S_: out       _q_: quit
+"
+  ("t" zoom-in )
+  ("s" zoom-out )
+  ("T" zoom-frm-in )
+  ("S" zoom-frm-out )
+  ("0" zoom-frm-unzoom)
+  ("q" nil :color blue))
 
 ;;; ======================================================================

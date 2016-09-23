@@ -1512,6 +1512,17 @@ undo               _u_: undo
   (setq yas-indent-line nil))
 
 ;;; -Z-
+(use-package zoom-frm :ensure t
+  :commands
+  (zoom-frm-in
+   zoom-frm-out
+   zoom-frm-unzoom
+   zoom-in
+   zoom-out)
+  :config
+  (setq zoom-frame/buffer 'buffer)
+  )
+
 ;;; -------------------------------------------------------------------
 
 ;;; personal functions
