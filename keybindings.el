@@ -96,7 +96,7 @@
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
     ;; Journal
-    "j" '(:ignore t :which-key "Journal")
+    "j" '(hydra-journal/body t :which-key "Journal")
     ;; Org
     "o" '(:ignore t :which-key "Org")
     "oa" 'org-agenda-list
@@ -159,7 +159,8 @@
    "C-z" 'undo-tree-undo
    "C-|" 'ivy-switch-buffer
    "C-." 'hydra-move/body
-   "C-é" 'hydra-window/body)
+   "C-é" 'hydra-window/body
+   "C-è" 'ace-window)
 
 
 
@@ -190,6 +191,9 @@
    "s-d"   'kill-buffer-and-window
    "s-SPC" 'set-mark-command
    "s-<tab>" 'sam--switch-to-other-buffer
+   "s-f" 'projectile-find-file
+   "s-t" 'move-text-down
+   "s-s" 'move-text-up
 ;;; HYPER map (ctlr left)
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
@@ -203,6 +207,7 @@
    "M-g" 'hydra-error/body))
 
 ;;
+;;; ======================================================================
 ;;; Which-key
 ;;
 
@@ -251,7 +256,40 @@
     (key-seq-define evil-normal-state-map "xs" #'save-buffer)))
 
 ;;
-;; Hydra
+;;; Global
+;;
+
+;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
+(when (eq system-type 'darwin)
+  (defvar *my-previous-buffer* t
+    "can we switch?")
+
+  (defun my-previous-buffer ()
+    (interactive)
+    (message "custom prev: *my-previous-buffer*=%s" *my-previous-buffer*)
+    (when *my-previous-buffer*
+      (previous-buffer)
+      (setq *my-previous-buffer* nil)
+      (run-at-time "1 sec" nil (lambda ()
+                                 (setq *my-previous-buffer* t)))))
+
+  (defvar *my-next-buffer* t
+    "can we switch?")
+
+  (defun my-next-buffer ()
+    (interactive)
+    (message "custom prev: *my-next-buffer*=%s" *my-next-buffer*)
+    (when *my-next-buffer*
+      (next-buffer)
+      (setq *my-next-buffer* nil)
+      (run-at-time "1 sec" nil (lambda ()
+                                 (setq *my-next-buffer* t)))))
+
+  (global-set-key [double-wheel-right] 'my-previous-buffer)
+  (global-set-key [double-wheel-left] 'my-next-buffer))
+
+;;; ======================================================================
+;;; Hydra
 ;;
 
 (defhydra hydra-toggle (:hint nil :color blue)
@@ -445,14 +483,13 @@ _t_witter
 (defhydra hydra-window
   (:hint nil
    :color amaranth
-   :columns 4
-   )
+   :columns 4)
   "
- ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^
+ ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^   ^Window^
 
- ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete
- ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize
- _C_ _c_ _a_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew
+ ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
+ ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
+ _C_ _c_ _a_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
  ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
  ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
 "
@@ -479,6 +516,17 @@ _t_witter
   ("p" evil-window-decrease-height )
   ("n" evil-window-increase-height )
 
+  ("0" select-window-0 :color blue)
+  ("1" select-window-1 :color blue)
+  ("2" select-window-2 :color blue)
+  ("3" select-window-3 :color blue)
+  ("4" select-window-4 :color blue)
+  ("5" select-window-5 :color blue)
+  ("6" select-window-6 :color blue)
+  ("7" select-window-7 :color blue)
+  ("8" select-window-8 :color blue)
+  ("9" select-window-9 :color blue)
+
   ("N" evil-window-new :color blue)
   ("=" balance-windows )
   ("a" ace-window )
@@ -486,7 +534,9 @@ _t_witter
 
 (defhydra hydra-error ()
   ("t" next-error "next")
-  ("s" previous-error "previous"))
+  ("n" next-error "next")
+  ("s" previous-error "previous")
+  ("p" previous-error "previous"))
 
 (defhydra hydra-buffer (:color blue :columns 3)
   "
@@ -497,11 +547,14 @@ _t_witter
   ("B" ibuffer "ibuffer")
   ("p" previous-buffer "prev" :color red)
   ("C-b" buffer-menu "buffer menu")
+  ("N" evil-buffer-new "new")
   ("d" kill-this-buffer "delete" :color red)
-  ("N" evil-buffer-new "new"))
+  ;; don't come back to previous buffer after delete
+  ("D" (progn (kill-this-buffer) (next-buffer)) "Delete" :color red)
+  ("s" save-buffer "save" :color red))
 
 
-;;; Ibuffer
+;; Ibuffer
 ;; this is genius hydra making from
 ;; https://github.com/abo-abo/hydra/wiki/Ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
@@ -614,35 +667,35 @@ _t_witter
   ("D" dired-do-delete "delete this")
   ("q" hydra-dired-main/body "back" :color blue))
 
-;;
-;;; Global
-;;
+(defhydra hydra-journal (:color pink :hint nil :columns 4)
+  "
+Journal
+"
+  ("n" org-journal-new-entry "new" :color blue)
+  ("/" org-journal-search-forever "search" :color blue)
+  ("c" hydra-calendar/body "calendar" :color blue)
+  ("q" nil "quit" :color blue))
 
-;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
-(when (eq system-type 'darwin)
-  (defvar *my-previous-buffer* t
-    "can we switch?")
+(defhydra hydra-calendar
+  (:color pink
+   :hint nil
+   :columns 4
+   :body-pre (calendar)
+   )
+  "
+ ^Calendar^     ^Journal^   ^ ^           ^Quit^
+  _._: today    _n_ext      _e_: edit     _b_: journal
+  _?_: date     _p_revious  _C-e_: view   _q_: quit
+  ^ ^           _N_ew
+"
+  ("." calendar-goto-today)
+  ("?" calendar-goto-date)
+  ("n" org-journal-next-entry)
+  ("p" org-journal-previous-entry)
+  ("e" org-journal-read-entry :color blue)
+  ("C-e" org-journal-display-entry)
+  ("N" org-journal-new-date-entry)
+  ("b" hydra-journal/body :color blue :exit-function (calendar-exit))
+  ("q" nil "quit" :color blue :exit-function (calendar-exit)))
 
-  (defun my-previous-buffer ()
-    (interactive)
-    (message "custom prev: *my-previous-buffer*=%s" *my-previous-buffer*)
-    (when *my-previous-buffer*
-      (previous-buffer)
-      (setq *my-previous-buffer* nil)
-      (run-at-time "1 sec" nil (lambda ()
-                                 (setq *my-previous-buffer* t)))))
-
-  (defvar *my-next-buffer* t
-    "can we switch?")
-
-  (defun my-next-buffer ()
-    (interactive)
-    (message "custom prev: *my-next-buffer*=%s" *my-next-buffer*)
-    (when *my-next-buffer*
-      (next-buffer)
-      (setq *my-next-buffer* nil)
-      (run-at-time "1 sec" nil (lambda ()
-                                 (setq *my-next-buffer* t)))))
-
-  (global-set-key [double-wheel-right] 'my-previous-buffer)
-  (global-set-key [double-wheel-left] 'my-next-buffer))
+;;; ======================================================================

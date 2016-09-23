@@ -100,6 +100,7 @@ Requires smartparens because all movement is done using
     (sp-up-sexp arg)
     (call-interactively 'eval-last-sexp)))
 
+;; from https://github.com/syl20bnr/spacemacs/
 (defun sam--open-in-external-app ()
   "Open current file in external application."
   (interactive)

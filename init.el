@@ -169,6 +169,16 @@
 
 
 ;;; -C-
+(use-package calendar
+  :commands (calendar)
+  :config
+  (general-define-key
+   :keymaps 'calendar-mode-map
+    "P" 'org-journal-previous-entry
+    "N" 'org-journal-next-entry
+    "o" 'org-journal-read-entry
+    "." 'hydra-calendar/body))
+
 (use-package color-identifiers-mode :ensure t
   ;; colore les variables dans certains mode de programmation
   ;; par une couleur unique
@@ -530,10 +540,6 @@
   :config
   (evil-mode 1)
 
-  (evil-set-initial-state 'dired-mode 'emacs)
-  (evil-set-initial-state 'message-mode 'motion)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'ivy-occur-mode 'emacs)
 
   (use-package evil-escape :ensure t
     :diminish
@@ -562,6 +568,13 @@
     :config
     (global-evil-visualstar-mode t))
 
+  (evil-set-initial-state 'dired-mode 'emacs)
+  (evil-set-initial-state 'message-mode 'motion)
+  (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'ivy-occur-mode 'emacs)
+  (evil-set-initial-state 'calendar-mode 'emacs)
+
+  ;; cursor color by state
   (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
         evil-normal-state-cursor  '("#b58900" box)  ;; blue
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
@@ -581,7 +594,8 @@
 			       (Info-mode-map . motion)
 			       (speedbar-key-map)
 			       (speedbar-file-key-map)
-			       (speedbar-buffers-key-map))))
+			       (speedbar-buffers-key-map)
+			       (calendar-mode-map))))
 
 
 (use-package exec-path-from-shell :ensure t
@@ -1091,6 +1105,11 @@ undo               _u_: undo
     )
   )
 
+(use-package move-text :ensure t
+  :commands
+  (move-text-down
+   move-text-up))
+
 ;;; -N-
 (use-package nlinum :ensure t
   :init
@@ -1163,9 +1182,9 @@ undo               _u_: undo
 
   (use-package counsel-projectile :ensure t)
 
-  (progn
-    (setq projectile-completion-system 'ivy)
-    (add-to-list 'projectile-globally-ignored-files ".DS_Store")))
+  (setq projectile-switch-project-action 'projectile-dired)
+  (setq projectile-completion-system 'ivy)
+  (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
 
 
 (use-package python
@@ -1383,6 +1402,10 @@ undo               _u_: undo
 (use-package smex
   :quelpa (smex :fetcher github :repo "abo-abo/smex"))
 
+(use-package smooth-scrolling :ensure t
+  :config
+  (smooth-scrolling-mode))
+
 (use-package spaceline :ensure t
   :defer 1
   :config
@@ -1392,7 +1415,8 @@ undo               _u_: undo
     (setq powerline-default-separator 'utf-8)
 
     :config
-    (spaceline-emacs-theme)))
+    (spaceline-emacs-theme)
+    (window-numbering-mode)))
 
 (use-package subword :defer t
   :init
@@ -1414,6 +1438,24 @@ undo               _u_: undo
   :commands (vr/replace vr/query-replace))
 
 ;;; -W-
+(use-package web-mode :ensure t
+  :mode
+  (("\\.phtml\\'"      . web-mode)
+   ("\\.tpl\\.php\\'"  . web-mode)
+   ("\\.twig\\'"       . web-mode)
+   ("\\.html\\'"       . web-mode)
+   ("\\.htm\\'"        . web-mode)
+   ("\\.[gj]sp\\'"     . web-mode)
+   ("\\.as[cp]x?\\'"   . web-mode)
+   ("\\.eex\\'"        . web-mode)
+   ("\\.erb\\'"        . web-mode)
+   ("\\.mustache\\'"   . web-mode)
+   ("\\.handlebars\\'" . web-mode)
+   ("\\.hbs\\'"        . web-mode)
+   ("\\.eco\\'"        . web-mode)
+   ("\\.ejs\\'"        . web-mode)
+   ("\\.djhtml\\'"     . web-mode)))
+
 (use-package wgrep :ensure t :defer t)
 
 (use-package which-key :ensure t
@@ -1436,23 +1478,23 @@ undo               _u_: undo
   (setq whitespace-line-column 100
         whitespace-style '(face lines-tail)))
 
-(use-package web-mode :ensure t
-  :mode
-  (("\\.phtml\\'"      . web-mode)
-   ("\\.tpl\\.php\\'"  . web-mode)
-   ("\\.twig\\'"       . web-mode)
-   ("\\.html\\'"       . web-mode)
-   ("\\.htm\\'"        . web-mode)
-   ("\\.[gj]sp\\'"     . web-mode)
-   ("\\.as[cp]x?\\'"   . web-mode)
-   ("\\.eex\\'"        . web-mode)
-   ("\\.erb\\'"        . web-mode)
-   ("\\.mustache\\'"   . web-mode)
-   ("\\.handlebars\\'" . web-mode)
-   ("\\.hbs\\'"        . web-mode)
-   ("\\.eco\\'"        . web-mode)
-   ("\\.ejs\\'"        . web-mode)
-   ("\\.djhtml\\'"     . web-mode)))
+(use-package window-numbering :ensure t
+  :commands
+  (window-numbering-mode
+   select-window-0
+   select-window-1
+   select-window-2
+   select-window-3
+   select-window-4
+   select-window-5
+   select-window-6
+   select-window-7
+   select-window-8
+   select-window-9)
+  :config
+  (window-numbering-install-mode-line)
+  (defun window-numbering-install-mode-line (&optional position)
+    "Do nothing, the display is handled by the powerline."))
 
 ;;; -X-
 

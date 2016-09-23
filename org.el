@@ -251,16 +251,10 @@
 
 ;;;* Org-journal
 (use-package org-journal :ensure t
-  :commands (org-journal-new-entry)
-
-  :general
-  (general-define-key
-   :states '(normal)
-   :prefix "SPC"
-   :non-normal-prefix " "
-    "jn" 'org-journal-new-entry
-    )
-
+  :commands (org-journal-new-entry
+	     org-journal-next-entry
+	     org-journal-previous-entry
+	     org-journal-read-entry)
   :config
   (setq org-journal-dir "~/Org/journal"))
 
