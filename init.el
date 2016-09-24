@@ -705,6 +705,7 @@
     ))
 
 (use-package expand-region :ensure t :defer t)
+
 ;;; -F-
 
 (use-package flx :ensure t)
@@ -1163,7 +1164,7 @@ undo               _u_: undo
   (setq persp-autokill-buffer-on-remove 'kill-weak)
   (persp-mode 1)
 
-  (setq persp-nil-name "1")
+  (setq persp-nil-name "nil")
 
   ;; TODO
   (defhydra hydra-persp (:hint nil :color blue)
@@ -1491,18 +1492,19 @@ _SB_: buffer →    ^ ^
   :mode ("\\.scss\\'" . scss-mode))
 
 (use-package sh-script :defer t
-  :init
-  ;; Use sh-mode when opening `.zsh' files, and when opening
-  ;; Prezto runcoms.
-  (progn
-    (dolist (pattern '("\\.zsh\\'"
-                       "zlogin\\'"
-                       "zlogout\\'"
-                       "zpreztorc\\'"
-                       "zprofile\\'"
-                       "zshenv\\'"
-                       "zshrc\\'"))
-      (add-to-list 'auto-mode-alist (cons pattern 'sh-mode)))))
+  :mode
+  ( ("\\.zsh\\'" . sh-mode)
+    ("zlogin\\'" . sh-mode)
+    ("zlogout\\'" . sh-mode  )
+    ("zpreztorc\\'" . sh-mode )
+    ("zprofile\\'" . sh-mode )
+    ("zshenv\\'" . sh-mode )
+    ("zshrc\\'" . sh-mode))
+  :config
+  (use-package company-shell
+    :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
+    :config
+    (add-to-list 'company-backends 'company-shell)))
 
 (use-package smartparens
   :ensure t
