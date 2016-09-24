@@ -1251,7 +1251,50 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
    ("python"  . python-mode))
   :config
 
+  (defun python-shell-send-line (&optional vis)
+    "send the current line to the inferior python process"
+    (interactive "P")
+    (save-excursion
+      (end-of-line)
+      (let ((end (point)))
+        (beginning-of-line)
+        (python-shell-send-region (point) end vis "eval line"))))
+
+  (defun python-shell-send-line-switch ()
+    (interactive)
+    (python-shell-send-line)
+    (python-shell-switch-to-shell)
+    (evil-insert-state))
+
+  ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/%2Blang/python/packages.el
+  (defun python-shell-send-buffer-switch ()
+    "Send buffer content to shell and switch to it in insert mode"
+    (interactive)
+    (python-shell-send-buffer)
+    (python-shell-switch-to-shell)
+    (evil-insert-state))
+
+  (defun python-shell-send-defun-switch ()
+    "send function content to shell and switch to it in insert mode"
+    (interactive)
+    (python-shell-send-defun nil)
+    (python-shell-switch-to-shell)
+    (evil-insert-state))
+
+  (defun python-shell-send-region-switch (start end)
+    "Send region content to shell and switch to it in insert mode."
+    (interactive "r")
+    (python-shell-send-region start end)
+    (python-shell-switch-to-shell)
+    (evil-insert-state))
+
+  (bind-keys :map python-mode-map
+    ("s-e" . python-shell-send-defun)
+    ("C-<return>" . python-shell-send-line)
+    ("RET" . electric-newline-and-maybe-indent))
+
   (use-package elpy :ensure t
+    :disabled t
     :commands (elpy-mode
                elpy-enable
                )
@@ -1267,7 +1310,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
      :states '(normal visual insert emacs)
      :keymaps 'python-mode-map
      :prefix ","
-     :non-normal-prefix "’"               ; Alt-, => ’
+     :non-normal-prefix "’"             ; Alt-, => ’
       "/" '(:ignore t :which-key "search")
       "/s" '(elpy-rgrep-symbol :which-key "search symbol")
 
@@ -1312,7 +1355,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
       "v" '(:ignore t :which-key "virtualenv")
       "va" 'pyenv-activate
       "vd" 'pyenv-deactivate
-      "vo" 'pyenv-workon ; TODO describe this keybinding
+      "vo" 'pyenv-workon                ; TODO describe this keybinding
 
       )
 
@@ -1341,6 +1384,25 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
       "r" 'elpy-nav-indent-shift-right
       ))
 
+  (use-package anaconda-mode
+    :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
+    :config
+
+    (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+
+    (bind-keys :map anaconda-mode-map
+      ("M-." . anaconda-mode-find-definitions)
+      ("M-," . anaconda-mode-go-back)
+      ("M-*" . anaconda-mode-find-assignments)
+      ("M-SPC" . hydra-python/body))
+
+    (use-package company-anaconda
+      :quelpa (company-anaconda :fetcher github :repo "proofit404/company-anaconda")
+      :config
+      (add-to-list 'company-backends '(company-anaconda :with company-capf))))
+
+
   (use-package pyenv-mode :ensure t
     :commands pyenv-mode
     :init (add-hook 'python-mode-hook 'pyenv-mode)
@@ -1348,7 +1410,36 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
   (setq-default indent-tabs-mode nil)
   (setq python-indent-offset 4)
-  )
+
+  ;; keybindings
+  (defhydra hydra-python (:hint nil :color teal)
+    "
+^Send^            ^Nav^
+^----^            ^---^
+_sl_: line        ^ ^
+_SL_: line →      ^ ^
+_sr_: region      _._: def
+_SR_: region →    _*_: assign
+_st_: function    _,_: back
+_ST_: function →  ^ ^
+_sb_: buffer      ^ ^
+_SB_: buffer →    ^ ^
+"
+    ;; shell send
+    ("sl" python-shell-send-line)
+    ("SL" python-shell-send-line-switch)
+    ("sr" python-shell-send-region)
+    ("SR" python-shell-send-region-switch)
+    ("st" python-shell-send-defun)
+    ("ST" python-shell-send-defun-switch)
+    ("sb" python-shell-send-buffer)
+    ("SB" python-shell-send-buffer-switch)
+    ;; code nav
+    ("." anaconda-mode-find-definitions)
+    ("*" anaconda-mode-find-assignments)
+    ("," anaconda-mode-go-back)
+    ;; actions
+    ("q" nil "quit" :color blue)))
 
 ;;; -Q-
 
