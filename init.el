@@ -1561,7 +1561,7 @@ _SB_: buffer →    ^ ^
     :init
     (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
     (setq powerline-default-separator 'utf-8)
-
+    (setq spaceline-window-numbers-unicode t)
     :config
     (spaceline-emacs-theme)
     (window-numbering-mode)))
@@ -1602,7 +1602,11 @@ _SB_: buffer →    ^ ^
    ("\\.hbs\\'"        . web-mode)
    ("\\.eco\\'"        . web-mode)
    ("\\.ejs\\'"        . web-mode)
-   ("\\.djhtml\\'"     . web-mode)))
+   ("\\.djhtml\\'"     . web-mode))
+  :config
+  (use-package company-web :ensure t
+    :config
+    (add-to-list 'company-backends 'company-web-html)))
 
 (use-package wgrep :ensure t :defer t)
 
@@ -1640,9 +1644,9 @@ _SB_: buffer →    ^ ^
    select-window-8
    select-window-9)
   :config
-  (window-numbering-install-mode-line)
   (defun window-numbering-install-mode-line (&optional position)
-    "Do nothing, the display is handled by the powerline."))
+    "Do nothing, the display is handled by the powerline.")
+  (window-numbering-install-mode-line))
 
 ;;; -X-
 
