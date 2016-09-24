@@ -209,10 +209,11 @@
   (setq
    company-idle-delay 0.2
    company-selection-wrap-around t
-   company-minimum-prefix-length 3
+   company-minimum-prefix-length 2
    company-require-match nil
    company-dabbrev-ignore-case nil
-   company-dabbrev-downcase nil)
+   company-dabbrev-downcase nil
+   company-show-numbers t)
 
   :config
   (global-company-mode)
@@ -222,15 +223,20 @@
     :config
     (company-statistics-mode))
 
-  (define-key company-active-map [tab] 'company-complete)
-  (define-key company-active-map (kbd "C-n") 'company-select-next)
-  (define-key company-active-map (kbd "C-p") 'company-select-previous)
-
+  (bind-keys :map company-active-map
+    ("C-d" . company-show-doc-buffer)
+    ("C-l" . company-show-location)
+    ("C-n" . company-select-next)
+    ("C-p" . company-select-previous)
+    ("C-t" . company-select-next)
+    ("C-s" . company-select-previous)
+    ("TAB" . company-complete))
 
   (setq company-backends
-        '((company-css
+	'((company-css
 	   company-clang
-           company-capf
+	   company-capf
+	   company-semantic
 	   company-xcode
 	   company-cmake
 	   company-files
@@ -240,28 +246,28 @@
 
   ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/auto-completion/packages.el
   (setq hippie-expand-try-functions-list
-        '(
-          ;; Try to expand word "dynamically", searching the current buffer.
-          try-expand-dabbrev
-          ;; Try to expand word "dynamically", searching all other buffers.
-          try-expand-dabbrev-all-buffers
-          ;; Try to expand word "dynamically", searching the kill ring.
-          try-expand-dabbrev-from-kill
-          ;; Try to complete text as a file name, as many characters as unique.
-          try-complete-file-name-partially
-          ;; Try to complete text as a file name.
-          try-complete-file-name
-          ;; Try to expand word before point according to all abbrev tables.
-          try-expand-all-abbrevs
-          ;; Try to complete the current line to an entire line in the buffer.
-          try-expand-list
-          ;; Try to complete the current line to an entire line in the buffer.
-          try-expand-line
-          ;; Try to complete as an Emacs Lisp symbol, as many characters as
-          ;; unique.
-          try-complete-lisp-symbol-partially
-          ;; Try to complete word as an Emacs Lisp symbol.
-          try-complete-lisp-symbol)))
+	'(
+	  ;; Try to expand word "dynamically", searching the current buffer.
+	  try-expand-dabbrev
+	  ;; Try to expand word "dynamically", searching all other buffers.
+	  try-expand-dabbrev-all-buffers
+	  ;; Try to expand word "dynamically", searching the kill ring.
+	  try-expand-dabbrev-from-kill
+	  ;; Try to complete text as a file name, as many characters as unique.
+	  try-complete-file-name-partially
+	  ;; Try to complete text as a file name.
+	  try-complete-file-name
+	  ;; Try to expand word before point according to all abbrev tables.
+	  try-expand-all-abbrevs
+	  ;; Try to complete the current line to an entire line in the buffer.
+	  try-expand-list
+	  ;; Try to complete the current line to an entire line in the buffer.
+	  try-expand-line
+	  ;; Try to complete as an Emacs Lisp symbol, as many characters as
+	  ;; unique.
+	  try-complete-lisp-symbol-partially
+	  ;; Try to complete word as an Emacs Lisp symbol.
+	  try-complete-lisp-symbol)))
 
 (use-package counsel :ensure t
   :bind*
@@ -879,9 +885,10 @@
   (setq ivy-height 10)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
-
+  ;; from https://github.com/company-mode/company-statistics
+  ;; ignore buffers in the ignore buffer list.
   (setq ivy-use-ignore-default 'always)
-  (setq ivy-ignore-buffers '("company-statistics-cache.el"))
+  (setq ivy-ignore-buffers '("company-statistics-cache.el" "company-statistics-autoload.el"))
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip nil)
   (setq ivy-re-builders-alist
