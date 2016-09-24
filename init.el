@@ -26,7 +26,8 @@
   (use-package quelpa-use-package :ensure t))
 
 
-(use-package general :ensure t)
+(use-package general
+  :quelpa (general :fetcher github :repo "noctuid/general.el"))
 (use-package use-package-chords :config (key-chord-mode 1))
 (use-package diminish)
 (use-package bind-key)
