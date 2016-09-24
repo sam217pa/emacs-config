@@ -177,15 +177,6 @@
     "o" 'org-journal-read-entry
     "." 'hydra-calendar/body))
 
-(use-package color-identifiers-mode :ensure t
-  ;; colore les variables dans certains mode de programmation
-  ;; par une couleur unique
-  :commands color-identifiers-mode
-  :diminish (color-identifiers-mode . "")
-  :init
-  (add-hook 'python-mode-hook 'color-identifiers-mode)
-  )
-
 (use-package color-theme-solarized :ensure t
   :init
   ;; to make the byte compiler happy.
