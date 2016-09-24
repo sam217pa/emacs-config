@@ -225,10 +225,6 @@
   :config
   (global-company-mode)
 
-  (use-package company-flx :ensure t
-    :config
-    (company-flx-mode +1))
-
   (use-package company-statistics
     :quelpa (company-statistics :fetcher github :repo "company-mode/company-statistics")
     :config
