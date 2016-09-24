@@ -1147,6 +1147,34 @@ undo               _u_: undo
   :init
   (turn-on-pbcopy))
 
+(use-package persp-mode
+  :quelpa (persp-mode :fetcher github :repo "Bad-ptr/persp-mode.el")
+  :diminish (persp-mode . "")
+  :config
+
+  (setq wg-morph-on nil)                ; switch off animation ?
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
+  (persp-mode 1)
+
+  (setq persp-nil-name "1")
+
+  ;; TODO
+  (defhydra hydra-persp ()
+    "persp"
+    ("n" 'persp-next "next")
+    ("p" 'persp-prev "prev")
+    ("s" 'persp-switch "switch")
+    ("S" 'persp-window-switch "wdw switch")
+    ("r" 'persp-rename "rename")
+    ("c" 'persp-copy "copy")
+    ("C" 'persp-kill "kill")
+    ("a" 'persp-add-buffer "add buffer")
+    ("b" 'persp-switch-to-buffer "→ buffer")
+    ("i" 'persp-import-buffers-from "import from")
+    ("I" 'persp-import-win-conf "import win")
+    ("q" nil "quit" :color blue)
+    ))
+
 (use-package prettify-symbols-mode
   :init
   (global-prettify-symbols-mode))
