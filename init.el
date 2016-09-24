@@ -94,12 +94,10 @@
 	mac-command-modifier 'control ; cmd de gauche = control
 	mac-option-modifier 'super ; option de gauche = super
 	mac-right-option-modifier nil ; option de droite = carac spéciaux
-	mac-control-modifier 'hyper ; control de gauche = control
+	mac-control-modifier 'hyper ; control de gauche = hyper (so does capslock)
 	ns-function-modifier 'hyper ; fn key = hyper
 	ns-right-alternate-modifier nil); cette touche n'existe pas.
-  (setq locate-command "mdfind")
-  )
-
+  (setq locate-command "mdfind"))
 
 
 ;;; -------------------------------------------------------------------
@@ -209,7 +207,7 @@
   (solarized-switch-to-dark))
 
 (use-package command-log-mode :ensure t
-  :commands clm/open-command-load-buffer)
+  :commands (command-log-mode))
 
 (use-package company :ensure t
   :diminish ""
@@ -230,6 +228,11 @@
   (use-package company-flx :ensure t
     :config
     (company-flx-mode +1))
+
+  (use-package company-statistics
+    :quelpa (company-statistics :fetcher github :repo "company-mode/company-statistics")
+    :config
+    (company-statistics-mode))
 
   (define-key company-active-map [tab] 'company-complete)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
@@ -888,6 +891,9 @@
   (setq ivy-height 10)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil)
+
+  (setq ivy-use-ignore-default 'always)
+  (setq ivy-ignore-buffers '("company-statistics-cache.el"))
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip nil)
   (setq ivy-re-builders-alist
@@ -1103,6 +1109,15 @@ undo               _u_: undo
     "gc" 'markdown-forward-same-level
     "gr" 'markdown-backward-same-level
     "gs" 'markdown-up-heading
+    )
+
+  (which-key-add-major-mode-key-based-replacements 'markdown-mode
+    "C-c C-a" "insert"
+    "C-c C-c" "export"
+    "C-c TAB" "images"
+    "C-c C-s" "text"
+    "C-c C-t" "header"
+    "C-c C-x" "move"
     )
   )
 
@@ -1405,7 +1420,8 @@ undo               _u_: undo
 
 (use-package smooth-scrolling :ensure t
   :config
-  (smooth-scrolling-mode))
+  (smooth-scrolling-mode)
+  (setq smooth-scroll-margin 5))
 
 (use-package spaceline :ensure t
   :defer 1
@@ -1465,7 +1481,7 @@ undo               _u_: undo
   (which-key-mode)
   (which-key-setup-side-window-right-bottom)
   ;; simple then alphabetic order.
-  (setq which-key-sort-order 'which-key-key-order-alpha)
+  (setq which-key-sort-order 'which-key-prefix-then-key-order)
   (setq which-key-popup-type 'side-window
 	which-key-side-window-max-width 0.33
 	which-key-idle-delay 0.5))
