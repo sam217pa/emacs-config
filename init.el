@@ -1159,21 +1159,36 @@ undo               _u_: undo
   (setq persp-nil-name "1")
 
   ;; TODO
-  (defhydra hydra-persp ()
-    "persp"
-    ("n" 'persp-next "next")
-    ("p" 'persp-prev "prev")
-    ("s" 'persp-switch "switch")
-    ("S" 'persp-window-switch "wdw switch")
-    ("r" 'persp-rename "rename")
-    ("c" 'persp-copy "copy")
-    ("C" 'persp-kill "kill")
-    ("a" 'persp-add-buffer "add buffer")
-    ("b" 'persp-switch-to-buffer "→ buffer")
-    ("i" 'persp-import-buffers-from "import from")
-    ("I" 'persp-import-win-conf "import win")
-    ("q" nil "quit" :color blue)
-    ))
+  (defhydra hydra-persp (:hint nil :color blue)
+    "
+^Nav^        ^Buffer^      ^Window^     ^Manage^      ^Save/load^
+^---^        ^------^      ^------^     ^------^      ^---------^
+_n_: next    _a_: add      ^ ^          _r_: rename   _w_: save
+_p_: prev    _b_: → to     ^ ^          _c_: copy     _W_: save subset
+_s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
+^ ^          ^ ^           ^ ^          ^ ^           _L_: load subset
+"
+    ("n" persp-next :color red)
+    ("p" persp-prev :color red)
+    ("s" persp-switch)
+    ("S" persp-window-switch)
+    ("r" persp-rename)
+    ("c" persp-copy)
+    ("C" persp-kill)
+    ("a" persp-add-buffer)
+    ("b" persp-switch-to-buffer)
+    ("i" persp-import-buffers-from)
+    ("I" persp-import-win-conf)
+    ("o" persp-mode)
+    ("w" persp-save-state-to-file)
+    ("W" persp-save-to-file-by-names)
+    ("l" persp-load-state-from-file)
+    ("L" persp-load-from-file-by-names)
+    ("q" nil "quit"))
+
+  (define-key evil-normal-state-map (kbd "M-p") 'hydra-persp/body)
+  (global-set-key (kbd "H-p") 'persp-prev)
+  (global-set-key (kbd "H-n") 'persp-next))
 
 (use-package prettify-symbols-mode
   :init
