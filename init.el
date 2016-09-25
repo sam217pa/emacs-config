@@ -1158,12 +1158,14 @@ undo               _u_: undo
 (use-package persp-mode
   :quelpa (persp-mode :fetcher github :repo "Bad-ptr/persp-mode.el")
   :diminish (persp-mode . "")
+  :commands (persp-mode
+             persp-next
+             persp-prev
+             pers-switch)
   :config
 
   (setq wg-morph-on nil)                ; switch off animation ?
   (setq persp-autokill-buffer-on-remove 'kill-weak)
-  (persp-mode 1)
-
   (setq persp-nil-name "nil")
 
   ;; TODO
@@ -1672,8 +1674,7 @@ _SB_: buffer →    ^ ^
    zoom-in
    zoom-out)
   :config
-  (setq zoom-frame/buffer 'buffer)
-  )
+  (setq zoom-frame/buffer 'buffer))
 
 ;;; -------------------------------------------------------------------
 
