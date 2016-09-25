@@ -147,6 +147,7 @@
    "J" 'evil-find-char-to-backward
    "l" 'evil-change
    "L" 'evil-change-line
+   (general-chord "ll") 'avy-goto-line
    "T" 'evil-join
    "h" 'evil-replace
    "H" 'evil-replace-state
@@ -154,7 +155,8 @@
    "K" 'evil-change-whole-line
    "M-b" 'ivy-switch-buffer
    "p" #'hydra-paste/evil-paste-after
-   "P" #'hydra-paste/evil-paste-before)
+   "P" #'hydra-paste/evil-paste-before
+   (general-chord "xx") 'avy-goto-word-or-subword-1)
 
 ;;; INSERT map
   (iemap
@@ -482,12 +484,14 @@
 _d_: dark    _f_: flycheck     _T_: time           _F_: fullscreen
 _l_: light   _n_: linum        ^ ^                 _m_: maximized
 ^ ^          _w_: whitespace   ^ ^                 ^ ^
+^ ^          _p_: persp-mode   ^ ^                 ^ ^
 "
   ("d" solarized-switch-to-dark)
   ("l" solarized-switch-to-light)
   ("f" flycheck-mode :color blue)
   ("n" nlinum-mode)
   ("T" display-time-mode)
+  ("p" persp-mode)
   ("m" toggle-frame-maximized)
   ("F" toggle-frame-fullscreen :color blue)
   ("w" blank-mode :color red)
@@ -731,6 +735,7 @@ _t_witter
   ("C-b" buffer-menu "buffer menu")
   ("N" evil-buffer-new "new")
   ("d" kill-this-buffer "delete" :color red)
+  ("ð" (progn (kill-this-buffer) (delete-window)) "del + wind" :color red)
   ;; don't come back to previous buffer after delete
   ("D" (progn (kill-this-buffer) (next-buffer)) "Delete" :color red)
   ("s" save-buffer "save" :color red)

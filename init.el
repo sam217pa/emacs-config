@@ -1158,12 +1158,14 @@ undo               _u_: undo
 (use-package persp-mode
   :quelpa (persp-mode :fetcher github :repo "Bad-ptr/persp-mode.el")
   :diminish (persp-mode . "")
+  :commands (persp-mode
+             persp-next
+             persp-prev
+             pers-switch)
   :config
 
   (setq wg-morph-on nil)                ; switch off animation ?
   (setq persp-autokill-buffer-on-remove 'kill-weak)
-  (persp-mode 1)
-
   (setq persp-nil-name "nil")
 
   ;; TODO
@@ -1250,8 +1252,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :interpreter
   (("ipython" . python-mode)
    ("python"  . python-mode))
-  :config
 
+  :config
   (defun python-shell-send-line (&optional vis)
     "send the current line to the inferior python process"
     (interactive "P")
@@ -1260,6 +1262,28 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
       (let ((end (point)))
         (beginning-of-line)
         (python-shell-send-region (point) end vis "eval line"))))
+
+  (defun current-line-empty-p ()
+    (save-excursion
+      (beginning-of-line)
+      (looking-at "[[:space:]]*$")))
+
+  (defun python-shell-send-block (&optional vis)
+    "send the current block of text to inferior python process.
+If not in a block, send the upper block.
+"
+    (interactive "P")
+    (save-excursion
+      (unless (current-line-empty-p) (python-nav-end-of-block))
+      (let ((end (point)))
+        (python-nav-beginning-of-block)
+        (python-shell-send-region (point) end vis "eval line"))))
+
+  (defun python-shell-send-block-switch ()
+    (interactive)
+    (python-shell-send-block)
+    (python-shell-switch-to-shell)
+    (evil-insert-state))
 
   (defun python-shell-send-line-switch ()
     (interactive)
@@ -1291,99 +1315,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
   (bind-keys :map python-mode-map
     ("s-e" . python-shell-send-defun)
-    ("C-<return>" . python-shell-send-line)
-    ("RET" . electric-newline-and-maybe-indent))
-
-  (use-package elpy :ensure t
-    :disabled t
-    :commands (elpy-mode
-               elpy-enable
-               )
-    :bind (:map python-mode-map
-           ("M-/" . elpy-company-backend)
-           ("RET" . electric-newline-and-maybe-indent))
-    :init
-    (add-hook 'python-mode-hook 'elpy-mode)
-    :config
-    (electric-indent-local-mode -1)
-
-    (general-define-key
-     :states '(normal visual insert emacs)
-     :keymaps 'python-mode-map
-     :prefix ","
-     :non-normal-prefix "’"             ; Alt-, => ’
-      "/" '(:ignore t :which-key "search")
-      "/s" '(elpy-rgrep-symbol :which-key "search symbol")
-
-      "d" '(:ignore t :which-key "doc")
-      "dd" 'elpy-doc
-
-      "f" '(:ignore t :which-key "file")
-      "ff" 'elpy-find-file
-
-      "g" '(:ignore t :which-key "go to")
-      "gd" 'elpy-goto-definition
-      "gb" 'pop-tag-mark
-
-      "m" '(:ignore t :which-key "move")
-      "mt" 'elpy-nav-move-line-or-region-down
-      "ms" 'elpy-nav-move-line-or-region-up
-      "mc" 'elpy-nav-indent-shift-left
-      "mr" 'elpy-nav-indent-shift-right
-
-      "n" '(:ignore t :which-key "nav")
-      "nt" 'elpy-nav-forward-block
-      "ns" 'elpy-nav-backward-block
-      "nc" 'elpy-nav-backward-indent
-      "nr" 'elpy-nav-forward-indent
-
-      "r" '(:ignore t :which-key "refactor")
-      "rf" 'elpy-format-code
-      "re" 'elpy-multiedit-python-symbol-at-point
-      "ri" '(elpy-importmagic-fixup :which-key "import fix")
-      "rr" 'elpy-refactor
-
-      "s" '(:ignore t :which-key "shell")
-      "sg" 'elpy-shell-switch-to-shell
-      "sl" 'elpy-shell-send-current-statement
-      "sb" 'elpy-shell-send-region-or-buffer
-      "sr" 'elpy-shell-send-region-or-buffer
-      "st" 'elpy-shell-send-defun
-      "si" 'elpy-use-ipython
-
-      "t" 'elpy-test
-
-      "v" '(:ignore t :which-key "virtualenv")
-      "va" 'pyenv-activate
-      "vd" 'pyenv-deactivate
-      "vo" 'pyenv-workon                ; TODO describe this keybinding
-
-      )
-
-    ;; CONTROL like map
-    (general-define-key
-     :states '(insert)
-     :keymaps 'python-mode-map
-     :non-normal-prefix "ê"
-      "t" 'elpy-nav-forward-block
-      "s" 'elpy-nav-backward-block
-      "c" 'elpy-nav-backward-indent
-      "r" 'elpy-nav-forward-indent
-
-      "f" 'elpy-shell-send-defun
-      "RET" 'elpy-shell-send-current-statement
-      )
-
-    ;; META like map
-    (general-define-key
-     :states '(insert)
-     :keymaps 'python-mode-map
-     :non-normal-prefix "à"
-      "t" 'elpy-nav-move-line-or-region-down
-      "s" 'elpy-nav-move-line-or-region-up
-      "c" 'elpy-nav-indent-shift-left
-      "r" 'elpy-nav-indent-shift-right
-      ))
+    ("C-<return>" . python-shell-send-line))
 
   (use-package anaconda-mode
     :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
@@ -1404,27 +1336,52 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
       (add-to-list 'company-backends '(company-anaconda :with company-capf))))
 
 
+  (use-package py-yapf
+    :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
+    :commands py-yapf-buffer)
+
   (use-package pyenv-mode :ensure t
     :commands pyenv-mode
-    :init (add-hook 'python-mode-hook 'pyenv-mode)
-    )
+    :init (add-hook 'python-mode-hook 'pyenv-mode))
+
+  (use-package pyvenv :ensure t
+    :commands (pyvenv-workon
+               pyvenv-activate))
 
   (setq-default indent-tabs-mode nil)
   (setq python-indent-offset 4)
 
+
   ;; keybindings
+  (general-define-key
+   :keymaps 'python-mode-map
+   :states '(normal visual insert)
+    "C-<return>" 'python-shell-send-line
+    "«" 'python-indent-shift-left
+    "»" 'python-indent-shift-right
+    (general-chord ",l") 'python-shell-send-line
+    (general-chord ";L") 'python-shell-send-line-switch
+    (general-chord ",b") 'python-shell-send-block
+    (general-chord ";B") 'python-shell-send-block-switch
+    (general-chord ",t") 'python-shell-send-defun
+    (general-chord ";T") 'python-shell-send-defun-switch
+    (general-chord ",r") 'python-shell-send-region
+    (general-chord ";R") 'python-shell-send-region-switch)
+
+  (general-define-key
+   :keymaps 'python-mode-map
+   :states '(normal visual)
+    "," 'hydra-python/body
+    ";" 'hydra-python/body)
+
   (defhydra hydra-python (:hint nil :color teal)
     "
-^Send^            ^Nav^
-^----^            ^---^
-_sl_: line        ^ ^
-_SL_: line →      ^ ^
-_sr_: region      _._: def
-_SR_: region →    _*_: assign
-_st_: function    _,_: back
-_ST_: function →  ^ ^
-_sb_: buffer      ^ ^
-_SB_: buffer →    ^ ^
+^Send^         ^  ^                ^Navigation^   ^Code^         ^Actions^
+^----^         ^  ^                ^----------^   ^----^         ^-------^
+_sl_: line     _st_: function      _._: def       _>_: indent    _y_: yapf
+_SL_: line →   _ST_: function →    _*_: assign    _<_: outdent
+_sr_: region   _sb_: buffer        _,_: back
+_SR_: region → _SB_: buffer →      ^ ^
 "
     ;; shell send
     ("sl" python-shell-send-line)
@@ -1437,9 +1394,15 @@ _SB_: buffer →    ^ ^
     ("SB" python-shell-send-buffer-switch)
     ;; code nav
     ("." anaconda-mode-find-definitions)
-    ("*" anaconda-mode-find-assignments)
-    ("," anaconda-mode-go-back)
+    ("*" anaconda-mode-find-assignments :color red)
+    ("," anaconda-mode-go-back :color red)
+    ;; code editing
+    ("<" python-indent-shift-left)
+    (">" python-indent-shift-right)
+    ;; test
+    ;; TODO python test via nose
     ;; actions
+    ("y" py-yapf-buffer)
     ("q" nil "quit" :color blue)))
 
 ;;; -Q-
@@ -1672,8 +1635,7 @@ _SB_: buffer →    ^ ^
    zoom-in
    zoom-out)
   :config
-  (setq zoom-frame/buffer 'buffer)
-  )
+  (setq zoom-frame/buffer 'buffer))
 
 ;;; -------------------------------------------------------------------
 
