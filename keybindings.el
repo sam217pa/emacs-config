@@ -835,18 +835,25 @@ _t_witter
   ("/" ibuffer-filter-disable "disable")
   ("b" hydra-ibuffer-main/body "back" :color blue))
 
-;; dired hydra. WIP
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
-  ("t" dired-next-line "next")
-  ("s" dired-previous-line "prev")
-  ("r" dired-find-file "ff" :color blue)
-  ("c" dired-up-directory "up dir")
-  ("o" dired-find-file-other-window "ff ow" :color blue)
-  ("R" dired-rename-file "rename")
-  ("S" dired-sort-toggle-or-edit "sort")
-  ("u" dired-unmark "unmark")
-  ("m" dired-mark "mark")
-  ("d" hydra-dired-delete/body "delete" :color blue)
+  "
+^^^Nav^ ^^   ^Edit^                ^Mark^      ^Action^
+^^^---^ ^^   ^----^                ^----^      ^------^
+^ ^ _s_ ^ ^  _o_pen other window   _m_ark      _h_: show hidden
+_c_ ^ ^ _r_  _R_ename              _u_nmark    _q_uit
+^ ^ _t_ ^ ^  _S_ort                _d_elete
+"
+  ("t" dired-next-line :color red)
+  ("s" dired-previous-line :color red)
+  ("r" dired-find-file :color red)
+  ("c" dired-up-directory :color red)
+  ("o" dired-find-file-other-window :color blue)
+  ("R" dired-rename-file )
+  ("S" dired-sort-toggle-or-edit )
+  ("u" dired-unmark )
+  ("m" dired-mark )
+  ("d" hydra-dired-delete/body :color blue)
+  ("h" dired-omit-mode )
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-dired-delete (:color pink :hint nil :columns 4)
