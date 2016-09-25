@@ -1336,10 +1336,17 @@ If not in a block, send the upper block.
       (add-to-list 'company-backends '(company-anaconda :with company-capf))))
 
 
+  (use-package py-yapf
+    :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
+    :commands py-yapf-buffer)
+
   (use-package pyenv-mode :ensure t
     :commands pyenv-mode
-    :init (add-hook 'python-mode-hook 'pyenv-mode)
-    )
+    :init (add-hook 'python-mode-hook 'pyenv-mode))
+
+  (use-package pyvenv :ensure t
+    :commands (pyvenv-workon
+               pyvenv-activate))
 
   (setq-default indent-tabs-mode nil)
   (setq python-indent-offset 4)
@@ -1369,10 +1376,10 @@ If not in a block, send the upper block.
 
   (defhydra hydra-python (:hint nil :color teal)
     "
-^Send^         ^  ^                ^Nav^          ^Code^
-^----^         ^  ^                ^---^          ^----^
-_sl_: line     _st_: function      _._: def       _»_: indent
-_SL_: line →   _ST_: function →    _*_: assign    _«_: outdent
+^Send^         ^  ^                ^Navigation^   ^Code^         ^Actions^
+^----^         ^  ^                ^----------^   ^----^         ^-------^
+_sl_: line     _st_: function      _._: def       _>_: indent    _y_: yapf
+_SL_: line →   _ST_: function →    _*_: assign    _<_: outdent
 _sr_: region   _sb_: buffer        _,_: back
 _SR_: region → _SB_: buffer →      ^ ^
 "
@@ -1389,10 +1396,13 @@ _SR_: region → _SB_: buffer →      ^ ^
     ("." anaconda-mode-find-definitions)
     ("*" anaconda-mode-find-assignments :color red)
     ("," anaconda-mode-go-back :color red)
-    ;; code
-    ("«" python-indent-shift-left)
-    ("»" python-indent-shift-right)
+    ;; code editing
+    ("<" python-indent-shift-left)
+    (">" python-indent-shift-right)
+    ;; test
+    ;; TODO python test via nose
     ;; actions
+    ("y" py-yapf-buffer)
     ("q" nil "quit" :color blue)))
 
 ;;; -Q-
