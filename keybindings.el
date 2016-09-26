@@ -181,9 +181,17 @@
    (general-chord "qQ") #'unfill-paragraph
    (general-chord "xv") #'git-gutter:stage-hunk
    (general-chord "xc") #'avy-goto-word-1
-   )
-
-
+   (general-chord "\"\"") "1"
+   (general-chord "««") "2"
+   (general-chord "»»") "3"
+   (general-chord "((") "4"
+   (general-chord "))") "5"
+   (general-chord "@@") "6"
+   (general-chord "++") "7"
+   (general-chord "--") "8"
+   (general-chord "//") "9"
+   (general-chord "**") "0"
+   (general-chord "$$") "#")
 
 ;;; OPERATOR map
   (general-omap
