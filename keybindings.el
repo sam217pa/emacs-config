@@ -126,86 +126,82 @@
 
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
-  (nvmap
-   "'" (general-simulate-keys "C-c")
-   "é" 'evil-goto-mark
-   "è" 'ace-window
-   "s-b" 'ivy-switch-buffer
-   "s-g" 'avy-goto-char
-   "C-p" 'counsel-yank-pop
-   "C-'" 'eshell-here
-   "?" 'evil-avy-goto-char-in-line
-   "f" 'evil-avy-goto-char-in-line
-   "|" 'ivy-switch-buffer
-   "c" 'evil-backward-char
-   "C" 'evil-window-top
-   "t" 'evil-next-line
-   "s" 'evil-previous-line
-   "r" 'evil-forward-char
-   "R" 'evil-window-bottom
-   "j" 'evil-avy-goto-char-in-line
-   "J" 'evil-find-char-to-backward
-   "l" 'evil-change
-   "L" 'evil-change-line
-   (general-chord "ll") 'avy-goto-line
-   "T" 'evil-join
-   "h" 'evil-replace
-   "H" 'evil-replace-state
-   "k" 'evil-substitute
-   "K" 'evil-change-whole-line
-   "M-b" 'ivy-switch-buffer
-   "p" #'hydra-paste/evil-paste-after
-   "P" #'hydra-paste/evil-paste-before
-   (general-chord "qd") #'kill-this-buffer
-   (general-chord "qf") #'counsel-find-file
-   (general-chord "ql") #'avy-goto-line
-   (general-chord "qs") #'save-buffer
-   (general-chord "xc") #'avy-goto-word-1
-   (general-chord "xx") 'avy-goto-word-or-subword-1)
+  (nvmap "'" (general-simulate-keys "C-c")
+         "é" 'evil-goto-mark
+         "è" 'ace-window
+         "s-b" 'ivy-switch-buffer
+         "s-g" 'avy-goto-char
+         "C-p" 'counsel-yank-pop
+         "C-'" 'eshell-here
+         "?" 'evil-avy-goto-char-in-line
+         "f" 'evil-avy-goto-char-in-line
+         (general-chord "ff") 'evil-find-char
+         "|" 'ivy-switch-buffer
+         "c" 'evil-backward-char
+         "C" 'evil-window-top
+         "t" 'evil-next-line
+         "s" 'evil-previous-line
+         "r" 'evil-forward-char
+         "R" 'evil-window-bottom
+         "j" 'evil-avy-goto-char-in-line
+         "J" 'evil-find-char-to-backward
+         "l" 'evil-change
+         "L" 'evil-change-line
+         (general-chord "ll") 'avy-goto-line
+         "T" 'evil-join
+         "h" 'evil-replace
+         "H" 'evil-replace-state
+         "k" 'evil-substitute
+         "K" 'evil-change-whole-line
+         "M-b" 'ivy-switch-buffer
+         "p" #'hydra-paste/evil-paste-after
+         "P" #'hydra-paste/evil-paste-before
+         (general-chord "qd") #'kill-this-buffer
+         (general-chord "qf") #'counsel-find-file
+         (general-chord "ql") #'avy-goto-line
+         (general-chord "qs") #'save-buffer
+         (general-chord "xc") #'avy-goto-word-1
+         (general-chord "xx") 'avy-goto-word-or-subword-1)
 
 ;;; INSERT map
-  (iemap
-   "C-z" 'undo-tree-undo
-   "C-|" 'ivy-switch-buffer
-   "C-." 'hydra-move/body
-   "C-é" 'hydra-window/body
-   "C-è" 'ace-window
-   (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
-   (general-chord "qd") #'kill-this-buffer
-   (general-chord "qf") #'ivy-switch-buffer
-   (general-chord "ql") #'avy-goto-line
-   (general-chord "qs") #'save-buffer
-   (general-chord "qp") #'hydra-projectile/body
-   (general-chord "QV") #'magit-status
-   (general-chord "qq") #'fill-paragraph
-   (general-chord "qQ") #'unfill-paragraph
-   (general-chord "xv") #'git-gutter:stage-hunk
-   (general-chord "xc") #'avy-goto-word-1
-   (general-chord "\"\"") "1"
-   (general-chord "««") "2"
-   (general-chord "»»") "3"
-   (general-chord "((") "4"
-   (general-chord "))") "5"
-   (general-chord "@@") "6"
-   (general-chord "++") "7"
-   (general-chord "--") "8"
-   (general-chord "//") "9"
-   (general-chord "**") "0"
-   (general-chord "$$") "#")
+  (iemap "C-z" 'undo-tree-undo
+         "C-|" 'ivy-switch-buffer
+         "C-." 'hydra-move/body
+         "C-é" 'hydra-window/body
+         "C-è" 'ace-window
+         (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
+         (general-chord "qd") #'kill-this-buffer
+         (general-chord "qf") #'ivy-switch-buffer
+         (general-chord "ql") #'avy-goto-line
+         (general-chord "qs") #'save-buffer
+         (general-chord "qp") #'hydra-projectile/body
+         (general-chord "QV") #'magit-status
+         (general-chord "qq") #'fill-paragraph
+         (general-chord "qQ") #'unfill-paragraph
+         (general-chord "xv") #'git-gutter:stage-hunk
+         (general-chord "xc") #'avy-goto-word-1
+         (general-chord "\"\"") "1"
+         (general-chord "««") "2"
+         (general-chord "»»") "3"
+         (general-chord "((") "4"
+         (general-chord "))") "5"
+         (general-chord "@@") "6"
+         (general-chord "++") "7"
+         (general-chord "--") "8"
+         (general-chord "//") "9"
+         (general-chord "**") "0"
+         (general-chord "$$") "#")
 
 ;;; OPERATOR map
-  (general-omap
-   :prefix "SPC"
+  (general-omap :prefix "SPC"
     "." 'avy-goto-word-or-subword-1
     "l" 'evil-avy-goto-line
     "é" 'evil-avy-goto-subword-0
     "f" 'avy-goto-char-in-line )
 
 ;;; MOTION map
-  (mmap
-   "t" 'evil-next-visual-line
-   "s" 'evil-previous-visual-line
-   )
+  (mmap "t" 'evil-next-visual-line
+        "s" 'evil-previous-visual-line)
 
 ;;; MODE specific map
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)

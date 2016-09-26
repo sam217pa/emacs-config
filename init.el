@@ -1175,7 +1175,6 @@ undo               _u_: undo
   (setq persp-autokill-buffer-on-remove 'kill-weak)
   (setq persp-nil-name "nil")
 
-  ;; TODO
   (defhydra hydra-persp (:hint nil :color blue)
     "
 ^Nav^        ^Buffer^      ^Window^     ^Manage^      ^Save/load^
