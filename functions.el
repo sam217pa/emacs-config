@@ -462,3 +462,9 @@ directory to make multiple eshell windows easier."
         ;; This would override `fill-column' if it's an integer.
         (emacs-lisp-docstring-fill-column t))
     (fill-paragraph nil region)))
+
+(defun wtd ()
+  "opens a new buffer with a list of TODO items populated by
+  running ag 'TODO' in the current dir"
+  (interactive)
+  (counsel-ag "todo" default-directory))

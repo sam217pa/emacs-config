@@ -297,8 +297,8 @@
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
-^themes^     ^modes^           ^modeline^          ^frame
-^^^^^^^^--------------------------------------------------------
+^themes^     ^modes^           ^modeline^          ^frame^
+^------^     ^-----^           ^--------^          ^-----^
 _d_: dark    _f_: flycheck     _T_: time           _F_: fullscreen
 _l_: light   _n_: linum        ^ ^                 _m_: maximized
 ^ ^          _w_: whitespace   ^ ^                 ^ ^
@@ -319,8 +319,8 @@ _l_: light   _n_: linum        ^ ^                 _m_: maximized
   (:color pink
    :hint nil)
   "
-^Nav^      ^Mark^         ^Unmark^        ^Actions^          ^Search
-^^^^^^^^----------------------------------------------------------
+^Nav^      ^Mark^         ^Unmark^        ^Actions^          ^Search^
+^---^      ^----^         ^------^        ^-------^          ^------^
 _p_: prev  _m_: mark      _u_: unmark     _x_: execute       _R_: re-isearch
 _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
 ^ ^        _d_: delete    ^ ^             _g_: refresh       _O_: multi-occur
@@ -355,7 +355,7 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
    :hint nil)
   "
 ^Nav^                 ^Hunk^            ^Files^        ^Actions^
-^^^^^^^^----------------------------------------------------------
+^---^                 ^----^            ^-----^        ^-------^
 _n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
 _p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
 _C-P_: first hunk     _P_opup hunk      _d_iff         _C_heckout
@@ -424,7 +424,7 @@ _C-N_: last hunk      _R_evision start  _t_imemachine
 (defhydra hydra-launcher (:color blue :hint nil)
   "
 ^Web^        ^Blog^       ^Explorer^       ^Apps^
-^^^^^^^^--------------------------------------------------
+^---^        ^----^       ^--------^       ^----^
 _g_oogle    _bn_ew post  _d_ired          _s_hell
 _r_eddit    _bp_ublish   _D_eer           _S_hell gotodir
 _w_iki      _bs_server   _r_anger         _a_pps
@@ -459,36 +459,13 @@ _t_witter
   ("l" counsel-yank-pop "list" :color blue)
   ("q" nil "quit" :color blue))
 
-(defhydra hydra-move
-  (:hint nil)
-  "
- ^ ^ ^ ^ ^ ^ ^V^ ^ ^ ^ ^ ^ ^
- ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
- ^ ^ ^ ^ ^ ^ ^p^ ^ ^ ^ ^ ^ ^
- ^a^ ^ ^ ^b^ ^l^ ^f^ ^ ^ ^e^
- ^ ^ ^ ^ ^ ^ ^n^ ^ ^ ^ ^ ^ ^
- ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
- ^ ^ ^ ^ ^ ^ ^v^ ^ ^ ^ ^ ^ ^
-"
-  ("n" next-line)
-  ("p" previous-line)
-  ("f" forward-char)
-  ("b" backward-char)
-  ("a" beginning-of-line)
-  ("e" move-end-of-line)
-  ("v" scroll-up-command)
-  ;; Converting M-v to V here by analogy.
-  ("V" scroll-down-command)
-  ("l" recenter-top-bottom)
-  ("q" nil "quit" :color blue))
-
-
 (defhydra hydra-window
   (:hint nil
    :color amaranth
    :columns 4)
   "
  ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^   ^Window^
+ ^----^ ^^^^ ^ ^ ^ ^  ^-----^           ^ ^     ^----^    ^ ^   ^-------^   ^------^
 
  ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
  ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
@@ -542,22 +519,27 @@ _t_witter
   ("s" previous-error "previous")
   ("p" previous-error "previous"))
 
-(defhydra hydra-buffer (:color blue :columns 3)
+(defhydra hydra-buffer (:color blue :columns 3 :hint nil)
   "
-                Buffers :
+^Nav^     ^Menu^           ^Delete^           ^Actions^
+^---^     ^----^           ^------^           ^-------^
+_n_ext    _b_: switch      _d_: del ←         _N_ew
+_p_rev    _C-b_: ibuffer   _C-d_: del →       _s_ave
+^ ^       _M-b_: menu      _M-d_: del + win   _._: window
   "
-  ("n" next-buffer "next" :color red)
-  ("b" ivy-switch-buffer "switch")
-  ("B" ibuffer "ibuffer")
-  ("p" previous-buffer "prev" :color red)
-  ("C-b" buffer-menu "buffer menu")
-  ("N" evil-buffer-new "new")
-  ("d" kill-this-buffer "delete" :color red)
-  ("ð" (progn (kill-this-buffer) (delete-window)) "del + wind" :color red)
+  ("n" next-buffer :color red)
+  ("p" previous-buffer :color red)
+  ("b" ivy-switch-buffer )
+  ("C-b" ibuffer )
+  ("M-b" buffer-menu )
+  ("d" kill-this-buffer :color red)
   ;; don't come back to previous buffer after delete
-  ("D" (progn (kill-this-buffer) (next-buffer)) "Delete" :color red)
-  ("s" save-buffer "save" :color red)
-  ("." hydra-window/body "window" :color blue))
+  ("C-d" (progn (kill-this-buffer) (next-buffer)) :color red)
+  ("M-d" (progn (kill-this-buffer) (delete-window)) :color red)
+  ("N" evil-buffer-new )
+  ("s" save-buffer :color red)
+  ("." hydra-window/body :color blue)
+  ("q" nil "quit" :color blue))
 
 
 ;; Ibuffer

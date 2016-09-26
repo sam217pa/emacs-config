@@ -145,7 +145,11 @@
   ;; mainly to make autorevert disappear from the modeline
   )
 
-(use-package avy :ensure t :defer t
+(use-package avy :ensure t
+  :commands (avy-goto-word-or-subword-1
+	     avy-goto-word-1
+	     avy-goto-char-in-line
+	     avy-goto-line)
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
   (setq avy-styles-alist
@@ -306,8 +310,7 @@
 
 ;;; -D-
 (use-package dired
-  :init
-  ;; (add-hook 'dired-mode-hook #'hydra-dired-main/body)
+  :commands (dired)
   :config
   (bind-keys :map dired-mode-map
     ("." . hydra-dired-main/body)
@@ -316,17 +319,21 @@
     ("r" . dired-find-file)
     ("c" . dired-up-directory))
 
-  :config
   ;; use GNU ls instead of BSD ls
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
 	(setq insert-directory-program gls)))
   ;; change default arguments to ls. must include -l
-  (setq dired-listing-switches "-XGalg --human-readable --dired")
+  (setq dired-listing-switches "-XGalg --group-directories-first --human-readable --dired")
 
   (use-package dired-x
     :init
-    (add-hook 'dired-load-hook (lambda () (load "dired-x")))))
+    (add-hook 'dired-load-hook (lambda () (load "dired-x")))
+    :config
+    (add-hook 'dired-mode-hook #'dired-omit-mode)
+    (setq dired-omit-verbose nil)
+    (setq dired-omit-files
+	  (concat dired-omit-files "\\|^.DS_Store$\\|^.projectile$\\|^.git$"))))
 
 
 (use-package display-time
@@ -1254,6 +1261,38 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
    ("python"  . python-mode))
 
   :config
+
+  (use-package anaconda-mode
+    :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
+    :config
+
+    (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+
+    (bind-keys :map anaconda-mode-map
+      ("M-." . anaconda-mode-find-definitions)
+      ("M-," . anaconda-mode-go-back)
+      ("M-*" . anaconda-mode-find-assignments)
+      ("M-SPC" . hydra-python/body))
+
+    (use-package company-anaconda
+      :quelpa (company-anaconda :fetcher github :repo "proofit404/company-anaconda")
+      :config
+      (add-to-list 'company-backends '(company-anaconda :with company-capf))))
+
+  (use-package py-yapf
+    :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
+    :commands py-yapf-buffer)
+
+  (use-package pyenv-mode :ensure t
+    :commands pyenv-mode
+    :init (add-hook 'python-mode-hook 'pyenv-mode))
+
+  (use-package pyvenv :ensure t
+    :commands (pyvenv-workon
+               pyvenv-activate))
+
+  ;; python function
   (defun python-shell-send-line (&optional vis)
     "send the current line to the inferior python process"
     (interactive "P")
@@ -1313,49 +1352,20 @@ If not in a block, send the upper block.
     (python-shell-switch-to-shell)
     (evil-insert-state))
 
-  (bind-keys :map python-mode-map
-    ("s-e" . python-shell-send-defun)
-    ("C-<return>" . python-shell-send-line))
 
-  (use-package anaconda-mode
-    :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
-    :config
-
-    (add-hook 'python-mode-hook 'anaconda-mode)
-    (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-
-    (bind-keys :map anaconda-mode-map
-      ("M-." . anaconda-mode-find-definitions)
-      ("M-," . anaconda-mode-go-back)
-      ("M-*" . anaconda-mode-find-assignments)
-      ("M-SPC" . hydra-python/body))
-
-    (use-package company-anaconda
-      :quelpa (company-anaconda :fetcher github :repo "proofit404/company-anaconda")
-      :config
-      (add-to-list 'company-backends '(company-anaconda :with company-capf))))
-
-
-  (use-package py-yapf
-    :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
-    :commands py-yapf-buffer)
-
-  (use-package pyenv-mode :ensure t
-    :commands pyenv-mode
-    :init (add-hook 'python-mode-hook 'pyenv-mode))
-
-  (use-package pyvenv :ensure t
-    :commands (pyvenv-workon
-               pyvenv-activate))
 
   (setq-default indent-tabs-mode nil)
   (setq python-indent-offset 4)
-
+  (if (executable-find ("ipython"))
+      (setq python-shell-interpreter "ipython"
+            python-shell-interpreter-args "--simple-prompt -i")
+    (setq python-shell-interpreter "python"))
 
   ;; keybindings
   (general-define-key
    :keymaps 'python-mode-map
    :states '(normal visual insert)
+    "s-e" 'python-shell-send-defun
     "C-<return>" 'python-shell-send-line
     "«" 'python-indent-shift-left
     "»" 'python-indent-shift-right
