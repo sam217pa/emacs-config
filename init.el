@@ -345,6 +345,57 @@
         display-time-format))
 
 ;;; -E-
+(use-package ebib
+  :quelpa (ebib :fetcher github :repo "joostkremers/ebib")
+  :commands (ebib)
+  :config
+
+  (general-define-key :keymaps 'ebib-index-mode-map
+    "." 'hydra-ebib/body
+    "p" 'hydra-ebib/ebib-prev-entry
+    "n" 'hydra-ebib/ebib-next-entry
+    "C-p" 'hydra-ebib/ebib-push-bibtex-key-and-exit
+    "C-n" 'hydra-ebib/ebib-search-next)
+
+  (evil-set-initial-state 'ebib-index-mode 'emacs)
+  (evil-set-initial-state 'ebib-entry-mode 'emacs)
+
+  (setq ebib-preload-bib-files '("~/Dropbox/bibliography/stage_m2.bib"
+                                 "~/Dropbox/bibliography/Biologie.bib"))
+
+  (setq ebib-notes-use-single-file "~/dotfile/bibliographie/notes.org")
+
+  (defhydra hydra-ebib (:hint nil :color blue)
+    "
+     ^Nav^            ^Open^           ^Search^        ^Action^
+     ^---^            ^----^           ^------^        ^------^
+  _n_: next        _e_: entry       _/_: search     _m_: mark
+  _p_: prev        _i_: doi       _C-n_: next       _a_: add entry
+_M-n_: next db     _u_: url         ^ ^             _r_: reload
+_M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
+^   ^              _N_: note        ^ ^           ^   ^
+"
+    ("a" ebib-add-entry)
+    ("e" ebib-edit-entry)
+    ("f" ebib-view-file)
+    ("g" ebib-goto-first-entry)
+    ("G" ebib-goto-last-entry)
+    ("i" ebib-browse-doi)
+    ("m" ebib-mark-entry :color red)
+    ("n" ebib-next-entry :color red)
+    ("N" ebib-open-note)
+    ("C-n" ebib-search-next :color red)
+    ("M-n" ebib-next-database :color red)
+    ("p" ebib-prev-entry :color red)
+    ("C-p" ebib-push-bibtex-key)
+    ("M-p" ebib-prev-database :color red)
+    ("r" ebib-reload-all-databases :color red)
+    ("u" ebib-browse-url)
+    ("/" ebib-search :color red)
+    ("?" ebib-info)
+    ("q" ebib-quit "quit")
+    ("." nil "toggle")))
+
 (use-package eldoc :ensure t
   :commands turn-on-eldoc-mode
   :diminish ""
@@ -371,8 +422,7 @@
     "b" 'eval-buffer
     "c" '(sam--eval-current-form-sp :which-key "eval-current")
     "u" 'use-package-jump
-    "t" '(lispy-goto :which-key "goto tag"))
-  )
+    "t" '(lispy-goto :which-key "goto tag")))
 
 (use-package ereader :ensure t
   :mode (("\\.epub\\'" . ereader-mode)))
@@ -531,8 +581,7 @@
   )
 
 (use-package esup :ensure t
-  :commands esup
-  )
+  :commands esup)
 
 (use-package evil :ensure t
   ;; change la couleur des curseurs
