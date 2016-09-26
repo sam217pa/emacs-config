@@ -83,7 +83,7 @@
 	  (800 1000 1200 1400 1600 1800)))
   (setq org-agenda-start-on-weekday 6)
 
-
+  (org-add-link-type "ebib" 'ebib-open-org-link)
 
   (setq
    org-modules '(org-crypt)
@@ -237,17 +237,17 @@
     (org-move-subtree-down)
     (end-of-line 1))
 
-;;;* Key-Seq
-  (key-seq-define org-mode-map ",c" 'org-shiftcontrolleft)
-  (key-seq-define org-mode-map ",t" 'org-shiftcontroldown)
-  (key-seq-define org-mode-map ",s" 'org-shiftcontrolup)
-  (key-seq-define org-mode-map ",r" 'org-shiftcontrolright)
-  (key-seq-define org-mode-map ",C" 'org-metaleft)
-  (key-seq-define org-mode-map ",T" 'org-metadown)
-  (key-seq-define org-mode-map ",S" 'org-metaup)
-  (key-seq-define org-mode-map ",R" 'org-metaright)
-
-  )
+;;;* Keybindings
+  (general-define-key
+   :keymaps 'org-mode-map
+    (general-chord ",c") 'org-shiftcontrolleft
+    (general-chord ",t") 'org-shiftcontroldown
+    (general-chord ",s") 'org-shiftcontrolup
+    (general-chord ",r") 'org-shiftcontrolright
+    (general-chord ",C") 'org-metaleft
+    (general-chord ",T") 'org-metadown
+    (general-chord ",S") 'org-metaup
+    (general-chord ",R") 'org-metaright))
 
 ;;;* Org-journal
 (use-package org-journal :ensure t

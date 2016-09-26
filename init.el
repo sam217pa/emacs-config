@@ -1212,6 +1212,7 @@ undo               _u_: undo
   (turn-on-pbcopy))
 
 (use-package persp-mode
+  :defer t
   :quelpa (persp-mode :fetcher github :repo "Bad-ptr/persp-mode.el")
   :diminish (persp-mode . "")
   :commands (persp-mode
@@ -1404,7 +1405,7 @@ If not in a block, send the upper block.
 
   (setq-default indent-tabs-mode nil)
   (setq python-indent-offset 4)
-  (if (executable-find ("ipython"))
+  (if (executable-find "ipython")
       (setq python-shell-interpreter "ipython"
             python-shell-interpreter-args "--simple-prompt -i")
     (setq python-shell-interpreter "python"))
