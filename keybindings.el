@@ -134,8 +134,8 @@
    "s-g" 'avy-goto-char
    "C-p" 'counsel-yank-pop
    "C-'" 'eshell-here
-   "?" 'avy-goto-char-in-line
-   "f" 'avy-goto-char-in-line
+   "?" 'evil-avy-goto-char-in-line
+   "f" 'evil-avy-goto-char-in-line
    "|" 'ivy-switch-buffer
    "c" 'evil-backward-char
    "C" 'evil-window-top
@@ -156,6 +156,11 @@
    "M-b" 'ivy-switch-buffer
    "p" #'hydra-paste/evil-paste-after
    "P" #'hydra-paste/evil-paste-before
+   (general-chord "qd") #'kill-this-buffer
+   (general-chord "qf") #'counsel-find-file
+   (general-chord "ql") #'avy-goto-line
+   (general-chord "qs") #'save-buffer
+   (general-chord "xc") #'avy-goto-word-1
    (general-chord "xx") 'avy-goto-word-or-subword-1)
 
 ;;; INSERT map
@@ -164,183 +169,20 @@
    "C-|" 'ivy-switch-buffer
    "C-." 'hydra-move/body
    "C-é" 'hydra-window/body
-   "C-è" 'ace-window)
-
-
-
-;;; OPERATOR map
-  (general-omap
-   :prefix "SPC"
-    "." 'avy-goto-word-or-subword-1
-    "l" 'evil-avy-goto-line
-    "é" 'evil-avy-goto-subword-0 )
-
-;;; MOTION map
-  (mmap
-   "t" 'evil-next-visual-line
-   "s" 'evil-previous-visual-line
+   "C-è" 'ace-window
+   (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
+   (general-chord "qd") #'kill-this-buffer
+   (general-chord "qf") #'ivy-switch-buffer
+   (general-chord "ql") #'avy-goto-line
+   (general-chord "qs") #'save-buffer
+   (general-chord "qp") #'hydra-projectile/body
+   (general-chord "QV") #'magit-status
+   (general-chord "qq") #'fill-paragraph
+   (general-chord "qQ") #'unfill-paragraph
+   (general-chord "xv") #'git-gutter:stage-hunk
+   (general-chord "xc") #'avy-goto-word-1
    )
 
-;;; MODE specific map
-  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
-  (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
-
-  (general-define-key
-;;; C-x MAP
-   "C-x C-b" 'ibuffer
-;;; SUPER map (alt left)
-   "s-l"   'sam--comment-or-uncomment-region-or-line
-   "s-w"   'delete-other-windows
-   "s-m"   'delete-other-windows
-   "s-d"   'kill-buffer-and-window
-   "s-SPC" 'set-mark-command
-   "s-<tab>" 'sam--switch-to-other-buffer
-   "s-f" 'projectile-find-file
-   "s-t" 'move-text-down
-   "s-s" 'move-text-up
-;;; HYPER map (ctlr left)
-   "H-F" 'toggle-frame-fullscreen
-   "H-f" 'toggle-frame-maximized
-   "H-b" 'ivy-switch-buffer
-   "H-r" 'counsel-recentf
-   "H-m" 'delete-other-frames
-;;; META map (cmd right)
-   "M-/" 'hippie-expand
-   "M-«" 'beginning-of-buffer
-   "M-»" 'end-of-buffer
-   "M-g" 'hydra-error/body))
-(use-package general :ensure t
-  :config
-
-  (general-evil-setup t)
-
-
-;;; SPC-map
-  (general-define-key
-   :states '(normal visual insert emacs)
-   :prefix "SPC"
-   :non-normal-prefix " "
-
-    ;; simple command
-    "'"   '(sam--iterm-focus :which-key "iterm")
-    "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
-    "/"   'counsel-ag
-    "TAB" '(ivy-switch-buffer :which-key "prev buffer")
-    "." '(avy-goto-word-or-subword-1  :which-key "go to char")
-    "SPC" '(counsel-M-x)
-
-    ;; Applications
-    "a" '(hydra-launcher/body :which-key "Applications")
-    ;; buffer
-    "b" '(hydra-buffer/body t :which-key "Buffer")
-    ;; Comment or Compile
-    "c" '(:ignore t :which-key "Comment")
-    "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
-    ;; Window management
-    "é" '(hydra-window/body :which-key "Window")
-    ;; Find and Files
-    "f" '(:ignore t :which-key "Files")
-    "fd"  '(counsel-git :which-key "find in git dir")
-    "fD"  '(sam--delete-current-buffer-file :which-key "delete file")
-    "fe" '(:ignore t :which-key "edit")
-    "fei" '(sam--edit-init-file :which-key "edit init")
-    "fek" '(sam--edit-keybindings :which-key "edit keybindings")
-    "fef" '(sam--edit-functions :which-key "edit functions")
-    "fep" '(sam--edit-password :which-key "edit password")
-    "ff"  '(find-file :which-key "find file")
-    "fF"  '(find-file-other-window :which-key "ff other  window")
-    "fo"  '(sam--open-in-external-app :which-key "open file")
-    "fr"  '(ivy-switch-buffer :which-key "recent files")
-    "fR"  '(fasd-find-file)
-    "fs"  '(save-buffer :which-key "save file")
-    "fS"  '(rename-file :which-key "rename file")
-    "ft"  '(sam--edit-todo)
-    ;; Jump to :
-    "g" '(:ignore t :which-key "Go to")
-    "gc" 'avy-goto-char
-    "gC" 'avy-goto-char-2
-    "gl" 'avy-goto-line
-    "gé" 'avy-goto-word-or-subword-1
-    ;; Insert
-    "i" '(:ignore t :which-key "Insert")
-    "it"  '(sam--insert-timestamp :which-key "timestamp")
-    "il" '(:ignore t :which-key "insert link")
-    "ilm" '(sam--chrome-md-link :which-key "chrome - md")
-    "ilo" '(sam--chrome-org-link :which-key "chrome - org")
-    "ilf" '(sam--finder-md-link :which-key "finder - md")
-    "iL" '(:ignore t :which-key "lorem")
-    "iLs" 'lorem-ipsum-insert-sentences
-    "iLp" 'lorem-ipsum-insert-paragraphs
-    "iLl" 'lorem-ipsum-insert-list
-    ;; Journal
-    "j" '(hydra-journal/body t :which-key "Journal")
-    ;; Org
-    "o" '(:ignore t :which-key "Org")
-    "oa" 'org-agenda-list
-    ;; Project
-    "p" '(hydra-projectile/body :which-key "Project")
-    ;; Quit
-    "q" '(:ignore t :which-key "Quit")
-    "qb" 'kill-buffer-if-not-modified
-    "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
-    "qr" '(restart-emacs :which-key "restart emacs")
-    ;; Save and search
-    "s" '(:ignore t :which-key "Save/Search")
-    "s."  'save-buffer
-    "s,"  'server-edit
-    ;; text related
-    "t" '(:ignore t :which-key "text")
-    "ta" '(:ignore t :which-key "text align")
-    "tar" 'align-regexp
-    "ti"  'indent-region
-    "tr" '(vr/query-replace :which-key "text replace")
-    ;; Toggle UI elements
-    "T" '(hydra-toggle/body :which-key "Toggle")
-    ;; zoom
-    "z" '(hydra-zoom/body :which-key "zoom")
-    ;; Git related stuff
-    "v" '(hydra-git/body :which-key "Version Control"))
-
-  ;; those are the direct keybindings. Just press the touch.
-;;; NORMAL map
-  (nvmap
-   "'" (general-simulate-keys "C-c")
-   "é" 'evil-goto-mark
-   "è" 'ace-window
-   "s-b" 'ivy-switch-buffer
-   "s-g" 'avy-goto-char
-   "C-p" 'counsel-yank-pop
-   "C-'" 'eshell-here
-   "?" 'avy-goto-char-in-line
-   "f" 'avy-goto-char-in-line
-   "|" 'ivy-switch-buffer
-   "c" 'evil-backward-char
-   "C" 'evil-window-top
-   "t" 'evil-next-line
-   "s" 'evil-previous-line
-   "r" 'evil-forward-char
-   "R" 'evil-window-bottom
-   "j" 'evil-avy-goto-char-in-line
-   "J" 'evil-find-char-to-backward
-   "l" 'evil-change
-   "L" 'evil-change-line
-   "T" 'evil-join
-   "h" 'evil-replace
-   "H" 'evil-replace-state
-   "k" 'evil-substitute
-   "K" 'evil-change-whole-line
-   "M-b" 'ivy-switch-buffer
-   "p" #'hydra-paste/evil-paste-after
-   "P" #'hydra-paste/evil-paste-before)
-
-;;; INSERT map
-  (iemap
-   "C-z" 'undo-tree-undo
-   "C-|" 'ivy-switch-buffer
-   "C-." 'hydra-move/body
-   "C-é" 'hydra-window/body
-   "C-è" 'ace-window)
-
 
 
 ;;; OPERATOR map
@@ -348,7 +190,8 @@
    :prefix "SPC"
     "." 'avy-goto-word-or-subword-1
     "l" 'evil-avy-goto-line
-    "é" 'evil-avy-goto-subword-0 )
+    "é" 'evil-avy-goto-subword-0
+    "f" 'avy-goto-char-in-line )
 
 ;;; MOTION map
   (mmap
@@ -413,32 +256,7 @@
 (use-package key-chord :ensure t
   :defer 1
   :config
-  (setq key-chord-two-keys-delay 0.2)
-  ;; need to use key-seq. otherwise key order does not matter. that's bad.
-  ;; i want latency only on x. not on everytouch.
-  (use-package key-seq :ensure t
-    :config
-    ;; insert q prefix
-    (key-seq-define evil-insert-state-map "qb" #'hydra-buffer/ivy-switch-buffer-and-exit)
-    (key-seq-define evil-insert-state-map "qd" #'kill-this-buffer)
-    (key-seq-define evil-insert-state-map "qf" #'ivy-switch-buffer)
-    (key-seq-define evil-insert-state-map "ql" #'avy-goto-line)
-    (key-seq-define evil-insert-state-map "qs" #'save-buffer)
-    (key-seq-define evil-insert-state-map "qp" #'hydra-projectile/body)
-    (key-seq-define evil-insert-state-map "QV" #'magit-status)
-    (key-seq-define evil-insert-state-map "qq" #'fill-paragraph)
-    (key-seq-define evil-insert-state-map "qQ" #'unfill-paragraph)
-    ;; x prefix
-    (key-seq-define evil-insert-state-map "xv" #'git-gutter:stage-hunk)
-    (key-seq-define evil-insert-state-map "xc" #'avy-goto-word-1)
-    ;; normal
-    ;; q
-    (key-seq-define evil-normal-state-map "qd" #'kill-this-buffer)
-    (key-seq-define evil-normal-state-map "qf" #'counsel-find-file)
-    (key-seq-define evil-normal-state-map "ql" #'avy-goto-line)
-    (key-seq-define evil-normal-state-map "qs" #'save-buffer)
-    ;; normal x
-    (key-seq-define evil-normal-state-map "xc" #'avy-goto-word-1)))
+  (setq key-chord-two-keys-delay 0.2))
 
 ;;
 ;;; Global
