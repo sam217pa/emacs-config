@@ -574,9 +574,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (sp-local-pair 'ess-mode "{" nil
 		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-
-  )
+		 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
 (use-package esup :ensure t
   :commands esup)
@@ -1593,47 +1591,64 @@ _SR_: region → _SB_: buffer →      ^ ^
   :commands swiper)
 
 ;;; -T-
-(use-package tex-site
-  :load-path "~/.emacs.d/private/auctex-11.89"
-  :defer t
+(use-package tex
+  :ensure auctex
   :config
-  ;; from spacemacs
-  (setq TeX-auto-save t
-  	TeX-parse-self t
-  	TeX-syntactic-comment t
-  	;; Synctex support
-  	TeX-source-correlate-start-server nil
-  	;; Don't insert line-break at inline math
-  	LaTeX-fill-break-at-separators nil)
-
-  (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
-    "List of environment names in which `auto-fill-mode' will be inhibited.")
-
-  (defun latex--autofill ()
-    "Check whether the pointer is currently inside one of the
-environments described in `latex-nofill-env' and if so, inhibits
-the automatic filling of the current paragraph."
-    (let ((do-auto-fill t)
-	  (current-environment "")
-	  (level 0))
-      (while (and do-auto-fill (not (string= current-environment "document")))
-	(setq level (1+ level)
-	      current-environment (LaTeX-current-environment level)
-	      do-auto-fill (not (member current-environment latex-nofill-env))))
-      (when do-auto-fill
-	(do-auto-fill))))
-
-  (defun latex-auto-fill-mode ()
-    "Toggle auto-fill-mode using the custom auto-fill function."
-    (interactive)
-    (auto-fill-mode)
-    (setq auto-fill-function 'latex--autofill))
-
+  (setq TeX-auto-save t)
+  ;; :mode
+  ;; ("\\.tex\\'" . LaTeX-mode)
+  :init
   (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
-  (add-hook 'LaTeX-mode-hook (lambda () (TeX-fold-mode 1)))
   (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
   (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-  (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode))
+  (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+  :config
+  ;; (use-package company-auctex :ensure t
+  ;;   :config
+  ;;   (dolist (backend '(company-auctex-labels
+  ;; 		       company-auctex-bibs
+  ;; 		       company-auctex-environments
+  ;; 		       company-auctex-macros
+  ;; 		       company-auctex-symbols))
+  ;;     (add-to-list 'company-backends backend)))
+
+  ;; from spacemacs
+  ;; (setq TeX-auto-save t
+  ;; 	TeX-parse-self t
+  ;; 	TeX-syntactic-comment t
+  ;; 	;; Synctex support
+  ;; 	TeX-source-correlate-start-server nil
+  ;; 	;; Don't insert line-break at inline math
+  ;; 	LaTeX-fill-break-at-separators nil)
+
+  ;; (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
+  ;;   "List of environment names in which `auto-fill-mode' will be inhibited.")
+
+  ;; (defun latex--autofill ()
+  ;;     "Check whether the pointer is currently inside one of the
+  ;; environments described in `latex-nofill-env' and if so, inhibits
+  ;; the automatic filling of the current paragraph."
+  ;;     (let ((do-auto-fill t)
+  ;; 	  (current-environment "")
+  ;; 	  (level 0))
+  ;;       (while (and do-auto-fill (not (string= current-environment "document")))
+  ;; 	(setq level (1+ level)
+  ;; 	      current-environment (LaTeX-current-environment level)
+  ;; 	      do-auto-fill (not (member current-environment latex-nofill-env))))
+  ;;       (when do-auto-fill
+  ;; 	(do-auto-fill))))
+
+  ;; (defun latex-auto-fill-mode ()
+  ;;   "Toggle auto-fill-mode using the custom auto-fill function."
+  ;;   (interactive)
+  ;;   (auto-fill-mode)
+  ;;   (setq auto-fill-function 'latex--autofill))
+
+  ;; (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
+  ;; (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+  ;; (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+  ;; (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+  )
 
 
 ;;; -U-
