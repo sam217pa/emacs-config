@@ -1246,7 +1246,9 @@ undo               _u_: undo
 
 ;; TODO work on outline hydra. useful for tex
 (use-package outline
-  :defer t
+  :bind (("H-<tab>" . hydra-outline/body))
+  :commands (outline-minor-mode
+	     hydra-outline/body)
   :diminish ((outline-minor-mode . "")
 	     (outline-major-mode . ""))
   :config

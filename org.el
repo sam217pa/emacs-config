@@ -25,8 +25,7 @@
     (worf-define-key worf-mode-map "h" 'worf-change-mode)
     )
 ;;;** ox-tufte
-  (use-package ox-tufte :ensure t
-    )
+  (use-package ox-tufte :ensure t)
 
 ;;;** org-bullets
   (use-package org-bullets :ensure t
@@ -34,11 +33,13 @@
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
     :config
-    (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪"))
-    )
+    (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪")))
 ;;;** org-indent
   (use-package org-indent
     :diminish "")
+
+;;;** org-magit
+  (use-package orgit :ensure t)
 ;;;* babel
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
