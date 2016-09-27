@@ -760,7 +760,26 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
     ))
 
-(use-package expand-region :ensure t :defer t)
+(use-package expand-region :ensure t
+  :commands er/expand-region
+  :config
+  (general-define-key
+   "s-SPC" 'hydra-expand-region/er/expand-region
+   )
+
+  (defhydra hydra-expand-region (:color red :hint nil)
+    "
+^Expand region^
+_c_: expand
+_r_: contract
+_R_: reset
+"
+    ("c" er/expand-region)
+    ("r" er/contract-region)
+    ("R" (lambda () (interactive)
+           (let ((current-prefix-arg '(0)))
+             (call-interactively #'er/contract-region))) :color blue)
+    ("q" nil "quit" :color blue)))
 
 ;;; -F-
 
