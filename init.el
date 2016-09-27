@@ -76,14 +76,14 @@
   (tool-bar-mode -1) ; sans barre d'outil
   (menu-bar-mode 1) ; barre de menu
   (scroll-bar-mode -1) ; enlève la barre de défilement
-  (set-frame-font "Fira Code 13") ; police par défault
+  (set-frame-font "Inconsolata 14") ; police par défault
   (blink-cursor-mode -1) ; pas de clignotement
   (global-visual-line-mode)
   (diminish 'visual-line-mode "") )
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
-(set-face-attribute 'default nil :font "Fira Code Light 13")
+(add-to-list 'default-frame-alist '(font . "Inconsolata 14"))
+(set-face-attribute 'default nil :font "Inconsolata 14")
 
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
@@ -792,68 +792,65 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
     :init
     ;; (setq-default left-fringe-width 10)
     (setq-default right-fringe-width 0)
+    (setq-default left-fringe-width 2)
     :config
     (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
     (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
     (set-face-foreground 'git-gutter-fr:deleted "#dc322f")  ;red
 
     (fringe-helper-define 'git-gutter-fr:added nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   ")
+    (fringe-helper-define 'git-gutter-fr:deleted 'top
+
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
       )
-    (fringe-helper-define 'git-gutter-fr:deleted nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      )
-    (fringe-helper-define 'git-gutter-fr:modified nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      )))
+    (fringe-helper-define 'git-gutter-fr:modified 'top
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   ")))
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
