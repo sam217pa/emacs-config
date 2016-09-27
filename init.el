@@ -1682,6 +1682,21 @@ integrated Tex-mode. "
     ("m" TeX-insert-macro "macro")
     ("q" nil "quit"))
 
+  (defhydra hydra-latex-comment (:color amaranth :hint nil :colums 2)
+    "Comment or uncomment"
+    ("r" TeX-comment-or-uncomment-region "region")
+    ("p" TeX-comment-or-uncomment-paragraph "para")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue))
+
+  (defhydra hydra-latex-command (:color teal :hint nil :columns 3)
+    "Run Latex Command on"
+    ("b" TeX-command-buffer "buffer")
+    ("m" TeX-command-master "master" )
+    ("r" TeX-command-region "region" )
+    ("a" TeX-command-run-all "all" )
+    ("s" LaTeX-command-section "section"))
+
   (defhydra hydra-latex-fill (:color red :hint nil :columns 2)
     "Latex Fill"
     ("r" LaTeX-fill-region "region" )
