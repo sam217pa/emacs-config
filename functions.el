@@ -468,3 +468,13 @@ directory to make multiple eshell windows easier."
   running ag 'TODO' in the current dir"
   (interactive)
   (counsel-ag "todo" default-directory))
+
+;; this function is used to append multiple elements to the list 'ox-latex
+(defun append-to-list (list-var elements)
+  "Append ELEMENTS to the end of LIST-VAR. The return value is the new value of LIST-VAR."
+  (unless (consp elements) (error "ELEMENTS must be a list"))
+  (let ((list (symbol-value list-var)))
+    (if list
+	(setcdr (last list) elements)
+      (set list-var elements)))
+  (symbol-value list-var))

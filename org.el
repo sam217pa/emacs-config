@@ -1,3 +1,4 @@
+;; TODO use org 8.3
 (use-package org
   :ensure org-plus-contrib
   :commands (org-mode
@@ -184,16 +185,6 @@
    org-startup-with-inline-images nil
    org-startup-indented t
    )
-
-  ;; this function is used to append multiple elements to the list 'ox-latex
-  (defun append-to-list (list-var elements)
-    "Append ELEMENTS to the end of LIST-VAR. The return value is the new value of LIST-VAR."
-    (unless (consp elements) (error "ELEMENTS must be a list"))
-    (let ((list (symbol-value list-var)))
-      (if list
-          (setcdr (last list) elements)
-        (set list-var elements)))
-    (symbol-value list-var))
 
   (with-eval-after-load 'ox-latex
     (append-to-list

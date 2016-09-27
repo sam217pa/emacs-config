@@ -76,14 +76,14 @@
   (tool-bar-mode -1) ; sans barre d'outil
   (menu-bar-mode 1) ; barre de menu
   (scroll-bar-mode -1) ; enlève la barre de défilement
-  (set-frame-font "Fira Code 13") ; police par défault
+  (set-frame-font "Inconsolata 14") ; police par défault
   (blink-cursor-mode -1) ; pas de clignotement
   (global-visual-line-mode)
   (diminish 'visual-line-mode "") )
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Fira Code Light 13"))
-(set-face-attribute 'default nil :font "Fira Code Light 13")
+(add-to-list 'default-frame-alist '(font . "Inconsolata 14"))
+(set-face-attribute 'default nil :font "Inconsolata 14")
 
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
@@ -130,8 +130,6 @@
     (setq ag-highlight-search t)
     (setq ag-reuse-buffers t)
     (add-to-list 'ag-arguments "--word-regexp")))
-
-(use-package auctex :ensure t :defer t)
 
 (use-package auto-fill-mode
   :diminish auto-fill-function
@@ -576,9 +574,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (sp-local-pair 'ess-mode "{" nil
 		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-
-  )
+		 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
 (use-package esup :ensure t
   :commands esup)
@@ -626,6 +622,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'ivy-occur-mode 'emacs)
   (evil-set-initial-state 'calendar-mode 'emacs)
+  (evil-set-initial-state 'esup-mode 'emacs)
 
   ;; cursor color by state
   (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
@@ -813,68 +810,65 @@ _R_: reset
     :init
     ;; (setq-default left-fringe-width 10)
     (setq-default right-fringe-width 0)
+    (setq-default left-fringe-width 2)
     :config
     (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
     (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
     (set-face-foreground 'git-gutter-fr:deleted "#dc322f")  ;red
 
     (fringe-helper-define 'git-gutter-fr:added nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   ")
+    (fringe-helper-define 'git-gutter-fr:deleted 'top
+
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
       )
-    (fringe-helper-define 'git-gutter-fr:deleted nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      )
-    (fringe-helper-define 'git-gutter-fr:modified nil
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      "..XX......"
-      )))
+    (fringe-helper-define 'git-gutter-fr:modified 'top
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   "
+      "   --   ")))
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
@@ -1311,15 +1305,16 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (global-set-key (kbd "H-p") 'persp-prev)
   (global-set-key (kbd "H-n") 'persp-next))
 
-(use-package prettify-symbols-mode
-  :init
-  (global-prettify-symbols-mode))
-
+;; TODO what is that ?
 (use-package pretty-mode :ensure t
   :disabled t
   :commands turn-on-pretty-mode
   :init
   (add-hook 'ess-mode-hook 'turn-on-pretty-mode))
+
+(use-package prog-mode
+  :config
+  (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
@@ -1652,6 +1647,206 @@ _SR_: region → _SB_: buffer →      ^ ^
   :commands swiper)
 
 ;;; -T-
+(use-package tex
+  :ensure auctex
+  :commands init-auctex
+  :init
+  (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
+  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+  (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+  :config
+  (defun init-auctex ()
+    "Toggle loading of auctex. Use it when there is needs for
+auctex in the editing session. Otherwise emacs falls back to the
+integrated Tex-mode. "
+    (interactive)
+    (message "Auctex loaded"))
+
+  (use-package company-auctex :ensure t
+    :config
+    (append-to-list 'company-backends
+		    '(company-auctex-labels
+		      company-auctex-bibs
+		      company-auctex-environments
+		      company-auctex-macros
+		      company-auctex-symbols)))
+
+  (load "preview-latex.el" nil t t)
+
+  (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
+    "List of environment names in which `auto-fill-mode' will be inhibited.")
+
+  (defvar latex-build-command (if (executable-find "latexmk") "LatexMk" "LaTeX")
+    "the default command to use to build the document")
+
+  (defun latex--autofill ()
+    "Check whether the pointer is currently inside one of the
+    environments described in `latex-nofill-env' and if so, inhibits
+    the automatic filling of the current paragraph."
+    (let ((do-auto-fill t)
+    	  (current-environment "")
+    	  (level 0))
+      (while (and do-auto-fill (not (string= current-environment "document")))
+    	(setq level (1+ level)
+    	      current-environment (LaTeX-current-environment level)
+    	      do-auto-fill (not (member current-environment latex-nofill-env))))
+      (when do-auto-fill
+    	(do-auto-fill))))
+
+  (defun latex-auto-fill-mode ()
+    "Toggle auto-fill-mode using the custom auto-fill function."
+    (interactive)
+    (auto-fill-mode)
+    (setq auto-fill-function 'latex--autofill))
+
+  ;; from spacemacs
+  (setq
+   TeX-command-default latex-build-command
+   TeX-auto-save t
+   TeX-parse-self t
+   TeX-syntactic-comment t
+   TeX-source-correlate-start-server nil ; synctex support
+   LaTeX-fill-break-at-separators nil ; Don't insert line-break at inline math
+   )
+
+  ;; keybindings
+
+  ;; Rebindings for TeX-font
+  (defun latex/font-bold () (interactive) (TeX-font nil ?\C-b))
+  (defun latex/font-medium () (interactive) (TeX-font nil ?\C-m))
+  (defun latex/font-code () (interactive) (TeX-font nil ?\C-t))
+  (defun latex/font-emphasis () (interactive) (TeX-font nil ?\C-e))
+  (defun latex/font-italic () (interactive) (TeX-font nil ?\C-i))
+  (defun latex/font-clear () (interactive) (TeX-font nil ?\C-d))
+  (defun latex/font-calligraphic () (interactive) (TeX-font nil ?\C-a))
+  (defun latex/font-small-caps () (interactive) (TeX-font nil ?\C-c))
+  (defun latex/font-sans-serif () (interactive) (TeX-font nil ?\C-f))
+  (defun latex/font-normal () (interactive) (TeX-font nil ?\C-n))
+  (defun latex/font-serif () (interactive) (TeX-font nil ?\C-r))
+  (defun latex/font-oblique () (interactive) (TeX-font nil ?\C-s))
+  (defun latex/font-upright () (interactive) (TeX-font nil ?\C-u))
+
+  (general-define-key
+   :states '(normal visual)
+   :keymaps 'LaTeX-mode-map
+    "," 'hydra-latex/body
+    "M-q" 'hydra-latex-fill/body )
+
+  (defhydra hydra-latex (:color blue :hint nil :columns 3)
+    "
+Latex
+
+   ^Insert^        ^Command^     ^ ^                  ^Navigate^
+   ^---------^     ^-------^-----------------^^       ^--------^
+_e_: env     │  _;_: comment     _v_: view    │  _M-g_: error
+_m_: macro   │  _c_: command on  _M-q_: fill  │  _TAB_: outline
+_t_: font    │  _p_: preview
+_s_: section │
+"
+    ("t" hydra-latex-font/body )
+    ("m" TeX-insert-macro )
+    ("e" LaTeX-environment )
+    ("s" LaTeX-section )
+    ("p" hydra-latex-preview/body )
+    ("c" hydra-latex-command/body )
+    ("\;" hydra-latex-comment/body )
+    ("M-g" hydra-latex-error/body )
+    ("M-q" hydra-latex-fill/body )
+    ("TAB" hydra-outline/body )
+    ("v" TeX-view )
+    ("q" nil "quit" :color blue))
+
+  (defhydra hydra-latex-comment (:color amaranth :hint nil :colums 2)
+    "Comment or uncomment"
+    ("r" TeX-comment-or-uncomment-region "region")
+    ("p" TeX-comment-or-uncomment-paragraph "para")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue))
+
+  (defhydra hydra-latex-command (:color teal :hint nil :columns 3)
+    "Run Latex Command on"
+    ("b" TeX-command-buffer "buffer")
+    ("m" TeX-command-master "master" )
+    ("r" TeX-command-region "region" )
+    ("a" TeX-command-run-all "all" )
+    ("s" LaTeX-command-section "section"))
+
+  (defhydra hydra-latex-fill (:color red :hint nil :columns 2)
+    "Latex Fill"
+    ("r" LaTeX-fill-region "region" )
+    ("s" LaTeX-fill-section "section")
+    ("p" LaTeX-fill-paragraph "para")
+    ("e" LaTeX-fill-environment "environment")
+    ("C-r" LaTeX-fill-region-as-paragraph "reg as par")
+    ("C-p" LaTeX-fill-region-as-para-do "reg as par do")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue))
+
+  (defhydra hydra-latex-error (:color red :hint nil :columns 2)
+    "Latex Errors"
+    ("n" TeX-next-error "next")
+    ("t" TeX-next-error "next")
+    ("p" TeX-previous-error "prev")
+    ("s" TeX-previous-error "prev")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue))
+
+  (defhydra hydra-latex-font (:color blue :hint nil)
+    "
+^Latex Font^
+^----------^
+_b_: bold           _M_: small-caps
+_m_: medium         _S_: sans-serif
+_c_: code           _s_: serif
+_e_: emphasis       _n_: normal
+_i_: italic         _o_: oblique
+_C_: clear          _u_: upright
+_l_: calligraphic
+
+[_._]: back [_q_]: quit
+"
+    ("b" latex/font-bold)
+    ("c" latex/font-code)
+    ("C" latex/font-clear)
+    ("e" latex/font-emphasis)
+    ("i" latex/font-italic)
+    ("l" latex/font-calligraphic)
+    ("m" latex/font-medium)
+    ("M" latex/font-small-caps)
+    ("n" latex/font-normal)
+    ("o" latex/font-oblique)
+    ("s" latex/font-serif)
+    ("S" latex/font-sans-serif)
+    ("u" latex/font-upright)
+    ("." hydra-latex/body)
+    ("q" nil :color blue))
+
+  (defhydra hydra-latex-preview (:color blue :hint nil)
+    "
+^Preview^          ^Clear^
+_e_: environment   ^ ^
+_b_: buffer        _C-b_: buffer
+_d_: document      _C-d_: document
+_p_: at point      _C-p_: at point
+_r_: region        ^^
+_s_: section       _C-s_: section
+
+[_._]: back [_q_]: quit
+"
+    ("e" preview-environment)
+    ("b" preview-buffer)
+    ("C-b" preview-clearout-buffer)
+    ("C-c" preview-clearout)
+    ("d" preview-document)
+    ("C-d" preview-clearout-document)
+    ("p" preview-at-point)
+    ("r" preview-region)
+    ("C-p" preview-clearout-at-point)
+    ("s" preview-section)
+    ("C-s" preview-clearout-section)
+    ("." hydra-latex/body)
+    ("q" nil)))
 
 ;;; -U-
 (use-package undo-tree :ensure t
