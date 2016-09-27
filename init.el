@@ -1682,6 +1682,15 @@ integrated Tex-mode. "
     ("m" TeX-insert-macro "macro")
     ("q" nil "quit"))
 
+  (defhydra hydra-latex-error (:color red :hint nil :columns 2)
+    "Latex Errors"
+    ("n" TeX-next-error "next")
+    ("t" TeX-next-error "next")
+    ("p" TeX-previous-error "prev")
+    ("s" TeX-previous-error "prev")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue))
+
   (defhydra hydra-latex-font (:color blue :hint nil)
     "
          ^Latex Font^
@@ -1710,7 +1719,33 @@ _l_: calligraphic
     ("S" latex/font-sans-serif)
     ("u" latex/font-upright)
     ("." hydra-latex/body)
-    ("q" nil :color blue)))
+    ("q" nil :color blue))
+
+  (defhydra hydra-latex-preview (:color blue :hint nil)
+    "
+^Preview^          ^Clear^
+_e_: environment   ^ ^
+_b_: buffer        _C-b_: buffer
+_d_: document      _C-d_: document
+_p_: at point      _C-p_: at point
+_r_: region        ^^
+_s_: section       _C-s_: section
+
+[_._]: back [_q_]: quit
+"
+    ("e" preview-environment)
+    ("b" preview-buffer)
+    ("C-b" preview-clearout-buffer)
+    ("C-c" preview-clearout)
+    ("d" preview-document)
+    ("C-d" preview-clearout-document)
+    ("p" preview-at-point)
+    ("r" preview-region)
+    ("C-p" preview-clearout-at-point)
+    ("s" preview-section)
+    ("C-s" preview-clearout-section)
+    ("." hydra-latex/body)
+    ("q" nil)))
 
 ;;; -U-
 (use-package undo-tree :ensure t
