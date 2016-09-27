@@ -1682,6 +1682,17 @@ integrated Tex-mode. "
     ("m" TeX-insert-macro "macro")
     ("q" nil "quit"))
 
+  (defhydra hydra-latex-fill (:color red :hint nil :columns 2)
+    "Latex Fill"
+    ("r" LaTeX-fill-region "region" )
+    ("s" LaTeX-fill-section "section")
+    ("p" LaTeX-fill-paragraph "para")
+    ("e" LaTeX-fill-environment "environment")
+    ("C-r" LaTeX-fill-region-as-paragraph "reg as par")
+    ("C-p" LaTeX-fill-region-as-para-do "reg as par do")
+    ("." hydra-latex/body "back" :color blue)
+    ("q" nil "quit" :color blue)))
+
   (defhydra hydra-latex-error (:color red :hint nil :columns 2)
     "Latex Errors"
     ("n" TeX-next-error "next")
