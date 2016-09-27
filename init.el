@@ -622,6 +622,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'ivy-occur-mode 'emacs)
   (evil-set-initial-state 'calendar-mode 'emacs)
+  (evil-set-initial-state 'esup-mode 'emacs)
 
   ;; cursor color by state
   (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
@@ -1593,63 +1594,123 @@ _SR_: region → _SB_: buffer →      ^ ^
 ;;; -T-
 (use-package tex
   :ensure auctex
-  :config
-  (setq TeX-auto-save t)
-  ;; :mode
-  ;; ("\\.tex\\'" . LaTeX-mode)
+  :commands init-auctex
   :init
   (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
   (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
   (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
   (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
   :config
-  ;; (use-package company-auctex :ensure t
-  ;;   :config
-  ;;   (dolist (backend '(company-auctex-labels
-  ;; 		       company-auctex-bibs
-  ;; 		       company-auctex-environments
-  ;; 		       company-auctex-macros
-  ;; 		       company-auctex-symbols))
-  ;;     (add-to-list 'company-backends backend)))
+  (defun init-auctex ()
+    "Toggle loading of auctex. Use it when there is needs for
+auctex in the editing session. Otherwise emacs falls back to the
+integrated Tex-mode. "
+    (interactive)
+    (message "Auctex loaded"))
+
+  (use-package company-auctex :ensure t
+    :config
+    (append-to-list 'company-backends
+		    '(company-auctex-labels
+		      company-auctex-bibs
+		      company-auctex-environments
+		      company-auctex-macros
+		      company-auctex-symbols)))
+
+  (load "preview-latex.el" nil t t)
+
+  (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
+    "List of environment names in which `auto-fill-mode' will be inhibited.")
+
+  (defvar latex-build-command (if (executable-find "latexmk") "LatexMk" "LaTeX")
+    "the default command to use to build the document")
+
+  (defun latex--autofill ()
+    "Check whether the pointer is currently inside one of the
+    environments described in `latex-nofill-env' and if so, inhibits
+    the automatic filling of the current paragraph."
+    (let ((do-auto-fill t)
+    	  (current-environment "")
+    	  (level 0))
+      (while (and do-auto-fill (not (string= current-environment "document")))
+    	(setq level (1+ level)
+    	      current-environment (LaTeX-current-environment level)
+    	      do-auto-fill (not (member current-environment latex-nofill-env))))
+      (when do-auto-fill
+    	(do-auto-fill))))
+
+  (defun latex-auto-fill-mode ()
+    "Toggle auto-fill-mode using the custom auto-fill function."
+    (interactive)
+    (auto-fill-mode)
+    (setq auto-fill-function 'latex--autofill))
 
   ;; from spacemacs
-  ;; (setq TeX-auto-save t
-  ;; 	TeX-parse-self t
-  ;; 	TeX-syntactic-comment t
-  ;; 	;; Synctex support
-  ;; 	TeX-source-correlate-start-server nil
-  ;; 	;; Don't insert line-break at inline math
-  ;; 	LaTeX-fill-break-at-separators nil)
+  (setq
+   TeX-command-default latex-build-command
+   TeX-auto-save t
+   TeX-parse-self t
+   TeX-syntactic-comment t
+   TeX-source-correlate-start-server nil ; synctex support
+   LaTeX-fill-break-at-separators nil ; Don't insert line-break at inline math
+   )
 
-  ;; (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
-  ;;   "List of environment names in which `auto-fill-mode' will be inhibited.")
+  ;; keybindings
 
-  ;; (defun latex--autofill ()
-  ;;     "Check whether the pointer is currently inside one of the
-  ;; environments described in `latex-nofill-env' and if so, inhibits
-  ;; the automatic filling of the current paragraph."
-  ;;     (let ((do-auto-fill t)
-  ;; 	  (current-environment "")
-  ;; 	  (level 0))
-  ;;       (while (and do-auto-fill (not (string= current-environment "document")))
-  ;; 	(setq level (1+ level)
-  ;; 	      current-environment (LaTeX-current-environment level)
-  ;; 	      do-auto-fill (not (member current-environment latex-nofill-env))))
-  ;;       (when do-auto-fill
-  ;; 	(do-auto-fill))))
+  ;; Rebindings for TeX-font
+  (defun latex/font-bold () (interactive) (TeX-font nil ?\C-b))
+  (defun latex/font-medium () (interactive) (TeX-font nil ?\C-m))
+  (defun latex/font-code () (interactive) (TeX-font nil ?\C-t))
+  (defun latex/font-emphasis () (interactive) (TeX-font nil ?\C-e))
+  (defun latex/font-italic () (interactive) (TeX-font nil ?\C-i))
+  (defun latex/font-clear () (interactive) (TeX-font nil ?\C-d))
+  (defun latex/font-calligraphic () (interactive) (TeX-font nil ?\C-a))
+  (defun latex/font-small-caps () (interactive) (TeX-font nil ?\C-c))
+  (defun latex/font-sans-serif () (interactive) (TeX-font nil ?\C-f))
+  (defun latex/font-normal () (interactive) (TeX-font nil ?\C-n))
+  (defun latex/font-serif () (interactive) (TeX-font nil ?\C-r))
+  (defun latex/font-oblique () (interactive) (TeX-font nil ?\C-s))
+  (defun latex/font-upright () (interactive) (TeX-font nil ?\C-u))
 
-  ;; (defun latex-auto-fill-mode ()
-  ;;   "Toggle auto-fill-mode using the custom auto-fill function."
-  ;;   (interactive)
-  ;;   (auto-fill-mode)
-  ;;   (setq auto-fill-function 'latex--autofill))
+  (general-define-key
+   :states '(normal visual)
+   :keymaps 'LaTeX-mode-map
+    "," 'hydra-latex/body)
 
-  ;; (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
-  ;; (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  ;; (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-  ;; (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
-  )
+  (defhydra hydra-latex (:color blue :hint nil)
+    ("t" hydra-latex-font/body "font")
+    ("m" TeX-insert-macro "macro")
+    ("q" nil "quit"))
 
+  (defhydra hydra-latex-font (:color blue :hint nil)
+    "
+         ^Latex Font^
+         ^----------^
+_b_: bold           _M_: small-caps
+_m_: medium         _S_: sans-serif
+_c_: code           _s_: serif
+_e_: emphasis       _n_: normal
+_i_: italic         _o_: oblique
+_C_: clear          _u_: upright
+_l_: calligraphic
+
+[_._]: back [_q_]: quit
+"
+    ("b" latex/font-bold)
+    ("c" latex/font-code)
+    ("C" latex/font-clear)
+    ("e" latex/font-emphasis)
+    ("i" latex/font-italic)
+    ("l" latex/font-calligraphic)
+    ("m" latex/font-medium)
+    ("M" latex/font-small-caps)
+    ("n" latex/font-normal)
+    ("o" latex/font-oblique)
+    ("s" latex/font-serif)
+    ("S" latex/font-sans-serif)
+    ("u" latex/font-upright)
+    ("." hydra-latex/body)
+    ("q" nil :color blue)))
 
 ;;; -U-
 (use-package undo-tree :ensure t
