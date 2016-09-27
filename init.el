@@ -1250,6 +1250,7 @@ undo               _u_: undo
   :init
   (osx-clipboard-mode +1))
 
+;; TODO work on outline hydra. useful for tex
 (use-package outline
   :defer t
   :diminish ((outline-minor-mode . "")
