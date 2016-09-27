@@ -1675,7 +1675,8 @@ integrated Tex-mode. "
   (general-define-key
    :states '(normal visual)
    :keymaps 'LaTeX-mode-map
-    "," 'hydra-latex/body)
+    "," 'hydra-latex/body
+    "M-q" 'hydra-latex-fill/body )
 
   (defhydra hydra-latex (:color blue :hint nil :columns 3)
     "
@@ -1725,7 +1726,7 @@ _s_: section │
     ("C-r" LaTeX-fill-region-as-paragraph "reg as par")
     ("C-p" LaTeX-fill-region-as-para-do "reg as par do")
     ("." hydra-latex/body "back" :color blue)
-    ("q" nil "quit" :color blue)))
+    ("q" nil "quit" :color blue))
 
   (defhydra hydra-latex-error (:color red :hint nil :columns 2)
     "Latex Errors"
@@ -1738,8 +1739,8 @@ _s_: section │
 
   (defhydra hydra-latex-font (:color blue :hint nil)
     "
-         ^Latex Font^
-         ^----------^
+^Latex Font^
+^----------^
 _b_: bold           _M_: small-caps
 _m_: medium         _S_: sans-serif
 _c_: code           _s_: serif
