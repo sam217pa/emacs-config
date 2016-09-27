@@ -1197,6 +1197,16 @@ undo               _u_: undo
   (move-text-down
    move-text-up))
 
+(use-package multiple-cursors
+  :quelpa (multiple-cursors :fetcher github :repo "magnars/multiple-cursors.el")
+  :commands
+  :config
+  (general-define-key
+   "C-M-s" 'mc/mark-previous-like-this
+   "C-M-t" 'mc/mark-next-like-this)
+
+  )
+
 ;;; -N-
 (use-package nlinum :ensure t
   :init
