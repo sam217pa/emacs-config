@@ -761,17 +761,15 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
     ))
 
 (use-package expand-region :ensure t
-  :commands er/expand-region
+  :general
+  ("s-SPC" 'hydra-expand-region/er/expand-region)
   :config
-  (general-define-key
-   "s-SPC" 'hydra-expand-region/er/expand-region
-   )
-
+  (setq expand-region-fast-keys-enabled nil)
   (defhydra hydra-expand-region (:color red :hint nil)
     "
-^Expand region^
-_c_: expand
-_r_: contract
+^Expand region^   ^Cursors^
+_c_: expand       _n_: next
+_r_: contract     _p_: prev
 _R_: reset
 "
     ("c" er/expand-region)
@@ -779,6 +777,8 @@ _R_: reset
     ("R" (lambda () (interactive)
            (let ((current-prefix-arg '(0)))
              (call-interactively #'er/contract-region))) :color blue)
+    ("n" hydra-mc/mc/mark-next-like-this :color blue)
+    ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
 ;;; -F-
@@ -1196,6 +1196,41 @@ undo               _u_: undo
   :commands
   (move-text-down
    move-text-up))
+
+(use-package multiple-cursors
+  :quelpa (multiple-cursors :fetcher github :repo "magnars/multiple-cursors.el")
+  :general
+  ("C-M-s" 'mc/mark-previous-like-this
+   "C-M-t" 'mc/mark-next-like-this
+   "C-M-S-s" 'mc/unmark-next-like-this
+   "C-M-S-t" 'mc/unmark-previous-like-this
+   "H-SPC" 'hydra-mc/body)
+  :commands
+  (hydra-mc/mc/mark-previous-like-this
+   hydra-mc/mc/mark-next-like-this)
+  :config
+
+  ;; from https://github.com/abo-abo/hydra/wiki/multiple-cursors
+  (defhydra hydra-mc (:hint nil)
+    "
+     ^Up^            ^Down^        ^Other^
+----------------------------------------------
+[_p_]   Next    [_n_]   Next    [_l_] Edit lines
+[_P_]   Skip    [_N_]   Skip    [_a_] Mark all
+[_M-p_] Unmark  [_M-n_] Unmark  [_r_] Mark by regexp
+^ ^             ^ ^             [_q_] Quit
+"
+    ("l" mc/edit-lines :exit t)
+    ("a" mc/mark-all-like-this :exit t)
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-p" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-n" mc/unmark-previous-like-this)
+    ("r" mc/mark-all-in-region-regexp :exit t)
+    ("q" nil :color blue)
+    (" " nil "quit" :color blue)))
 
 ;;; -N-
 (use-package nlinum :ensure t
