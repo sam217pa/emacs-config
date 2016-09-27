@@ -131,8 +131,6 @@
     (setq ag-reuse-buffers t)
     (add-to-list 'ag-arguments "--word-regexp")))
 
-(use-package auctex :ensure t :defer t)
-
 (use-package auto-fill-mode
   :diminish auto-fill-function
   :commands turn-on-auto-fill
@@ -1597,6 +1595,10 @@ _SR_: region → _SB_: buffer →      ^ ^
   :commands swiper)
 
 ;;; -T-
+(use-package tex
+  :ensure auctex
+  :defer t
+  )
 
 ;;; -U-
 (use-package undo-tree :ensure t
