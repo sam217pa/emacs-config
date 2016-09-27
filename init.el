@@ -1254,15 +1254,16 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (global-set-key (kbd "H-p") 'persp-prev)
   (global-set-key (kbd "H-n") 'persp-next))
 
-(use-package prettify-symbols-mode
-  :init
-  (global-prettify-symbols-mode))
-
+;; TODO what is that ?
 (use-package pretty-mode :ensure t
   :disabled t
   :commands turn-on-pretty-mode
   :init
   (add-hook 'ess-mode-hook 'turn-on-pretty-mode))
+
+(use-package prog-mode
+  :config
+  (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "ⓟ")
