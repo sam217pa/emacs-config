@@ -1677,10 +1677,29 @@ integrated Tex-mode. "
    :keymaps 'LaTeX-mode-map
     "," 'hydra-latex/body)
 
-  (defhydra hydra-latex (:color blue :hint nil)
-    ("t" hydra-latex-font/body "font")
-    ("m" TeX-insert-macro "macro")
-    ("q" nil "quit"))
+  (defhydra hydra-latex (:color blue :hint nil :columns 3)
+    "
+Latex
+
+   ^Insert^        ^Command^     ^ ^                  ^Navigate^
+   ^---------^     ^-------^-----------------^^       ^--------^
+_e_: env     │  _;_: comment     _v_: view    │  _M-g_: error
+_m_: macro   │  _c_: command on  _M-q_: fill  │  _TAB_: outline
+_t_: font    │  _p_: preview
+_s_: section │
+"
+    ("t" hydra-latex-font/body )
+    ("m" TeX-insert-macro )
+    ("e" LaTeX-environment )
+    ("s" LaTeX-section )
+    ("p" hydra-latex-preview/body )
+    ("c" hydra-latex-command/body )
+    ("\;" hydra-latex-comment/body )
+    ("M-g" hydra-latex-error/body )
+    ("M-q" hydra-latex-fill/body )
+    ("TAB" hydra-outline/body )
+    ("v" TeX-view )
+    ("q" nil "quit" :color blue))
 
   (defhydra hydra-latex-comment (:color amaranth :hint nil :colums 2)
     "Comment or uncomment"
