@@ -57,7 +57,10 @@
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
  help-window-select t			; focus help window when opened
+ tab-width 4                    ; tab are 4 spaces large
  )
+
+(setq-default indent-tabs-mode nil)
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
 
@@ -572,9 +575,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   ;;    | <- cursor
   ;; }
   (sp-local-pair 'ess-mode "{" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
 (use-package esup :ensure t
   :commands esup)
@@ -869,6 +872,52 @@ _R_: reset
       "   --   "
       "   --   "
       "   --   ")))
+
+(use-package go-mode :ensure t
+  :defer t
+  :init
+  (when (memq window-system '(mac ns x))
+    (dolist (var '("GOPATH" "GO15VENDOREXPERIMENT"))
+      (unless (getenv var)
+        (exec-path-from-shell-copy-env var))))
+  :config
+  (use-package company-go :ensure t
+    :config
+    (add-to-list 'company-backends 'company-go))
+
+  (use-package go-eldoc :ensure t
+    :config
+    (add-hook 'go-mode-hook 'go-eldoc-setup))
+
+  (use-package go-guru
+    :load-path "~/src/golang.org/x/tools/cmd/guru/"
+    :config
+    (defhydra hydra-go-guru (:color blue :columns 2)
+      ("s" go-guru-set-scope "scope")
+      ("cr" go-guru-callers "callers")
+      ("ce" go-guru-callees "callees")
+      ("P" go-guru-peers "peers")
+      ("d" go-guru-definition "def")
+      ("f" go-guru-freevars "freevars")
+      ("s" go-guru-callstack "stack")
+      ("i" go-guru-implements "implements")
+      ("p" go-guru-pointsto "points to")
+      ("r" go-guru-referrers "referrers")
+      ("?" go-guru-describe "describe"))
+    )
+
+  (add-hook 'before-save-hook 'gofmt-before-save)
+
+  (dolist (delim '("{" "(" "["))
+    (sp-local-pair 'go-mode delim nil
+                   :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
+
+  ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/%2Blang/go/packages.el
+  (defun go-run-main ()
+    (interactive)
+    (async-shell-command
+     (format "go run %s"
+             (shell-quote-argument (buffer-file-name))))))
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
