@@ -653,7 +653,8 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
 (use-package exec-path-from-shell :ensure t
   :defer 2
-  :commands (exec-path-from-shell-initialize)
+  :commands (exec-path-from-shell-initialize
+             exec-path-from-shell-copy-env)
   :init
   (setq exec-path-from-shell-check-startup-files nil)
   :config
@@ -874,15 +875,16 @@ _R_: reset
       "   --   ")))
 
 (use-package go-mode :ensure t
-  :defer t
-  :init
+  :mode (("\\.go\\'" . go-mode))
+  :config
   (when (memq window-system '(mac ns x))
     (dolist (var '("GOPATH" "GO15VENDOREXPERIMENT"))
       (unless (getenv var)
         (exec-path-from-shell-copy-env var))))
-  :config
+
   (use-package company-go :ensure t
     :config
+    (setq company-go-show-annotation t)
     (add-to-list 'company-backends 'company-go))
 
   (use-package go-eldoc :ensure t
@@ -903,10 +905,16 @@ _R_: reset
       ("i" go-guru-implements "implements")
       ("p" go-guru-pointsto "points to")
       ("r" go-guru-referrers "referrers")
-      ("?" go-guru-describe "describe"))
-    )
+      ("?" go-guru-describe "describe")))
+
+  (use-package flycheck-gometalinter :ensure t
+    :config
+    (setq flycheck-disabled-checkers '(go-gofmt go-golint go-vet go-build go-test go-errcheck))
+    (flycheck-gometalinter-setup))
 
   (add-hook 'before-save-hook 'gofmt-before-save)
+  ;; set tab width
+  (add-hook 'go-mode-hook (lambda () (setq-local tab-width 4)))
 
   (dolist (delim '("{" "(" "["))
     (sp-local-pair 'go-mode delim nil
@@ -921,8 +929,7 @@ _R_: reset
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
-             goto-last-change-reverse)
-  )
+             goto-last-change-reverse))
 
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
@@ -1066,6 +1073,7 @@ _R_: reset
   (lispy-define-key lispy-mode-map "«" 'lispy-barf)
   (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
+  (lispy-define-key lispy-mode-map "X" 'special-lispy-x)
 
 
   (general-define-key
