@@ -569,6 +569,28 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
                              (thing-at-point 'line)))))
 
 
+  ;; when behind a ), pressing RET will insert a new line and leave the paren in place.
+  (defun sam--ess-newline ()
+    (interactive)
+    (cond ((looking-at ")")
+           (end-of-line)
+           (ess-newline-and-indent))
+          (t (ess-newline-and-indent))))
+
+  (defun sam--ess-comma-after-paren ()
+    " when behind a ), pressing `,` will step outside of the paren and insert ,"
+    (interactive)
+    (cond ((looking-at ")")
+           (forward-char)
+           (insert ","))
+          (t (insert  ","))))
+
+  (general-define-key
+   :states 'insert
+   :keymaps 'ess-mode-map
+    "RET" 'sam--ess-newline
+    "," 'sam--ess-comma-after-paren )
+
   (sp-local-pair 'ess-mode "%" "%")
   ;; when pressed RET after { or (,
   ;; {
