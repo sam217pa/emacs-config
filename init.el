@@ -57,7 +57,10 @@
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
  help-window-select t			; focus help window when opened
+ tab-width 4                    ; tab are 4 spaces large
  )
+
+(setq-default indent-tabs-mode nil)
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
 
@@ -572,9 +575,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   ;;    | <- cursor
   ;; }
   (sp-local-pair 'ess-mode "{" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "(" nil
-		 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
 (use-package esup :ensure t
   :commands esup)
@@ -650,7 +653,8 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
 (use-package exec-path-from-shell :ensure t
   :defer 2
-  :commands (exec-path-from-shell-initialize)
+  :commands (exec-path-from-shell-initialize
+             exec-path-from-shell-copy-env)
   :init
   (setq exec-path-from-shell-check-startup-files nil)
   :config
@@ -870,10 +874,86 @@ _R_: reset
       "   --   "
       "   --   ")))
 
+(use-package go-mode :ensure t
+  :mode (("\\.go\\'" . go-mode))
+  :config
+  (when (memq window-system '(mac ns x))
+    (dolist (var '("GOPATH" "GO15VENDOREXPERIMENT"))
+      (unless (getenv var)
+        (exec-path-from-shell-copy-env var))))
+
+  (use-package company-go :ensure t
+    :config
+    (setq company-go-show-annotation t)
+    (add-to-list 'company-backends 'company-go))
+
+  (use-package go-eldoc :ensure t
+    :config
+    (add-hook 'go-mode-hook 'go-eldoc-setup))
+
+  (use-package go-guru
+    :load-path "~/src/golang.org/x/tools/cmd/guru/"
+    :config
+    (defhydra hydra-go-guru (:color blue :columns 2)
+      ("s" go-guru-set-scope "scope")
+      ("cr" go-guru-callers "callers")
+      ("ce" go-guru-callees "callees")
+      ("P" go-guru-peers "peers")
+      ("d" go-guru-definition "def")
+      ("f" go-guru-freevars "freevars")
+      ("s" go-guru-callstack "stack")
+      ("i" go-guru-implements "implements")
+      ("p" go-guru-pointsto "points to")
+      ("r" go-guru-referrers "referrers")
+      ("?" go-guru-describe "describe")))
+
+  (use-package flycheck-gometalinter :ensure t
+    :config
+    (setq flycheck-disabled-checkers '(go-gofmt go-golint go-vet go-build go-test go-errcheck))
+    (flycheck-gometalinter-setup))
+
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ;; set tab width
+  (add-hook 'go-mode-hook (lambda () (setq-local tab-width 4)))
+
+  (dolist (delim '("{" "(" "["))
+    (sp-local-pair 'go-mode delim nil
+                   :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
+
+  ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/%2Blang/go/packages.el
+  (defun go-run-main ()
+    (interactive)
+    (async-shell-command
+     (format "go run %s"
+             (shell-quote-argument (buffer-file-name)))))
+
+  ;; keybindings
+  (general-define-key
+   :states '(normal visual)
+   :keymaps 'go-mode-map
+    "," 'hydra-go/body)
+
+  (defhydra hydra-go (:hint nil :color teal)
+    "
+         ^Command^      ^Imports^       ^Doc^
+         ^-------^      ^-------^       ^---^
+      _r_: run      _ig_: goto       _d_: doc at point
+    [_g_]: guru     _ia_: add
+    ^  ^            _ir_: remove
+    "
+    ("g" hydra-go-guru/body :color blue)
+    ("r" go-run-main)
+    ("d" godoc-at-point)
+    ("ig" go-goto-imports )
+    ("ia" go-import-add)
+    ("ir" go-remove-unused-imports)
+    ("q" nil "quit" :color blue)))
+
+
 (use-package goto-chg :ensure t
   :commands (goto-last-change
-             goto-last-change-reverse)
-  )
+             goto-last-change-reverse))
 
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
@@ -1017,6 +1097,7 @@ _R_: reset
   (lispy-define-key lispy-mode-map "«" 'lispy-barf)
   (lispy-define-key lispy-mode-map "l" 'lispy-raise) ; replace "r" `lispy-raise' with "l"
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
+  (lispy-define-key lispy-mode-map "X" 'special-lispy-x)
 
 
   (general-define-key
