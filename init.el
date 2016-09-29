@@ -1057,8 +1057,7 @@ _R_: reset
   :commands
   (lorem-ipsum-insert-list
    lorem-ipsum-insert-sentences
-   lorem-ipsum-insert-paragraph)
-  )
+   lorem-ipsum-insert-paragraphs))
 
 ;;; -M-
 (use-package magit :ensure t
