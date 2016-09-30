@@ -127,8 +127,8 @@
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
   (nvmap "'" (general-simulate-keys "C-c")
-         "é" 'evil-goto-mark
-         "è" 'ace-window
+         "è" 'hydra-evil-mark/evil-goto-mark
+         "é" 'ace-window
          "s-b" 'ivy-switch-buffer
          "s-g" 'avy-goto-char
          "C-p" 'counsel-yank-pop

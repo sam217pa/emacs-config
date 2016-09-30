@@ -472,7 +472,6 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
    ("\\.[Jj][Aa][Gg]\\'" . ess-jags-mode)
    ("\\.[Jj][Oo][Gg]\\'" . ess-jags-mode)
    ("\\.[Jj][Mm][Dd]\\'" . ess-jags-mode))
-
   :commands
   (R stata julia SAS)
 
@@ -484,122 +483,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
 
   :config
-
-  (general-define-key
-   :states '(normal visual insert emacs)
-   :keymaps 'ess-mode-map
-   :prefix ","
-   :non-normal-prefix "’"               ; Alt-, => ’
-    "/" '(:ignore t :which-key "search")
-    "," 'ess-handy-commands
-
-    "d" '(:ignore t :which-key "doc")
-    "dd" 'ess-help
-    "dw" 'ess-help-web-search
-
-    "i" '(:ignore t :which-key "info")
-    "id" 'ess-rdired
-
-
-    "l" '(:ignore t :which-key "load")
-    "ll" 'ess-load-library
-    "lf" 'ess-load-file
-
-    "s" '(:ignore t :which-key "shell - send")
-    "sl"   '(:ignore t :which-key "line")
-    "sll"   'ess-eval-line
-    "slg"   'ess-eval-line-and-go
-    "sls"   'ess-eval-line-and-step
-    "sp"   '(:ignore t :which-key "chunk")
-    "spp"   'ess-eval-chunk
-    "spg"   'ess-eval-chunk-and-go
-    "sps"   'ess-eval-chunk-and-step
-    "st"   '(:ignore t :which-key "function or §")
-    "stt"   'ess-eval-function-or-paragraph
-    "stg"   'ess-eval-function-and-go
-    "sts"   'ess-eval-function-or-paragraph-and-step
-    "sr"   '(:ignore t :which-key "region")
-    "srr"  'ess-eval-region
-    "srg"  'ess-eval-region-and-go
-    "srs"  'ess-eval-region-or-line-and-step
-
-    "w" '(ess-execute-screen-options :which-key "set width")
-    )
-
-  ;; secondary major mode map
-  (general-define-key
-   :states '(normal visual insert)
-   :keymaps 'ess-mode-map
-   :prefix "ê"
-   :non-normal-prefix "’"               ; Alt-, => ’
-    "l" 'ess-eval-region-or-line-and-step
-    )
-
-  ;; primary map, direct access
-  (general-define-key
-   :states '(normal insert)
-   :keymaps 'ess-mode-map
-    "C-RET" 'ess-eval-region-or-line-and-step
-    "M-RET" 'ess-eval-function-or-paragraph-and-step
-    )
-
-  (setq ess-completing-read 'ivy-completing-read)
-
-  (setq ess-R-font-lock-keywords '((ess-R-fl-keyword:modifiers . t)
-                                   (ess-R-fl-keyword:fun-defs . t)
-                                   (ess-R-fl-keyword:keywords . t)
-                                   (ess-R-fl-keyword:assign-ops . t)
-                                   (ess-R-fl-keyword:constants . t)
-                                   (ess-fl-keyword:fun-calls . t)
-                                   (ess-fl-keyword:numbers . t)
-                                   (ess-fl-keyword:operators . t)
-                                   (ess-fl-keyword:delimiters . t)
-                                   (ess-fl-keyword:= . t)
-                                   (ess-R-fl-keyword:F&T . t)
-                                   (ess-R-fl-keyword:%op% . t)))
-  (setq ess-offset-continued 2          ; offset after first statement
-        ess-expression-offset 2         ; offset for expression
-        ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
-        ess-default-style 'DEFAULT) ; set default style for R source file
-
-  (add-to-list
-   'aggressive-indent-dont-indent-if	     ; do not indent line if
-   '(and (derived-mode-p 'ess-mode)	     ; in ess mode
-         (null (string-match "\\(#+ .+ $\\)" ; and in a roxygen block
-                             (thing-at-point 'line)))))
-
-
-  ;; when behind a ), pressing RET will insert a new line and leave the paren in place.
-  (defun sam--ess-newline ()
-    (interactive)
-    (cond ((looking-at ")")
-           (end-of-line)
-           (ess-newline-and-indent))
-          (t (ess-newline-and-indent))))
-
-  (defun sam--ess-comma-after-paren ()
-    " when behind a ), pressing `,` will step outside of the paren and insert ,"
-    (interactive)
-    (cond ((looking-at ")")
-           (forward-char)
-           (insert ","))
-          (t (insert  ","))))
-
-  (general-define-key
-   :states 'insert
-   :keymaps 'ess-mode-map
-    "RET" 'sam--ess-newline
-    "," 'sam--ess-comma-after-paren )
-
-  (sp-local-pair 'ess-mode "%" "%")
-  ;; when pressed RET after { or (,
-  ;; {
-  ;;    | <- cursor
-  ;; }
-  (sp-local-pair 'ess-mode "{" nil
-                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-  (sp-local-pair 'ess-mode "(" nil
-                 :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
+  (load-file "~/dotfile/emacs/ess-config.el"))
 
 (use-package esup :ensure t
   :commands esup)
@@ -635,8 +519,17 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
     (global-evil-surround-mode))
 
   (use-package evil-visual-mark-mode :ensure t
+    :commands (evil-visual-mark-mode
+               hydra-evil-mark/body)
     :config
-    (evil-visual-mark-mode))
+    (defhydra hydra-evil-mark
+      (:color teal
+       :hint nil
+       :pre (evil-visual-mark-mode)
+       :before-exit (evil-visual-mark-mode 0))
+      "mark"
+      ("é" evil-goto-mark "mark" :color red)
+      ("q" nil "quit" :color blue)))
 
   (use-package evil-visualstar :ensure t
     :config
@@ -779,9 +672,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
       ("B" pdf-history-backward :color red)
       ("N" pdf-history-forward :color red)
       ("r" image-forward-hscroll :color red)
-      ("c" image-backward-hscroll :color red))
-
-    ))
+      ("c" image-backward-hscroll :color red))))
 
 (use-package expand-region :ensure t
   :general
@@ -1351,6 +1242,8 @@ undo               _u_: undo
   :bind (("H-<tab>" . hydra-outline/body))
   :commands (outline-minor-mode
 	     hydra-outline/body)
+  :general ("C-M-c" 'outline-previous-heading
+            "C-M-r" 'outline-next-heading)
   :diminish ((outline-minor-mode . "")
 	     (outline-major-mode . ""))
   :config
