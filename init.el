@@ -520,7 +520,10 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
   (use-package evil-visual-mark-mode :ensure t
     :commands (evil-visual-mark-mode
-               hydra-evil-mark/body)
+               hydra-evil-mark/body
+               hydra-evil-mark/evil-goto-mark)
+    :defines (hydra-evil-mark/body
+              hydra-evil-mark/evil-goto-mark)
     :config
     (defhydra hydra-evil-mark
       (:color teal
