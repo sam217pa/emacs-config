@@ -1,10 +1,10 @@
 ;; TODO use org 8.3
 (use-package org
-  :ensure org-plus-contrib
+  :load-path ("~/.emacs.d/private/org-mode")
+  :defer t
   :commands (org-mode
-	     org-agenda-list
-	     org-store-link
-	     )
+             org-agenda-list
+             org-store-link)
 
   :bind*
   (:map dired-mode-map
@@ -22,8 +22,7 @@
     (worf-define-key worf-mode-map "t" 'worf-down)
     (worf-define-key worf-mode-map "s" 'worf-up)
     (worf-define-key worf-mode-map "r" 'worf-right)
-    (worf-define-key worf-mode-map "h" 'worf-change-mode)
-    )
+    (worf-define-key worf-mode-map "h" 'worf-change-mode))
 ;;;** ox-tufte
   (use-package ox-tufte :ensure t)
 
@@ -45,7 +44,7 @@
                                '((R . t)
                                  (python . t)
                                  (clojure . t)
-                                 (sh . t)
+                                 (shell . t)
                                  (emacs-lisp . t)
                                  (dot . t)
                                  (js . t)))
@@ -67,9 +66,9 @@
 
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
   (setq org-agenda-files
-	(delq nil
-	      (mapcar (lambda (x) (and (file-exists-p x) x))
-		      '("~/Org/TODO"))))
+        (delq nil
+              (mapcar (lambda (x) (and (file-exists-p x) x))
+                      '("~/Org/TODO"))))
   (setq org-agenda-span 7)
   (setq org-agenda-tags-column -100) ; take advantage of the screen width
   (setq org-agenda-sticky nil)
@@ -80,9 +79,9 @@
   (setq org-agenda-skip-deadline-if-done t)
   (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
   (setq org-agenda-time-grid
-	'((daily today require-timed)
-	  "----------------"
-	  (800 1000 1200 1400 1600 1800)))
+        '((daily today require-timed)
+          "----------------"
+          (800 1000 1200 1400 1600 1800)))
   (setq org-agenda-start-on-weekday 6)
 
   (org-add-link-type "ebib" 'ebib-open-org-link)

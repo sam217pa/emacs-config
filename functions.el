@@ -475,6 +475,11 @@ directory to make multiple eshell windows easier."
   (unless (consp elements) (error "ELEMENTS must be a list"))
   (let ((list (symbol-value list-var)))
     (if list
-	(setcdr (last list) elements)
+        (setcdr (last list) elements)
       (set list-var elements)))
   (symbol-value list-var))
+
+(defun sam--find-biblio ()
+  "Open a pdf in the directory containing my bibliography"
+  (interactive)
+  (counsel-find-file "~/zotero_bib/"))

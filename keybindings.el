@@ -55,7 +55,7 @@
     ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")
     ;; buffer
-    "b" '(hydra-buffer/body t :which-key "Buffer")
+    "b" '(hydra-buffer/body :which-key "Buffer")
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
@@ -96,7 +96,7 @@
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
     ;; Journal
-    "j" '(hydra-journal/body t :which-key "Journal")
+    "j" '(hydra-journal/body :which-key "Journal")
     ;; Org
     "o" '(:ignore t :which-key "Org")
     "oa" 'org-agenda-list
@@ -154,6 +154,8 @@
          "k" 'evil-substitute
          "K" 'evil-change-whole-line
          "M-b" 'ivy-switch-buffer
+         "C-é" 'hydra-window/body
+         "M-é" 'ace-window
          "p" #'hydra-paste/evil-paste-after
          "P" #'hydra-paste/evil-paste-before
          (general-chord "qd") #'kill-this-buffer
@@ -168,7 +170,7 @@
          "C-|" 'ivy-switch-buffer
          "C-." 'hydra-move/body
          "C-é" 'hydra-window/body
-         "C-è" 'ace-window
+         "M-é" 'ace-window
          (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
          (general-chord "qd") #'kill-this-buffer
          (general-chord "qf") #'ivy-switch-buffer
@@ -198,6 +200,9 @@
     "l" 'evil-avy-goto-line
     "é" 'evil-avy-goto-subword-0
     "f" 'avy-goto-char-in-line )
+  (omap
+   "j" 'evil-find-char-to
+   "f" 'avy-goto-char-in-line)
 
 ;;; MOTION map
   (mmap "t" 'evil-next-visual-line
@@ -472,7 +477,7 @@ _t_witter
 
  ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
  ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
- _C_ _c_ _a_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
+ _C_ _c_ _é_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
  ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
  ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
 "
@@ -512,7 +517,7 @@ _t_witter
 
   ("N" evil-window-new :color blue)
   ("=" balance-windows )
-  ("a" ace-window )
+  ("é" ace-window)
   ("." hydra-buffer/body "buffers" :color blue)
   ("q" nil "quit" :color blue))
 

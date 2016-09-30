@@ -287,17 +287,18 @@
    ("C-c l"   . counsel-locate)
    )
   :config
+  (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
   (defun counsel-package-install ()
     (interactive)
     (ivy-read "Install package: "
-	      (delq nil
-		    (mapcar (lambda (elt)
-			      (unless (package-installed-p (car elt))
-				(symbol-name (car elt))))
-			    package-archive-contents))
-	      :action (lambda (x)
-			(package-install (intern x)))
-	      :caller 'counsel-package-install)))
+              (delq nil
+                    (mapcar (lambda (elt)
+                              (unless (package-installed-p (car elt))
+                                (symbol-name (car elt))))
+                            package-archive-contents))
+              :action (lambda (x)
+                        (package-install (intern x)))
+              :caller 'counsel-package-install)))
 
 (use-package counsel-osx-app :ensure t
   :commands counsel-osx-app
@@ -539,6 +540,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
     :config
     (global-evil-visualstar-mode t))
 
+  (setq evil-default-state 'normal)
   (evil-set-initial-state 'dired-mode 'emacs)
   (evil-set-initial-state 'message-mode 'motion)
   (evil-set-initial-state 'help-mode 'emacs)
@@ -606,77 +608,79 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
       ("G"  . pdf-view-last-page)
       ("r"  . image-forward-hscroll)
       ("c"  . image-backward-hscroll)
-      ("t"  . pdf-view-next-page)
-      ("s"  . pdf-view-previous-page)
+      ("t"  . pdf-view-next-line-or-next-page)
+      ("s"  . pdf-view-previous-line-or-previous-page)
+      ("r"  . pdf-view-next-page)
+      ("c"  . pdf-view-previous-page)
       ("e"  . pdf-view-goto-page)
       ("u"  . pdf-view-revert-buffer)
-      ("al" . pdf-annot-list-annotations)
-      ("ad" . pdf-annot-delete)
-      ("aa" . pdf-annot-attachment-dired)
-      ("am" . pdf-annot-add-markup-annotation)
-      ("at" . pdf-annot-add-text-annotation)
+      ("a"  . hydra-pdf-annotate/body)
+      ("n"  . hydra-pdf-search/pdf-occur-next-error)
       ("y"  . pdf-view-kill-ring-save)
       ("i"  . pdf-misc-display-metadata)
       ("/"  . pdf-occur)
       ("b"  . pdf-view-set-slice-from-bounding-box)
       ("R"  . pdf-view-reset-slice)
-      ("M-n" . pdf-occur-next-error)
-      )
+      ("M-n" . pdf-occur-next-error))
 
     (use-package pdf-occur)
     (use-package pdf-annot)
     (use-package pdf-outline)
     (use-package pdf-history)
     (use-package pdf-view)
-    ;; TODO fix hydra. messed up.
-    (defhydra hydra-pdftools (:color blue :hint nil)
+
+    (defhydra hydra-pdftools (:color amaranth :hint nil)
       "
-       Move          History   Scale/Fit           Annot      Search/Link     Do
-       ────────────────────────────────────────────────────────────────────────────
-         ^^_g_^^      _B_    ^ ^    _+_    ^ ^     _al_ist    _//_earch       _u_ revert buffer
-         ^^^↑^^^      ^↑^    _H_    ^↑^    _W_     _am_arkup  _/n_earch next  _i_ info
-         ^^_s_^^      ^ ^    ^↥^    _0_    ^ ^     _at_ext    _/p_earch prev  _d_ dark mode
-         ^^^↑^^^      ^↓^    ^─^─   ^↓^    ^ ^     _ad_elete  _o_utline
-    _c_ ←pag_e_→ _r_  _N_    _P_    _-_    _b_     _aa_dired  _F_ link
-         ^^^↓^^^      ^ ^    ^ ^    ^ ^    ^ ^     _y_ank     _f_ search link
-         ^^_t_^^      ^ ^    _R_eset slice box
-         ^^^↓^^^
-         ^^_G_^^
-        "
-      ("\\" hydra-master/body "back")
-      ("<ESC>" nil "quit")
-      ("al" pdf-annot-list-annotations)
-      ("ad" pdf-annot-delete)
-      ("aa" pdf-annot-attachment-dired)
-      ("am" pdf-annot-add-markup-annotation)
-      ("at" pdf-annot-add-text-annotation)
-      ("y"  pdf-view-kill-ring-save)
-      ("+" pdf-view-enlarge :color red)
-      ("-" pdf-view-shrink :color red)
-      ("0" pdf-view-scale-reset)
-      ("H" pdf-view-fit-height-to-window)
-      ("W" pdf-view-fit-width-to-window)
-      ("P" pdf-view-fit-page-to-window)
-      ("t" pdf-view-next-page-command :color red)
-      ("s" pdf-view-previous-page-command :color red)
-      ("d" pdf-view-dark-minor-mode)
-      ("b" pdf-view-set-slice-from-bounding-box)
-      ("R" pdf-view-reset-slice)
+^Move^ ^^   ^^      ^History^     ^Scale/fit   ^        ^Commands^
+^----^-^^---^^      ^-------^     ^------------^        ^---------------------------^
+^^   ^g^   ^^ | _b_: bwd     | _+_: zoom       |   [_a_]: annotate    _i_: info
+^^   _s_   ^^ | _f_: fwd     | _-_: unzoom     | [_C-s_]: search      _d_: dark-mode
+_c_  _e_  _r_ | ^^           | _0_: reset      |     _o_: outline
+^^   _t_   ^^ | ^^           | _w_: fit width  |     _u_: revert
+^^   ^G^   ^^ | ^^           | _h_: fit height |
+^^   ^ ^   ^^ | ^^           | _p_: fit page   |
+"
       ("g" pdf-view-first-page)
       ("G" pdf-view-last-page)
       ("e" pdf-view-goto-page)
+      ("t" pdf-view-next-line-or-next-page)
+      ("s" pdf-view-previous-line-or-previous-page )
+      ("r" pdf-view-next-page-command )
+      ("c" pdf-view-previous-page-command )
+      ("b" pdf-history-backward )
+      ("f" pdf-history-forward )
+      ("+" pdf-view-enlarge )
+      ("-" pdf-view-shrink )
+      ("0" pdf-view-scale-reset)
+      ("w" pdf-view-fit-width-to-window)
+      ("h" pdf-view-fit-height-to-window)
+      ("p" pdf-view-fit-page-to-window)
+      ("a" hydra-pdf-annotate/body :color blue)
+      ("C-s" hydra-pdf-search/body :color blue)
       ("o" pdf-outline)
-      ("//" pdf-occur)
-      ("/n" pdf-occur-next-error )
-      ("/p" pdf-occur-history)
-      ("i" pdf-misc-display-metadata)
       ("u" pdf-view-revert-buffer)
-      ("F" pdf-links-action-perfom)
-      ("f" pdf-links-isearch-link)
-      ("B" pdf-history-backward :color red)
-      ("N" pdf-history-forward :color red)
-      ("r" image-forward-hscroll :color red)
-      ("c" image-backward-hscroll :color red))))
+      ("i" pdf-misc-display-metadata)
+      ("d" pdf-view-dark-minor-mode)
+      ("é" hydra-window/body "wdw" :color blue)
+      ("." nil "quit" :color blue))
+
+    (defhydra hydra-pdf-annotate (:color teal :hint nil :columns 2)
+      "Annotate"
+      ("l" pdf-annot-list-annotations "list")
+      ("d" pdf-annot-delete "delete")
+      ("a" pdf-annot-attachment-dired "dired")
+      ("m" pdf-annot-add-markup-annotation "markup")
+      ("t" pdf-annot-add-text-annotation "text")
+      ("." hydra-pdftools/body "back"))
+
+    (defhydra hydra-pdf-search (:color teal :hint nil :columns 2)
+      "Search"
+      ("s" pdf-occur "search")
+      ("n" pdf-occur-next-error "next" :color red)
+      ("h" pdf-occur-history "history")
+      ("a" pdf-links-action-perfom "link action")
+      ("l" pdf-links-isearch-link "search link")
+      ("." hydra-pdftools/body "back"))))
 
 (use-package expand-region :ensure t
   :general
@@ -917,11 +921,7 @@ _R_: reset
   :init
   (global-hl-line-mode))
 
-(use-package hydra :ensure t
-  ;; pour les keybindings de fou
-  :config
-  (use-package ivy-hydra :ensure t)
-  )
+(use-package hydra :ensure t)
 
 (use-package hy-mode :ensure t
   :mode (("\\.hy\\'" . hy-mode))
@@ -945,7 +945,7 @@ _R_: reset
   :diminish (ivy-mode . "")
   :commands ivy-switch-buffer
   :bind (:map ivy-mode-map
-	 ("C-'" . ivy-avy))
+         ("C-'" . ivy-avy))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -959,17 +959,17 @@ _R_: reset
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip nil)
   (setq ivy-re-builders-alist
-	'((swiper . ivy--regex-ignore-order)
-	  (t . ivy--regex-fuzzy)
-	  (t   . ivy--regex-ignore-order)))
+        '((swiper . ivy--regex-ignore-order)
+          (t . ivy--regex-fuzzy)
+          (t   . ivy--regex-ignore-order)))
 
   (defun ivy-switch-project ()
     (interactive)
     (ivy-read
      "Switch to project: "
      (if (projectile-project-p)
-	 (cons (abbreviate-file-name (projectile-project-root))
-	       (projectile-relevant-known-projects))
+         (cons (abbreviate-file-name (projectile-project-root))
+               (projectile-relevant-known-projects))
        projectile-known-projects)
      :action #'projectile-switch-project-by-name))
 
@@ -1584,12 +1584,14 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :diminish which-key-mode
   :config
   (which-key-mode)
-  (which-key-setup-side-window-right-bottom)
+  (which-key-setup-side-window-bottom)
   ;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-prefix-then-key-order)
   (setq which-key-popup-type 'side-window
-	which-key-side-window-max-width 0.33
-	which-key-idle-delay 0.5))
+        which-key-side-window-max-height 0.5
+        which-key-side-window-max-width 0.33
+        which-key-idle-delay 0.5
+        which-key-min-display-lines 7))
 
 (use-package whitespace
   :diminish ""
