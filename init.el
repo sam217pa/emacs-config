@@ -60,7 +60,8 @@
  tab-width 4                    ; tab are 4 spaces large
  )
 
-(setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil
+              tab-width 4)
 
 (prefer-coding-system 'utf-8)           ; utf-8 est le systeme par défaut.
 
@@ -550,23 +551,23 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
         evil-normal-state-cursor  '("#b58900" box)  ;; blue
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
-	evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
+        evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
 
   ;; maps that overrides evil-map.
   ;; keeps default keybindings.
   (setq evil-overriding-maps '((dired-mode-map)
-			       (Buffer-menu-mode-map)
-			       (color-theme-mode-map)
-			       (comint-mode-map)
-			       (compilation-mode-map)
-			       (grep-mode-map)
-			       (dictionary-mode-map)
-			       (ert-results-mode-map . motion)
-			       (Info-mode-map . motion)
-			       (speedbar-key-map)
-			       (speedbar-file-key-map)
-			       (speedbar-buffers-key-map)
-			       (calendar-mode-map))))
+                               (Buffer-menu-mode-map)
+                               (color-theme-mode-map)
+                               (comint-mode-map)
+                               (compilation-mode-map)
+                               (grep-mode-map)
+                               (dictionary-mode-map)
+                               (ert-results-mode-map . motion)
+                               (Info-mode-map . motion)
+                               (speedbar-key-map)
+                               (speedbar-file-key-map)
+                               (speedbar-buffers-key-map)
+                               (calendar-mode-map))))
 
 
 (use-package exec-path-from-shell :ensure t
@@ -1543,8 +1544,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
   (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
   :config
-  (load-file "~/dotfile/emacs/latex-config.el")
-  )
+  (load-file "~/dotfile/emacs/latex-config.el"))
 
 ;;; -U-
 (use-package undo-tree :ensure t
