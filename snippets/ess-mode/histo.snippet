@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: histo
+# key: ggh
+# condition: (string= "S" ess-language)
+# binding: direct-keybinding
+# --
+ggplot(aes(x = ${1:x})) +
+  geom_histogram(binwidth = $0)

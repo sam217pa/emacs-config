@@ -1,0 +1,7 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: read_csv
+# key: csv
+# condition: (string= "S" ess-language)
+# binding: direct-keybinding
+# --
+${1:data} <- readr::read_csv("${2:dataset.csv}") $0

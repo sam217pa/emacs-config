@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: tplot
+# key: tp
+# binding: direct-keybinding
+# --
+%T>%
+{ print( ggplot(., aes($1, ${2:count})) + geom_${3:point}() )} %>%
+$0
