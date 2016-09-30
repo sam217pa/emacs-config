@@ -20,10 +20,12 @@
 (eval-when-compile (require 'use-package))
 
 ;; bootstrap `quelpa'
-(use-package quelpa :ensure t
+(use-package quelpa
+  :load-path "~/.emacs.d/private/quelpa"
   :config
   (setq quelpa-update-melpa-p nil)
-  (use-package quelpa-use-package :ensure t))
+  (use-package quelpa-use-package
+    :load-path "~/.emacs.d/private/quelpa-use-package"))
 
 
 (use-package general
