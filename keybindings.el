@@ -49,6 +49,7 @@
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
     "TAB" '(ivy-switch-buffer :which-key "prev buffer")
+    "s-<tab>" 'other-frame
     "." '(avy-goto-word-or-subword-1  :which-key "go to char")
     "SPC" '(counsel-M-x)
 
@@ -56,6 +57,8 @@
     "a" '(hydra-launcher/body :which-key "Applications")
     ;; buffer
     "b" '(hydra-buffer/body :which-key "Buffer")
+    ;; frames
+    "M-b" '(hydra-frame/body :which-key "frames")
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
@@ -181,18 +184,7 @@
          (general-chord "qq") #'fill-paragraph
          (general-chord "qQ") #'unfill-paragraph
          (general-chord "xv") #'git-gutter:stage-hunk
-         (general-chord "xc") #'avy-goto-word-1
-         (general-chord "\"\"") "1"
-         (general-chord "««") "2"
-         (general-chord "»»") "3"
-         (general-chord "((") "4"
-         (general-chord "))") "5"
-         (general-chord "@@") "6"
-         (general-chord "++") "7"
-         (general-chord "--") "8"
-         (general-chord "//") "9"
-         (general-chord "**") "0"
-         (general-chord "$$") "#")
+         (general-chord "xc") #'avy-goto-word-1)
 
 ;;; OPERATOR map
   (general-omap :prefix "SPC"
@@ -713,5 +705,12 @@ _s_: out       _S_: out       _q_: quit
   ("S" zoom-frm-out )
   ("0" zoom-frm-unzoom)
   ("q" nil :color blue))
+
+(defhydra hydra-frame (:hint nil :columns 2)
+  "frames"
+  ("d" delete-frame "delete" :color blue)
+  )
+
+
 
 ;;; ======================================================================

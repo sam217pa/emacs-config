@@ -39,6 +39,11 @@
 
 ;;;** org-magit
   (use-package orgit :ensure t)
+
+
+;;;** org-gfm
+  (use-package ox-gfm :ensure t)
+
 ;;;* babel
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
@@ -58,6 +63,7 @@
   (general-define-key
    :keymaps 'org-mode-map
     "s-e" 'org-babel-tangle-all-block-same-file
+    "s-l" 'org-latex-export-to-latex
     )
 
 ;;;* sane default

@@ -370,34 +370,25 @@ Lisp function does not specify a special indentation."
 
 ;; goto line motion, jumping to the same column
 ;; (follow "evil-integration.el")
-(evil-define-motion evil-avy-goto-line-keep-column (count)
-  "Evil motion for avy-goto-line, restoring column."
-  :type exclusive :jump t :repeat abort
-  (evil-without-repeat
-    (evil-enclose-avy-for-motion
-      (evil-save-column (avy-goto-line)))))
+;; (evil-define-motion evil-avy-goto-line-keep-column (count)
+;;   "Evil motion for avy-goto-line, restoring column."
+;;   :type exclusive :jump t :repeat abort
+;;   (evil-without-repeat
+;;     (evil-enclose-avy-for-motion
+;;       (evil-save-column (avy-goto-line)))))
 ;; goto-line motion map
-(define-key evil-motion-state-map (kbd "g l")
-  'evil-avy-goto-line-keep-column)
-
-(evil-define-motion evil-avy-goto-word (count)
-  "evil motion for avy goto word"
-  :type exclusive :jump t :repeat abort
-  (evil-without-repeat
-    (evil-enclose-avy-for-motion
-      (avy-goto-word-or-subword-1))
-    )
-  )
+;; (define-key evil-motion-state-map (kbd "g l")
+;;   'evil-avy-goto-line-keep-column)
 
 ;; adapted from
 ;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers
 (defun kill-diff-buffers ()
   (interactive)
   (mapc (lambda (buffer)
-	  (when (member (buffer-local-value 'major-mode buffer)
-			'(diff-mode magit-diff-mode magit-process-mode))
-	    (kill-buffer buffer)))
-	(buffer-list)))
+          (when (member (buffer-local-value 'major-mode buffer)
+                        '(diff-mode magit-diff-mode magit-process-mode))
+            (kill-buffer buffer)))
+        (buffer-list)))
 
 ;; syntax highlight hugo src block
 (font-lock-add-keywords
@@ -483,3 +474,30 @@ directory to make multiple eshell windows easier."
   "Open a pdf in the directory containing my bibliography"
   (interactive)
   (counsel-find-file "~/zotero_bib/"))
+
+
+(defmacro if-looking-at-do-else (look-at does otherwise)
+  `(if (looking-at ,look-at)
+       (eval ,does)
+     (eval ,otherwise)))
+
+;;; lab notebook
+(setq journal-base-dir "~/these/meta/journal/")
+
+(defun journal-command (&rest args)
+  (let ((default-directory (expand-file-name journal-base-dir)))
+    (apply 'call-process "hugo" nil hugo-buffer t args)))
+
+(defun journal-post ()
+  (interactive)
+  (let* ((filename
+          (concat "post/"
+                  (format-time-string "%Y-%m-%d" (current-time))
+                  ".md"))
+         (path (concat journal-base-dir "content/" filename)))
+    (if (file-exists-p path)
+        (find-file path)
+      (journal-command "new" filename)
+      (find-file path)
+      (goto-char (point-min))
+      (save-buffer))))

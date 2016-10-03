@@ -46,7 +46,6 @@
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
  version-control t	; enable le version control
  vc-make-backup-files t	; backups file even when under vc
- backup-directory-alist `(("." . "~/.emacs.d/backups")) ; central dir for backups
  vc-follow-symlinks t	; vc suit les liens  symboliques
  auto-save-file-name-transforms
  '((".*" "~/.emacs.d/auto-save-list/" t)); transforme les noms des fichiers sauvegardés
@@ -61,6 +60,11 @@
  help-window-select t			; focus help window when opened
  tab-width 4                    ; tab are 4 spaces large
  )
+
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 
 (setq-default indent-tabs-mode nil
               tab-width 4)
@@ -78,12 +82,12 @@
 
 ;; apparences
 (when window-system
-  (tooltip-mode -1) ; don't know what that is
-  (tool-bar-mode -1) ; sans barre d'outil
-  (menu-bar-mode 1) ; barre de menu
-  (scroll-bar-mode -1) ; enlève la barre de défilement
-  (set-frame-font "Inconsolata 14") ; police par défault
-  (blink-cursor-mode -1) ; pas de clignotement
+  (tooltip-mode -1)                    ; don't know what that is
+  (tool-bar-mode -1)                   ; sans barre d'outil
+  (menu-bar-mode 1)                    ; barre de menu
+  (scroll-bar-mode -1)                 ; enlève la barre de défilement
+  (set-frame-font "Inconsolata 14")    ; police par défault
+  (blink-cursor-mode -1)               ; pas de clignotement
   (global-visual-line-mode)
   (diminish 'visual-line-mode "") )
 
@@ -437,13 +441,18 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   :config
   (use-package eshell-z :ensure t)
 
-
   (require 'em-smart)
+
+
   (setq eshell-where-to-jump 'begin
-	eshell-review-quick-commands nil
-	eshell-smart-space-goes-to-end t)
+        eshell-review-quick-commands nil
+        eshell-smart-space-goes-to-end t)
   (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
-  (setq eshell-directory-name "~/dotfile/emacs/eshell/"))
+  (setq eshell-directory-name "~/dotfile/emacs/eshell/")
+  (general-define-key
+   :states '(normal insert emacs)
+   :keymaps 'eshell-mode-map
+    "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
 
 (use-package ess-site
   :ensure ess
@@ -493,16 +502,14 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   :commands esup)
 
 (use-package evil :ensure t
-  ;; change la couleur des curseurs
+  :commands (evil-mode)
   :init
+  (add-hook 'after-init-hook (lambda () (evil-mode 1)))
   (setq evil-want-fine-undo t)
   (setq evil-want-C-i-jump nil)
   (setq evil-disable-insert-state-bindings t)
 
   :config
-  (evil-mode 1)
-
-
   (use-package evil-escape :ensure t
     :diminish
     (evil-escape-mode)
@@ -571,7 +578,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
                                (speedbar-key-map)
                                (speedbar-file-key-map)
                                (speedbar-buffers-key-map)
-                               (calendar-mode-map))))
+                               (calendar-mode-map)))
+  (load-file "~/dotfile/emacs/keybindings.el")
+  )
 
 
 (use-package exec-path-from-shell :ensure t
@@ -946,8 +955,6 @@ _R_: reset
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
   :diminish (ivy-mode . "")
   :commands ivy-switch-buffer
-  :bind (:map ivy-mode-map
-         ("C-'" . ivy-avy))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -1018,40 +1025,21 @@ _R_: reset
   (lispy-define-key lispy-mode-map "j" 'lispy-teleport)
   (lispy-define-key lispy-mode-map "X" 'special-lispy-x)
 
+  ;; change avy-keys to default bépo home row keys.
+  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
+
+  (defun sam--lispy-newline-before-paren ()
+    (interactive)
+    (if-looking-at-do-else ")"
+                           (progn (end-of-line) (lispy-newline-and-indent-plain))
+                           (lispy-newline-and-indent-plain)))
 
   (general-define-key
-   :states 'insert
-   :keymaps 'emacs-lisp-mode-map
-    "ê" 'hydra-lispy/body)
+   :states '(insert emacs)
+   :keymaps 'lispy-mode-map
+    "RET" 'sam--lispy-newline-before-paren )
 
-  (defhydra hydra-lispy (:hint nil)
-    "
-       ^ ^          ^ ^ _ß_: mv up   ^ ^  ^ ^       | _l_: raise
-       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       | _h_: clone
-       ^ ^          ^ ^ _s_: up      ^ ^  ^ ^       | _j_: teleport
-       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
-  bwd: _C_ <- left: _c_ ^+^ _r_: right -> _R_: fwd  |
-       ^ ^          ^ ^ ^|^          ^ ^  ^ ^       |
-       ^ ^          ^ ^ _t_: down    ^ ^  ^ ^       |
-       _b_: back    ^ ^ ^|^          ^ ^  _f_: flow |
-       ^ ^          ^ ^ _þ_: mv dn   ^ ^  ^ ^       |
-  "
-    ("s" lispy-up)
-    ("ß" lispy-move-up)
-    ("t" lispy-down)
-    ("þ" lispy-move-down)
-    ("c" lispy-left)
-    ("r" lispy-right)
-    ("h" lispy-clone)
-    ("C" lispy-backward)
-    ("R" lispy-forward)
-    ("l" lispy-raise)
-    ("j" lispy-teleport)
-    ("f" lispy-flow)
-    ("b" lispy-back))
-
-  ;; change avy-keys to default bépo home row keys.
-  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
+  )
 
 (use-package lorem-ipsum :ensure t
   :commands
@@ -1116,6 +1104,7 @@ _R_: reset
 (use-package markdown-mode :ensure t
   :mode ("\\.md\\'" . markdown-mode)
   :config
+  (add-hook 'markdown-mode-hook (lambda () (auto-fill-mode 0)))
 
   (defhydra hydra-markdown (:hint nil)
     "
@@ -1462,10 +1451,15 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     ("zshenv\\'" . sh-mode )
     ("zshrc\\'" . sh-mode))
   :config
+
   (use-package company-shell
     :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
     :config
-    (add-to-list 'company-backends 'company-shell)))
+    (add-to-list 'company-backends 'company-shell))
+  (add-hook 'sh-mode-hook (lambda () (setq-local outline-regexp "###-----------------"))))
+
+
+
 
 (use-package smartparens
   :ensure t
@@ -1652,8 +1646,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
 ;;; personal functions
 (load-file "~/dotfile/emacs/functions.el")
-;;; keybindings
-(load-file "~/dotfile/emacs/keybindings.el")
 ;;; org
 (load-file "~/dotfile/emacs/org.el")
 

@@ -84,11 +84,6 @@ _w_: set width  _C-h_: web-help
                            (thing-at-point 'line)))))
 
 
-(defmacro if-looking-at-do-else (look-at does otherwise)
-  `(if (looking-at ,look-at)
-       (eval ,does)
-     (eval ,otherwise)))
-
 (defun sam--ess-newline ()
   "when behind a ), pressing RET will insert a new line and
 leave the paren in place. "
