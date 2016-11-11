@@ -1692,16 +1692,38 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (load-file "~/dotfile/emacs/latex-config.el"))
 
-;;; -U-
+(use-package textpy
+  :load-path "~/.emacs.d/private/textpy"
+  :diminish "☉"
+  :init
+  (add-hook 'text-mode-hook (lambda () (textpy-minor-mode 1)))
+  :commands
+  (textpy-minor-mode)
+  :config
+  (general-define-key
+   :states '(insert emacs)
+   :keymaps 'text-mode-map
+    "A" 'textpy-avy-sentence
+    "a" 'textpy-avy-jump
+    "b" 'textpy-backward-sentence
+    "c" 'textpy-correct
+    "d" 'textpy-delete-buffer
+    "f" 'textpy-forward-sentence
+    "q" 'textpy-fill-paragraph
+    "s" 'textpy-save
+    "v" 'textpy-git
+    "/" 'textpy-search))
+
+;; ---------- -U- --------------------------------------------------
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
   :bind* (("C-x u" . undo-tree-visualize)))
 
-;;; -V-
+;; ---------- -V- --------------------------------------------------
 (use-package visual-regexp-steroids :ensure t
   :commands (vr/replace vr/query-replace))
 
-;;; -W-
+;; ---------- -W- --------------------------------------------------
 (use-package web-mode :ensure t
   :mode
   (("\\.phtml\\'"      . web-mode)
