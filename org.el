@@ -48,11 +48,13 @@
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
                                  (python . t)
-                                 (clojure . t)
+                                 ;; (clojure . t)
                                  (shell . t)
                                  (emacs-lisp . t)
                                  (dot . t)
-                                 (js . t)))
+                                 (makefile . t)
+                                 ;; (js . t)
+                                 ))
 
   (defun org-babel-tangle-all-block-same-file ()
     "tangle all blocks which belong to the same file."
@@ -88,7 +90,8 @@
         '((daily today require-timed)
           "----------------"
           (800 1000 1200 1400 1600 1800)))
-  (setq org-agenda-start-on-weekday 6)
+  ;; agenda start on mondays
+  (setq org-agenda-start-on-weekday 1)
 
   (org-add-link-type "ebib" 'ebib-open-org-link)
 
@@ -107,12 +110,16 @@
      ("s" "stage" entry (file+headline "~/stage/TODO" "capture")   "** TODO %? %^G\n%U \n%i")
      ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
      ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
-     ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a"))
+     ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a")))
+
+  (add-to-list 'org-modules 'org-mac-iCal)
+  (setq org-agenda-include-diary t)
 ;;;*** src block and babel
+  (setq
    org-src-preserve-indentation t
 ;;;*** footnotes
    org-footnote-auto-adjust t
-   org-footnote-define-inline t
+   org-footnote-define-inline nil
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
 ;;;*** export
@@ -234,26 +241,43 @@
     (org-move-subtree-down)
     (end-of-line 1))
 
+  ;; FIXME. does not work.
+  (defun orgpy-italicize (arg)
+    (interactive "p")
+    (cond ((looking-back "[a-zA-z]\\>")
+           (insert "/")
+           (save-excursion
+             (backward-word)
+             (insert "/")))
+          (t
+           (self-insert-command arg))))
+
 ;;;* Keybindings
   (general-define-key
    :keymaps 'org-mode-map
+    "/" 'orgpy-italicize
     (general-chord ",c") 'org-shiftcontrolleft
     (general-chord ",t") 'org-shiftcontroldown
     (general-chord ",s") 'org-shiftcontrolup
     (general-chord ",r") 'org-shiftcontrolright
-    (general-chord ",C") 'org-metaleft
-    (general-chord ",T") 'org-metadown
-    (general-chord ",S") 'org-metaup
-    (general-chord ",R") 'org-metaright))
+    (general-chord ";C") 'org-metaleft
+    (general-chord ";T") 'org-metadown
+    (general-chord ";S") 'org-metaup
+    (general-chord ";R") 'org-metaright)
+
+  )
 
 ;;;* Org-journal
 (use-package org-journal :ensure t
   :commands (org-journal-new-entry
-	     org-journal-next-entry
-	     org-journal-previous-entry
-	     org-journal-read-entry)
+             org-journal-next-entry
+             org-journal-previous-entry
+             org-journal-read-entry)
   :config
-  (setq org-journal-dir "~/Org/journal"))
+  (setq org-journal-dir "~/these/meta/nb")
+  (setq org-journal-file-format "%Y%m%d.org")
+  (add-to-list 'org-agenda-files org-journal-dir)
+  (setq org-agenda-file-regexp "\\`[^.].*\\.org'\\|[0-9]+"))
 
 ;;;* Keybindings
 (general-define-key
@@ -262,3 +286,14 @@
  :prefix ","
  :non-normal-prefix "’"
   "e" 'org-export-dispatch)
+
+(general-define-key
+ :states '(normal)
+  (general-chord "OA") 'org-agenda)
+
+;; TODO j'ai eu l'idée d'un snippet qui permettrait de splitter les
+;; chunks en deux. au moment où je dois choisir le file to tangle in,
+;; la fonction parserai le script pour construire une liste de tous
+;; les :tangle file, de façon à pouvoir choisir le fichier dans lequel
+;; je veux que ça aille. par défault, il devrait choisir le file dans
+;; le chunk juste au dessus.

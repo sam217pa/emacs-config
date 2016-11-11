@@ -1,3 +1,4 @@
+;; ---------- Packages ----------------------------------------------------
 (use-package anaconda-mode
   :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
   :config
@@ -28,7 +29,31 @@
   :commands (pyvenv-workon
              pyvenv-activate))
 
-;; python function
+(use-package lpy
+  :disabled t
+  :quelpa (lpy :fetcher github :repo "abo-abo/lpy")
+  :init
+  (use-package function-args
+    :quelpa (function-args :fetcher github :repo "abo-abo/function-args"))
+  (use-package soap
+    :quelpa (soap :fetcher github :repo "abo-abo/soap"))
+  :config
+  (add-hook 'python-mode-hook (lambda () (lpy-mode 1) (lispy-mode 1))))
+
+(use-package py-isort :ensure t
+  :commands (py-isort-buffer
+             py-isort-region))
+
+;; ---------- defaults ----------------------------------------------------
+(setq-default indent-tabs-mode nil)
+(setq python-indent-offset 4)
+(if (executable-find "ipython")
+    (setq python-shell-interpreter "ipython"
+          python-shell-interpreter-args "--simple-prompt -i")
+  (setq python-shell-interpreter "python"))
+
+
+;; ---------- Function definitions ----------------------------------------
 (defun python-shell-send-line (&optional vis)
   "send the current line to the inferior python process"
   (interactive "P")
@@ -90,14 +115,7 @@ If not in a block, send the upper block.
 
 
 
-(setq-default indent-tabs-mode nil)
-(setq python-indent-offset 4)
-(if (executable-find "ipython")
-    (setq python-shell-interpreter "ipython"
-          python-shell-interpreter-args "--simple-prompt -i")
-  (setq python-shell-interpreter "python"))
-
-;; keybindings
+;; ---------- Keybindings -------------------------------------------------
 (general-define-key
  :keymaps 'python-mode-map
  :states '(normal visual insert)
