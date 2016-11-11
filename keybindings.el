@@ -48,16 +48,15 @@
     "'"   '(sam--iterm-focus :which-key "iterm")
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
     "/"   'counsel-ag
-    "TAB" '(ivy-switch-buffer :which-key "prev buffer")
+    "-" 'evil-window-split
+    "TAB" '(ivy-switch-buffer-other-window :which-key "buffer ow")
     "s-<tab>" 'other-frame
-    "." '(avy-goto-word-or-subword-1  :which-key "go to char")
-    "SPC" '(counsel-M-x)
+    "SPC" '(avy-goto-word-or-subword-1 :which-key "go to char")
 
     ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")
-    ;; buffer
+    ;; buffer - frame
     "b" '(hydra-buffer/body :which-key "Buffer")
-    ;; frames
     "M-b" '(hydra-frame/body :which-key "frames")
     ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
@@ -65,22 +64,7 @@
     ;; Window management
     "é" '(hydra-window/body :which-key "Window")
     ;; Find and Files
-    "f" '(:ignore t :which-key "Files")
-    "fd"  '(counsel-git :which-key "find in git dir")
-    "fD"  '(sam--delete-current-buffer-file :which-key "delete file")
-    "fe" '(:ignore t :which-key "edit")
-    "fei" '(sam--edit-init-file :which-key "edit init")
-    "fek" '(sam--edit-keybindings :which-key "edit keybindings")
-    "fef" '(sam--edit-functions :which-key "edit functions")
-    "fep" '(sam--edit-password :which-key "edit password")
-    "ff"  '(find-file :which-key "find file")
-    "fF"  '(find-file-other-window :which-key "ff other  window")
-    "fo"  '(sam--open-in-external-app :which-key "open file")
-    "fr"  '(ivy-switch-buffer :which-key "recent files")
-    "fR"  '(fasd-find-file)
-    "fs"  '(save-buffer :which-key "save file")
-    "fS"  '(rename-file :which-key "rename file")
-    "ft"  '(sam--edit-todo)
+    "f" '(hydra-file/body :which-key "Files")
     ;; Jump to :
     "g" '(:ignore t :which-key "Go to")
     "gc" 'avy-goto-char
@@ -100,11 +84,10 @@
     "iLl" 'lorem-ipsum-insert-list
     ;; Journal
     "j" '(hydra-journal/body :which-key "Journal")
-    ;; Org
-    "o" '(:ignore t :which-key "Org")
-    "oa" 'org-agenda-list
+    "m" '(hydra-make/body :which-key "make")
+    "o" '(hydra-outline/body :which-key "outline")
     ;; Project
-    "p" '(hydra-projectile/body :which-key "Project")
+    "p" '(hydra-projectile-if-projectile-p :which-key "Project")
     ;; Quit
     "q" '(:ignore t :which-key "Quit")
     "qb" 'kill-buffer-if-not-modified
@@ -114,22 +97,22 @@
     "s" '(:ignore t :which-key "Save/Search")
     "s."  'save-buffer
     "s,"  'server-edit
-    ;; text related
-    "t" '(:ignore t :which-key "text")
-    "ta" '(:ignore t :which-key "text align")
-    "tar" 'align-regexp
-    "ti"  'indent-region
-    "tr" '(vr/query-replace :which-key "text replace")
     ;; Toggle UI elements
-    "T" '(hydra-toggle/body :which-key "Toggle")
+    "t" '(hydra-toggle/body :which-key "Toggle")
+    ;; terminal related
+    "T" '(hydra-term/body :which-key "term")
     ;; zoom
     "z" '(hydra-zoom/body :which-key "zoom")
     ;; Git related stuff
-    "v" '(hydra-git/body :which-key "Version Control"))
+    "v" '(hydra-git/body :which-key "Version Control")
+    "x" 'counsel-M-x)
 
   ;; those are the direct keybindings. Just press the touch.
 ;;; NORMAL map
   (nvmap "'" (general-simulate-keys "C-c")
+         "<tab>" 'ivy-switch-buffer
+         "q" 'quoted-insert
+         "ç" 'evil-record-macro
          "è" 'hydra-evil-mark/evil-goto-mark
          "é" 'ace-window
          "s-b" 'ivy-switch-buffer
@@ -158,33 +141,46 @@
          "K" 'evil-change-whole-line
          "M-b" 'ivy-switch-buffer
          "C-é" 'hydra-window/body
+         "C-f" 'counsel-find-file
          "M-é" 'ace-window
          "p" #'hydra-paste/evil-paste-after
          "P" #'hydra-paste/evil-paste-before
+         (general-chord "cl") #'sam--comment-or-uncomment-region-or-line
+         (general-chord "TT") #'hydra-toggle/body
+         (general-chord "()") #'hydra-sp/body
+         (general-chord "qb") #'ivy-switch-buffer
          (general-chord "qd") #'kill-this-buffer
-         (general-chord "qf") #'counsel-find-file
+         (general-chord "QD") #'kill-buffer-and-window
+         (general-chord "qf") #'delete-frame
          (general-chord "ql") #'avy-goto-line
+         (general-chord "qr") #'ivy-switch-buffer
          (general-chord "qs") #'save-buffer
          (general-chord "xc") #'avy-goto-word-1
-         (general-chord "xx") 'avy-goto-word-or-subword-1)
+         (general-chord "vv") #'magit-status)
+
 
 ;;; INSERT map
   (iemap "C-z" 'undo-tree-undo
-         "C-|" 'ivy-switch-buffer
          "C-." 'hydra-move/body
+         "C-'" 'avy-goto-word-or-subword-1
+         "C- " 'mark-line
+         "C-l" '(avy-goto-line 1)
+         "C-r" 'sp-slurp-hybrid-sexp
          "C-é" 'hydra-window/body
+         "C-ç" 'avy-goto-char-in-line
          "M-é" 'ace-window
+         "C-S-c" 'sp-splice-sexp
+         "C-S-z" 'undo-tree-redo
+         (general-chord "()") #'hydra-sp/body
          (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
          (general-chord "qd") #'kill-this-buffer
-         (general-chord "qf") #'ivy-switch-buffer
+         (general-chord "qf") #'delete-frame
          (general-chord "ql") #'avy-goto-line
          (general-chord "qs") #'save-buffer
-         (general-chord "qp") #'hydra-projectile/body
+         (general-chord "QP") #'hydra-projectile/body
          (general-chord "QV") #'magit-status
          (general-chord "qq") #'fill-paragraph
-         (general-chord "qQ") #'unfill-paragraph
-         (general-chord "xv") #'git-gutter:stage-hunk
-         (general-chord "xc") #'avy-goto-word-1)
+         (general-chord "qQ") #'unfill-paragraph)
 
 ;;; OPERATOR map
   (general-omap :prefix "SPC"
@@ -194,7 +190,8 @@
     "f" 'avy-goto-char-in-line )
   (omap
    "j" 'evil-find-char-to
-   "f" 'avy-goto-char-in-line)
+   "f" 'avy-goto-char-in-line
+   (general-chord  "ff") 'avy-goto-word-or-subword-1)
 
 ;;; MOTION map
   (mmap "t" 'evil-next-visual-line
@@ -203,26 +200,38 @@
 ;;; MODE specific map
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
   (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
+  (general-define-key "C-M-i" 'complete-symbol)
+  (general-define-key :keymaps 'eshell-mode-map "C-'")
 
   (general-define-key
 ;;; C-x MAP
    "C-x C-b" 'ibuffer
+   "C-x d" 'dired-other-window
+   "C-x l" 'sam--chrome-plain-link
+   "C-x n" 'narrow-or-widen-dwim
+   "C-x p" 'hydra-projectile/body
+   "C-x o" (lambda () (interactive) (other-frame -1))
+   "C-x M-b" 'hydra-frame/body
 ;;; SUPER map (alt left)
-   "s-l"   'sam--comment-or-uncomment-region-or-line
-   "s-w"   'delete-other-windows
-   "s-m"   'delete-other-windows
-   "s-d"   'kill-buffer-and-window
    "s-<tab>" 'sam--switch-to-other-buffer
+   "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
-   "s-t" 'move-text-down
+   "s-j" 'evil-join
+   "s-l" 'sam--comment-or-uncomment-region-or-line
+   "s-m" 'delete-other-windows
+   "s-q" nil                        ; don't close emacs with option q.
    "s-s" 'move-text-up
+   "s-t" 'move-text-down
+   "s-w" 'delete-other-windows
 ;;; HYPER map (ctlr left)
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
    "H-r" 'counsel-recentf
+   "H-n" 'buffer-to-new-frame
    "H-m" 'delete-other-frames
 ;;; META map (cmd right)
+   "M-<backspace>" 'delete-to-sentence-beg
    "M-/" 'hippie-expand
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
@@ -297,22 +306,23 @@
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
-^themes^     ^modes^           ^modeline^          ^frame^
-^------^     ^-----^           ^--------^          ^-----^
-_d_: dark    _f_: flycheck     _T_: time           _F_: fullscreen
-_l_: light   _n_: linum        ^ ^                 _m_: maximized
-^ ^          _w_: whitespace   ^ ^                 ^ ^
-^ ^          _p_: persp-mode   ^ ^                 ^ ^
+^themes^  ^modes^        ^modeline^   ^frame^        ^line^
+^------^  ^-----^        ^--------^   ^-----^        ^----^
+_d_ark    _f_lycheck     _T_ime       _F_ullscreen   _t_runcate
+_l_ight   li_n_um        ^ ^          _m_aximized
+^^        _w_hitespace   ^ ^          ^ ^
+^^        _p_ersp-mode   ^ ^          ^ ^
 "
   ("d" solarized-switch-to-dark)
   ("l" solarized-switch-to-light)
-  ("f" flycheck-mode :color blue)
+  ("f" flycheck-mode)
   ("n" nlinum-mode)
   ("T" display-time-mode)
   ("p" persp-mode)
   ("m" toggle-frame-maximized)
-  ("F" toggle-frame-fullscreen :color blue)
+  ("F" toggle-frame-fullscreen)
   ("w" blank-mode :color red)
+  ("t" toggle-truncate-lines)
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-buffer-menu
@@ -351,7 +361,7 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
 (defhydra hydra-git
   (:body-pre (git-gutter-mode 1)
    :post (progn (kill-diff-buffers)
-		(message "killed diff buffers"))
+                (message "killed diff buffers"))
    :hint nil)
   "
 ^Nav^                 ^Hunk^            ^Files^        ^Actions^
@@ -379,16 +389,23 @@ _C-N_: last hunk      _R_evision start  _t_imemachine
   ("v" magit-status "status" :color blue)
   ("q" nil "quit" :color blue)
   ("Q" (progn
-	 (git-gutter-mode -1)
-	 ;; git-gutter-fringe doesn't seem to
-	 ;; clear the markup right away
-	 (sit-for 0.1)
-	 (git-gutter:clear))
+         (git-gutter-mode -1)
+         ;; git-gutter-fringe doesn't seem to
+         ;; clear the markup right away
+         (sit-for 0.1)
+         (git-gutter:clear))
    "quit git-gutter"
    :color blue))
 
+(defun hydra-projectile-if-projectile-p ()
+  (interactive)
+  (if (projectile-project-p)
+      (hydra-projectile/body)
+    (counsel-projectile)))
+
 (defhydra hydra-projectile
-  (:color teal :hint nil)
+  (:color teal :hint nil
+   :pre (projectile-mode))
   "
      PROJECTILE: %(projectile-project-root)
 
@@ -524,14 +541,14 @@ _t_witter
 ^Nav^     ^Menu^           ^Delete^           ^Actions^
 ^---^     ^----^           ^------^           ^-------^
 _n_ext    _b_: switch      _d_: del ←         _N_ew
-_p_rev    _C-b_: ibuffer   _C-d_: del →       _s_ave
-^ ^       _M-b_: menu      _M-d_: del + win   _._: window
+_p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
+^ ^       _C-b_: menu      _M-d_: del + win   _._: window
   "
   ("n" next-buffer :color red)
   ("p" previous-buffer :color red)
   ("b" ivy-switch-buffer )
-  ("C-b" ibuffer )
-  ("M-b" buffer-menu )
+  ("M-b" ibuffer )
+  ("C-b" buffer-menu )
   ("d" kill-this-buffer :color red)
   ;; don't come back to previous buffer after delete
   ("C-d" (progn (kill-this-buffer) (next-buffer)) :color red)
@@ -547,12 +564,11 @@ _p_rev    _C-b_: ibuffer   _C-d_: del →       _s_ave
 ;; https://github.com/abo-abo/hydra/wiki/Ibuffer
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
   "
- ^Navigation^ | ^Mark^        | ^Actions^        | ^View^
--^----------^-+-^----^--------+-^-------^--------+-^----^-------
-  _s_:    ʌ   | _m_: mark     | _D_: delete      | _g_: refresh
-  _r_:  visit | _u_: unmark   | _S_: save        | _O_: sort
-  _t_:    v   | _*_: specific | _a_: all actions | _/_: filter
--^----------^-+-^----^--------+-^-------^--------+-^----^-------
+     ^Navigation^     ^Mark^          ^Actions^          ^View^
+     ^----------^     ^----^          ^-------^          ^----^
+  _s_:    ↑        _m_: mark       _d_: delete        _g_: refresh
+  _r_:  visit      _u_: unmark     _S_: save          _O_: sort
+  _t_:    ↓        _*_: specific   _a_: all actions   _/_: filter
 "
   ("t" ibuffer-forward-line)
   ("r" ibuffer-visit-buffer :color blue)
@@ -562,7 +578,7 @@ _p_rev    _C-b_: ibuffer   _C-d_: del →       _s_ave
   ("u" ibuffer-unmark-forward)
   ("*" hydra-ibuffer-mark/body :color blue)
 
-  ("D" ibuffer-do-delete)
+  ("d" ibuffer-do-delete)
   ("S" ibuffer-do-save)
   ("a" hydra-ibuffer-action/body :color blue)
 
@@ -640,7 +656,7 @@ _p_rev    _C-b_: ibuffer   _C-d_: del →       _s_ave
 ^^^Nav^ ^^   ^Edit^                ^Mark^      ^Action^
 ^^^---^ ^^   ^----^                ^----^      ^------^
 ^ ^ _s_ ^ ^  _o_pen other window   _m_ark      _h_: show hidden
-_c_ ^ ^ _r_  _R_ename              _u_nmark    _q_uit
+_c_ ^ ^ _r_  _R_ename              _u_nmark
 ^ ^ _t_ ^ ^  _S_ort                _d_elete
 "
   ("t" dired-next-line :color red)
@@ -654,6 +670,7 @@ _c_ ^ ^ _r_  _R_ename              _u_nmark    _q_uit
   ("m" dired-mark )
   ("d" hydra-dired-delete/body :color blue)
   ("h" dired-omit-mode )
+  ("." nil "toggle hydra" :color blue)
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-dired-delete (:color pink :hint nil :columns 4)
@@ -662,13 +679,22 @@ _c_ ^ ^ _r_  _R_ename              _u_nmark    _q_uit
   ("D" dired-do-delete "delete this")
   ("q" hydra-dired-main/body "back" :color blue))
 
-(defhydra hydra-journal (:color pink :hint nil :columns 4)
+(defhydra hydra-journal (:color pink :hint nil :columns 3)
   "
 Journal
+_n_: journal note     _s_: search
+_N_: lab note         _c_: calendar
 "
-  ("n" org-journal-new-entry "new" :color blue)
-  ("/" org-journal-search-forever "search" :color blue)
-  ("c" hydra-calendar/body "calendar" :color blue)
+  ("n" (lambda () (interactive)
+         (setq org-journal-dir "~/Org/journal/")
+         (org-journal-new-entry 0))
+   :color blue)
+  ("N" (lambda () (interactive)
+         (setq org-journal-dir "~/these/meta/nb/")
+         (org-journal-new-entry 0))
+   :color blue)
+  ("s" org-journal-search-forever  :color blue)
+  ("c" hydra-calendar/body :color blue)
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-calendar
@@ -706,11 +732,63 @@ _s_: out       _S_: out       _q_: quit
   ("0" zoom-frm-unzoom)
   ("q" nil :color blue))
 
-(defhydra hydra-frame (:hint nil :columns 2)
+(defhydra hydra-frame (:hint nil :columns 3 :color blue)
   "frames"
-  ("d" delete-frame "delete" :color blue)
-  )
+  ("d" delete-frame "delete")
+  ("n" new-frame "new")
+  ("D" delete-other-frames "delete other"))
+
+(defhydra hydra-make (:hint nil :columns 2)
+  "
+[_c_]: compile
+"
+  ("c" compile :color blue)
+  ("q" nil "quit" :color blue))
 
 
+(defhydra hydra-file (:hint nil :exit t)
+  "
+     ^Find^           ^Recent^      ^Command^      ^Bookmarks^
+     ^----^           ^------^      ^-------^      ^---------^
+  _f_: file        _r_: recent   _s_: save      _i_: init
+_C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
+  _p_: project      ^^           _d_: delete    _O_: org
+  _o_: open         ^^            ^^            _F_: functions
+   ^^               ^^            ^^            _t_: todo
+"
+  ("p" counsel-git)
+  ("f" counsel-find-file)
+  ("C-f" find-file-other-window)
+  ("o" sam--open-in-external-app)
+  ("r" ivy-switch-buffer)
+  ("C-r" fasd-find-file)
+  ("s" save-buffer)
+  ("R" rename-file)
+  ("d" sam--delete-current-buffer-file)
+  ("k" (lambda () (interactive) (find-file "~/dotfile/emacs/keybindings.el")))
+  ("i" (lambda () (interactive) (find-file "~/dotfile/emacs/init.el")))
+  ("O" (lambda () (interactive) (find-file "~/dotfile/emacs/org.el")))
+  ("F" (lambda () (interactive) (find-file "~/dotfile/emacs/functions.el")))
+  ("t" sam--edit-todo))
 
+(defhydra hydra-term (:hint nil :exit t)
+  "
+   ^TERM^           ^MULTITERM^
+   ^----^           ^---------^
+_t_: term     |  _m_: multi  _c_: close
+_e_: eshell   |  _n_: next   _o_: open
+_s_: shell    |  _p_: prev   _S_: select
+^ ^           |  ^ ^         _T_: toggle
+"
+  ("t" term)
+  ("e" eshell)
+  ("s" shell)
+  ("m" multi-term)
+  ("n" multi-term-next)
+  ("p" multi-term-prev)
+  ("o" multi-term-dedicated-open)
+  ("c" multi-term-dedicated-close)
+  ("S" multi-term-dedicated-select)
+  ("T" multi-term-dedicated-toggle)
+  ("q" nil :color blue))
 ;;; ======================================================================
