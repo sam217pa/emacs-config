@@ -501,3 +501,117 @@ directory to make multiple eshell windows easier."
       (find-file path)
       (goto-char (point-min))
       (save-buffer))))
+
+
+(defun search-journal ()
+  (interactive)
+  (counsel-ag nil "~/Org/journal/"))
+
+(use-package s
+  :commands all-sidenote-buffer
+  :defines all-sidenote buffer
+  :config
+  (defun all-sidenote-buffer ()
+    (interactive)
+    (ivy-read
+     "get a list of all sidenotes"
+     (s-match-strings-all "sidenote \"[0-9]+\"" (buffer-string)))))
+
+(defun delete-to-sentence-beg ()
+  (interactive)
+  (save-excursion
+    (let ((end (point)))
+      (backward-sentence)
+      (delete-region (point) end))))
+
+;; from http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html
+(defun sam--simple-get-word ()
+  (car-safe (save-excursion (ispell-get-word nil))))
+
+(defun sam--ispell-word-then-abbrev (p)
+  "Call `ispell-word', then create an abbrev for it.
+With prefix P, create local abbrev. Otherwise it will
+be global.
+If there's nothing wrong with the word at point, keep
+looking for a typo until the beginning of buffer. You can
+skip typos you don't want to fix with `SPC', and you can
+abort completely with `C-g'."
+  (interactive "P")
+  (let (bef aft)
+    (save-excursion
+      (while (if (setq bef (sam--simple-get-word))
+                 ;; Word was corrected or used quit.
+                 (if (ispell-word nil 'quiet)
+                     nil ; End the loop.
+                   ;; Also end if we reach `bob'.
+                   (not (bobp)))
+               ;; If there's no word at point, keep looking
+               ;; until `bob'.
+               (not (bobp)))
+        (backward-word)
+        (backward-char))
+      (setq aft (sam--simple-get-word)))
+    (if (and aft bef (not (equal aft bef)))
+        (let ((aft (downcase aft))
+              (bef (downcase bef)))
+          (define-abbrev
+            (if p local-abbrev-table global-abbrev-table)
+            bef aft)
+          (message "\"%s\" now expands to \"%s\" %sally"
+                   bef aft (if p "loc" "glob")))
+      (user-error "No typo at or before point"))))
+
+(defun modi/multi-pop-to-mark (orig-fun &rest args)
+  "Call ORIG-FUN until the cursor moves.
+Try the repeated popping up to 10 times."
+  (let ((p (point)))
+    (dotimes (i 10)
+      (when (= p (point))
+        (apply orig-fun args)))))
+
+(advice-add 'pop-to-mark-command :around
+            #'modi/multi-pop-to-mark)
+
+(setq set-mark-command-repeat-pop t)
+
+;; http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html
+(defun narrow-or-widen-dwim (p)
+  "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
+  (interactive "P")
+  (declare (interactive-only))
+  (cond ((and (buffer-narrowed-p) (not p)) (widen))
+        ((region-active-p)
+         (narrow-to-region (region-beginning)
+                           (region-end)))
+        ((derived-mode-p 'org-mode)
+         ;; `org-edit-src-code' is not a real narrowing
+         ;; command. Remove this first conditional if
+         ;; you don't want it.
+         (cond ((ignore-errors (org-edit-src-code) t)
+                (delete-other-windows))
+               ((ignore-errors (org-narrow-to-block) t))
+               (t (org-narrow-to-subtree))))
+        ((derived-mode-p 'latex-mode)
+         (LaTeX-narrow-to-environment))
+        (t (narrow-to-defun))))
+
+(defun buffer-to-new-frame ()
+  "Open the current buffer in a new frame"
+  (interactive)
+  (let ((buf (buffer-name)))
+    (delete-window)
+    (switch-to-buffer-other-frame buf)))
+
+(defun mark-line ()
+  "Mark the whole line"
+  (interactive)
+  (move-beginning-of-line nil)
+  (set-mark-command nil)
+  (move-end-of-line nil)
+  (setq deactivate-mark nil))
