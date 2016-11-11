@@ -1339,7 +1339,7 @@ undo               _u_: undo
   (add-hook 'nlinum-mode-hook 'sam--fix-linum-size)
   (global-nlinum-mode))
 
-;;; -O-
+;; ---------- -O- --------------------------------------------------
 
 (use-package osx-clipboard :ensure t
   :if (not (window-system))
@@ -1349,42 +1349,34 @@ undo               _u_: undo
 ;; TODO work on outline hydra. useful for tex
 (use-package outline
   :bind (("H-<tab>" . hydra-outline/body))
-  :commands (outline-minor-mode
-	     hydra-outline/body)
+  :commands (outline-hide-body
+             outline-show-all
+             outline-minor-mode
+             hydra-outline/body)
   :general ("C-M-c" 'outline-previous-heading
             "C-M-r" 'outline-next-heading)
   :diminish ((outline-minor-mode . "")
-	     (outline-major-mode . ""))
+             (outline-major-mode . ""))
   :config
+  (outline-minor-mode)
   (defhydra hydra-outline
     (:hint nil :body-pre (outline-minor-mode 1))
     "
 Outline
 
-   ^Navigate^     ^Show/Hide^                            ^Manipulate^
-_c_: up      _C-c_: hide subtree  _C-S-c_: hide all   _M-r_: demote
-_t_: next    _C-t_: show entry    _C-S-t_: show child _M-c_: promote
-_s_: prev    _C-s_: hide entry    _C-S-s_: hide child _M-t_: move down
-_r_: next    _C-r_: show subtree  _C-S-r_: show all   _M-s_: move up
-_b_: bwd
-_f_: fwd
+   ^Current^  ^All^            ^Manipulate^
+   ^-------^  ^----^           ^----------^
+_c_: hide  _C_: hide      _M-r_: demote
+_t_: next  ^^             _M-c_: promote
+_s_: prev  ^^             _M-t_: move down
+_r_: show  _R_: show      _M-s_: move up
 "
-    ("c" outline-up-heading)
+    ("C" outline-hide-body)
     ("t" outline-next-visible-heading)
     ("s" outline-previous-visible-heading)
-    ("r" outline-next-heading)
-    ("b" outline-backward-same-level)
-    ("f" outline-forward-same-level)
-
-    ("C-c" outline-hide-subtree)
-    ("C-t" outline-show-entry)
-    ("C-s" outline-hide-entry)
-    ("C-r" outline-show-subtree)
-
-    ("C-S-c" outline-hide-body)
-    ("C-S-t" outline-show-children)
-    ("C-S-s" outline-hide-sublevels)
-    ("C-S-r" outline-show-all)
+    ("R" outline-show-all)
+    ("c" outline-hide-subtree)
+    ("r" outline-show-subtree)
 
     ("M-r" outline-demote)
     ("M-c" outline-promote)
