@@ -994,6 +994,11 @@ _R_: reset
   :init
   (global-hl-line-mode))
 
+(use-package hungry-delete :ensure t
+  :diminish ""
+  :config
+  (global-hungry-delete-mode))
+
 (use-package hydra :ensure t)
 
 (use-package hy-mode :ensure t
