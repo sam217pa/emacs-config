@@ -1788,22 +1788,33 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "Do nothing, the display is handled by the powerline.")
   (window-numbering-install-mode-line))
 
-;;; -X-
+;; ---------- -X- --------------------------------------------------
+(use-package xterm-color
+  :quelpa (xterm-color :fetcher github :repo "atomontage/xterm-color")
+  :config
+  ;; comint install
+  (progn
+    (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+    (setq comint-output-filter-functions
+          (remove 'ansi-color-process-output comint-output-filter-functions))))
 
-;;; -Y-
+;; ---------- -Y- --------------------------------------------------
+(use-package yaml-mode :ensure t :defer t)
+
 (use-package yasnippet
   :diminish yas-minor-mode
+  :commands (yas-global-mode)
   :defer 10
   :init
   (with-eval-after-load 'yasnippet
     (progn
       (setq yas-snippet-dirs
-	    (append yas-snippet-dirs '("~/dotfile/emacs/snippets")))))
+            (append yas-snippet-dirs '("~/dotfile/emacs/snippets")))))
   :config
   (yas-global-mode)
-  (setq yas-indent-line nil))
+  (setq yas-indent-line 'none))
 
-;;; -Z-
+;; ---------- -Z- --------------------------------------------------
 (use-package zoom-frm :ensure t
   :commands
   (zoom-frm-in
