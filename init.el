@@ -186,23 +186,32 @@ When using Homebrew, install it using \"brew install trash\"."
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
   (add-to-list 'aggressive-indent-excluded-modes 'perl-mode)
+  (add-to-list 'aggressive-indent-excluded-modes 'ess-mode)
+  (add-to-list
+   'aggressive-indent-dont-indent-if    ; do not indent line if
+   '(and (derived-mode-p 'ess-mode)     ; in ess mode
+         (null (string-match "\\(^#\\+ .+ $\\)" ; and in a roxygen block
+                             (thing-at-point 'line)))))
   )
 
-;;; -B-
+;; ---------- -B- --------------------------------------------------
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
+;; (use-package beacon
+;;  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
 
-;;; -C-
+
+;; ---------- -C- --------------------------------------------------
 (use-package calendar
   :commands (calendar)
   :config
   (general-define-key
    :keymaps 'calendar-mode-map
-    "P" 'org-journal-previous-entry
-    "N" 'org-journal-next-entry
-    "o" 'org-journal-read-entry
-    "." 'hydra-calendar/body))
+   "P" 'org-journal-previous-entry
+   "N" 'org-journal-next-entry
+   "o" 'org-journal-read-entry
+   "." 'hydra-calendar/body))
 
 (use-package color-theme-solarized :ensure t
   :init
@@ -308,6 +317,45 @@ When using Homebrew, install it using \"brew install trash\"."
    )
   :config
   (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
+
+  ;; from http://blog.binchen.org/posts/use-ivy-mode-to-search-bash-history.html
+  (defun counsel-yank-bash-history ()
+    "Yank the bash history"
+    (interactive)
+    (let (hist-cmd collection val)
+      (shell-command "history -r")      ; reload history
+      (setq collection
+            (nreverse
+             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.bash_history"))
+                                             (buffer-string))
+                           "\n"
+                           t)))
+      (when (and collection (> (length collection) 0)
+                 (setq val (if (= 1 (length collection)) (car collection)
+                             (ivy-read (format "Bash history:") collection))))
+        (insert val)
+        (message "%s => kill-ring" val))))
+
+  ;; TODO make the function respects reverse order of file
+  (defun counsel-yank-zsh-history ()
+    "Yank the zsh history"
+    (interactive)
+    (let (hist-cmd collection val)
+      (shell-command "history -r")      ; reload history
+      (setq collection
+            (nreverse
+             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.zhistory"))
+                                             (buffer-string))
+                           "\n"
+                           t)))
+      (setq collection (mapcar (lambda (it) (replace-regexp-in-string ".*;" "" it)) collection))
+      (when (and collection (> (length collection) 0)
+                 (setq val (if (= 1 (length collection)) (car collection)
+                             (ivy-read (format "Zsh history:") collection :re-builder #'ivy--regex-ignore-order))))
+        (kill-new val)
+        (insert val)
+        (message "%s => kill-ring" val))))
+
   (defun counsel-package-install ()
     (interactive)
     (ivy-read "Install package: "
@@ -318,7 +366,11 @@ When using Homebrew, install it using \"brew install trash\"."
                             package-archive-contents))
               :action (lambda (x)
                         (package-install (intern x)))
-              :caller 'counsel-package-install)))
+              :caller 'counsel-package-install))
+  (ivy-set-actions
+   'counsel-find-file
+   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern")))
+  )
 
 (use-package counsel-osx-app :ensure t
   :commands counsel-osx-app
