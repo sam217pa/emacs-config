@@ -1061,11 +1061,44 @@ _R_: reset
      ("c" projectile-compile-project "Compile project")
      ("r" projectile-remove-known-project "Remove project(s)"))))
 
-;;; -J-
+;; ---------- -J- --------------------------------------------------
 
-;;; -K-
+;; ---------- -K- --------------------------------------------------
 
-;;; -L-
+;; ---------- -L- --------------------------------------------------
+(use-package lesspy
+  :load-path "~/.emacs.d/private/lesspy"
+  :diminish ""
+  :commands (lesspy-mode)
+  :config
+  (general-define-key
+   :states 'insert
+   :keymaps 'lesspy-mode-map
+    "a" 'lesspy-avy-jump
+    "p" 'lesspy-eval-function-or-paragraph
+    "h" 'lesspy-help
+    "l" 'lesspy-eval-line
+    "L" 'lesspy-eval-line-and-go
+    "e" 'lesspy-eval-sexp
+    "c" 'lesspy-left
+    "t" 'lesspy-down
+    "s" 'lesspy-up
+    "r" 'lesspy-right
+    "d" 'lesspy-different
+    "m" 'lesspy-mark
+    "x" 'lesspy-execute
+    "u" 'lesspy-undo
+    "z" 'lesspy-to-shell
+    "(" 'lesspy-paren
+    "»" 'lesspy-forward-slurp
+    "«" 'lesspy-backward-slurp
+    "#" 'sam--double-hash-at-line-begin
+    "'" 'lesspy-roxigen
+    "C-d" 'lesspy-delete-forward
+    "C-e" 'lesspy-end-of-sexp
+    "C-(" 'lesspy-paren-wrap-next
+    "DEL" 'lesspy-delete-backward))
+
 (use-package linum :defer t
   :init
   (add-hook 'linum-mode-hook 'sam--fix-linum-size))
