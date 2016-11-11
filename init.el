@@ -780,7 +780,20 @@ _R_: reset
     ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
-;;; -F-
+;; ---------- -F- --------------------------------------------------
+(use-package fastx
+  :load-path "~/.emacs.d/private/fastx"
+  :mode (("\\.fasta$" . fastx-mode)
+         ("\\.fa$" . fastx-mode)
+         ("\\.fst$" . fastx-mode)
+         ("\\.fastq$" . fastq-mode)
+         ("\\.fq$" . fastq-mode))
+  :bind (:map fastx-mode-map
+         ("c" . fastx-hide-sequence)
+         ("t" . fastx-next-sequence)
+         ("s" . fastx-prev-sequence)
+         ("r" . fastx-show-sequence)))
+
 
 (use-package flx :ensure t)
 
