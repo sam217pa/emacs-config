@@ -105,41 +105,50 @@
 
 ;;; keybindings
 
-(when (eq system-type 'darwin)	; mac specific bindings
+(when (eq system-type 'darwin)           ; mac specific bindings
   (setq mac-right-command-modifier 'meta ; cmd de droite = meta
-	mac-command-modifier 'control ; cmd de gauche = control
-	mac-option-modifier 'super ; option de gauche = super
-	mac-right-option-modifier nil ; option de droite = carac spéciaux
-	mac-control-modifier 'hyper ; control de gauche = hyper (so does capslock)
-	ns-function-modifier 'hyper ; fn key = hyper
-	ns-right-alternate-modifier nil); cette touche n'existe pas.
-  (setq locate-command "mdfind"))
+        mac-command-modifier 'control    ; cmd de gauche = control
+        mac-option-modifier 'super       ; option de gauche = super
+        mac-right-option-modifier nil ; option de droite = carac spéciaux
+        mac-control-modifier 'hyper ; control de gauche = hyper (so does capslock)
+        ns-function-modifier 'hyper ; fn key = hyper
+        ns-right-alternate-modifier nil) ; cette touche n'existe pas.
+  (setq locate-command "mdfind")
+  (setq delete-by-moving-to-trash t)
+  (defun system-move-file-to-trash (file)
+    "Use \"trash\" to move FILE to the system trash.
+When using Homebrew, install it using \"brew install trash\"."
+    (call-process (executable-find "trash") nil nil nil file)))
 
 
 ;;; -------------------------------------------------------------------
 ;;; Packages
 
-;;; -A-
+;; ---------- -A- --------------------------------------------------
 (use-package abbrev :defer t
-  :diminish "α"
+  :diminish " α"
   :init
   (add-hook 'text-mode-hook (lambda () (abbrev-mode 1)))
   ;; tell emacs where to read abbrev definitions from...
   (setq abbrev-file-name "~/dotfile/emacs/.abbrev_defs")
-  (setq save-abbrevs 'silently))
+  (setq save-abbrevs 'silently)
+  (setq-default abbrev-mode t)
+  :config
+  (setq ispell-dictionary "francais")
+  (define-key ctl-x-map "\C-i" #'sam--ispell-word-then-abbrev))
 
 (use-package ace-window :ensure t
   :commands
   ace-window
   :config
-  (progn
-    (setq aw-keys '(?t ?s ?r ?n ?m ?a ?u ?i ?e))
-    )
+  (setq aw-keys '(?t ?s ?r ?n ?m ?a ?u ?i ?e))
+  (setq aw-background t)
+  (setq aw-ignore-current t)
   )
 
 (use-package ag :ensure t
   :commands (counsel-ag
-	     ag)
+             ag)
   :config
   (progn
     (setq ag-highlight-search t)
