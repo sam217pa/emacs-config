@@ -1006,13 +1006,16 @@ _R_: reset
   :init
   (add-hook 'hy-mode-hook (lambda () (lispy-mode 1))))
 
-;;; -I-
+;; ---------- -I- --------------------------------------------------
 (use-package ibuffer :ensure t
   :commands ibuffer
   :init
   (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
   :config
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
+
+(use-package iedit :ensure t
+  :bind (("C-*" . iedit-mode)))
 
 (use-package imenu-anywhere
   :quelpa (imenu-anywhere :fetcher github :repo "vspinu/imenu-anywhere")
