@@ -1317,8 +1317,19 @@ undo               _u_: undo
     ("q" nil :color blue)
     (" " nil "quit" :color blue)))
 
-;;; -N-
+(use-package multi-term :ensure t
+  :commands (multi-term
+             multi-term-next
+             multi-term-prev
+             multi-term-dedicated-open
+             multi-term-dedicated-close
+             multi-term-dedicated-select
+             multi-term-dedicated-toggle))
+
+;; ---------- -N- --------------------------------------------------
 (use-package nlinum :ensure t
+  :commands (global-nlinum-mode
+             nlinum-mode)
   :init
   (defun sam--fix-linum-size ()
     "Fixe la taille de charactère dans linum mode"
