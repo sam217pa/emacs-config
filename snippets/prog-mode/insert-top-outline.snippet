@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: insert top header
+# key: IO
+# --
+
+`(concat sp-comment-char sp-comment-char)`
+`(concat sp-comment-char sp-comment-char)` ========== ${1:Title} ${1:$(make-string (- 60 (string-width yas-text)) ?\=)}
+`(concat sp-comment-char sp-comment-char)`
