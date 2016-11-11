@@ -321,8 +321,7 @@ Lisp function does not specify a special indentation."
 (defun sam--iterm-focus ()
   (interactive)
   (do-applescript
-   " do shell script \"open -a iTerm\"\n"
-   ))
+   " do shell script \"open -a iTerm\"\n"))
 
 (defun sam--calendar-focus ()
   (interactive)
