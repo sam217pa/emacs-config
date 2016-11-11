@@ -801,13 +801,11 @@ _R_: reset
   :commands flycheck-mode
   :diminish (flycheck-mode . "ⓕ")
   :config
-  (progn
-    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
-    (setq flycheck-highlighting-mode 'lines)
-    (setq flycheck-check-syntax-automatically '(save)))
-  )
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
+  (setq flycheck-highlighting-mode 'lines)
+  (setq flycheck-check-syntax-automatically '(save)))
 
-;;; -G-
+;; ---------- -G- --------------------------------------------------
 (use-package git-gutter :ensure t
   :diminish ""
   :commands (global-git-gutter-mode)
@@ -841,21 +839,8 @@ _R_: reset
       "   --   "
       "   --   "
       "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
       "   --   ")
     (fringe-helper-define 'git-gutter-fr:deleted 'top
-
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
       "   --   "
       "   --   "
       "   --   "
@@ -877,13 +862,11 @@ _R_: reset
       "   --   "
       "   --   "
       "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
       "   --   ")))
+
+(use-package google-this :ensure t
+  :bind (("C-x g" . google-this-mode-submap)
+         ("C-x G" . google-this)))
 
 (use-package go-mode :ensure t
   :mode (("\\.go\\'" . go-mode))
