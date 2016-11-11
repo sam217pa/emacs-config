@@ -61,6 +61,7 @@
  tab-width 4                    ; tab are 4 spaces large
  )
 
+;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
@@ -84,7 +85,7 @@
 (when window-system
   (tooltip-mode -1)                    ; don't know what that is
   (tool-bar-mode -1)                   ; sans barre d'outil
-  (menu-bar-mode 1)                    ; barre de menu
+  (menu-bar-mode -1)                    ; barre de menu
   (scroll-bar-mode -1)                 ; enlève la barre de défilement
   (set-frame-font "Inconsolata 14")    ; police par défault
   (blink-cursor-mode -1)               ; pas de clignotement
@@ -169,14 +170,17 @@ When using Homebrew, install it using \"brew install trash\"."
 
 (use-package avy :ensure t
   :commands (avy-goto-word-or-subword-1
-	     avy-goto-word-1
-	     avy-goto-char-in-line
-	     avy-goto-line)
+             avy-goto-word-1
+             avy-goto-char-in-line
+             avy-goto-line)
   :config
   (setq avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
   (setq avy-styles-alist
         '((avy-goto-char-in-line . post)
           (avy-goto-word-or-subword-1 . post))))
+
+(use-package avy-zap :ensure t
+  :bind (("M-z" . avy-zap-to-char-dwim)))
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
@@ -268,41 +272,41 @@ When using Homebrew, install it using \"brew install trash\"."
     ("TAB" . company-complete))
 
   (setq company-backends
-	'((company-css
-	   company-clang
-	   company-capf
-	   company-semantic
-	   company-xcode
-	   company-cmake
-	   company-files
-	   company-gtags
-	   company-etags
-	   company-keywords)))
+        '((company-css
+           company-clang
+           company-capf
+           company-semantic
+           company-xcode
+           company-cmake
+           company-files
+           company-gtags
+           company-etags
+           company-keywords)))
 
   ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/auto-completion/packages.el
   (setq hippie-expand-try-functions-list
-	'(
-	  ;; Try to expand word "dynamically", searching the current buffer.
-	  try-expand-dabbrev
-	  ;; Try to expand word "dynamically", searching all other buffers.
-	  try-expand-dabbrev-all-buffers
-	  ;; Try to expand word "dynamically", searching the kill ring.
-	  try-expand-dabbrev-from-kill
-	  ;; Try to complete text as a file name, as many characters as unique.
-	  try-complete-file-name-partially
-	  ;; Try to complete text as a file name.
-	  try-complete-file-name
-	  ;; Try to expand word before point according to all abbrev tables.
-	  try-expand-all-abbrevs
-	  ;; Try to complete the current line to an entire line in the buffer.
-	  try-expand-list
-	  ;; Try to complete the current line to an entire line in the buffer.
-	  try-expand-line
-	  ;; Try to complete as an Emacs Lisp symbol, as many characters as
-	  ;; unique.
-	  try-complete-lisp-symbol-partially
-	  ;; Try to complete word as an Emacs Lisp symbol.
-	  try-complete-lisp-symbol)))
+        '(
+          ;; Try to expand word "dynamically", searching the current buffer.
+          try-expand-dabbrev
+          ;; Try to expand word "dynamically", searching all other buffers.
+          try-expand-dabbrev-all-buffers
+          ;; Try to expand word "dynamically", searching the kill ring.
+          try-expand-dabbrev-from-kill
+          ;; Try to complete text as a file name, as many characters as unique.
+          try-complete-file-name-partially
+          ;; Try to complete text as a file name.
+          try-complete-file-name
+          ;; Try to expand word before point according to all abbrev tables.
+          try-expand-all-abbrevs
+          ;; Try to complete the current line to an entire line in the buffer.
+          try-expand-list
+          ;; Try to complete the current line to an entire line in the buffer.
+          try-expand-line
+          ;; Try to complete as an Emacs Lisp symbol, as many characters as
+          ;; unique.
+          try-complete-lisp-symbol-partially
+          ;; Try to complete word as an Emacs Lisp symbol.
+          try-complete-lisp-symbol)))
 
 (use-package counsel :ensure t
   :bind*
@@ -383,7 +387,7 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
-;;; -D-
+;; ---------- -D- --------------------------------------------------
 (use-package dired
   :commands (dired)
   :config
@@ -397,7 +401,7 @@ When using Homebrew, install it using \"brew install trash\"."
   ;; use GNU ls instead of BSD ls
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
-	(setq insert-directory-program gls)))
+        (setq insert-directory-program gls)))
   ;; change default arguments to ls. must include -l
   (setq dired-listing-switches "-XGalg --group-directories-first --human-readable --dired")
 
@@ -408,7 +412,7 @@ When using Homebrew, install it using \"brew install trash\"."
     (add-hook 'dired-mode-hook #'dired-omit-mode)
     (setq dired-omit-verbose nil)
     (setq dired-omit-files
-	  (concat dired-omit-files "\\|^.DS_Store$\\|^.projectile$\\|^.git$"))))
+          (concat dired-omit-files "\\|^\\..*$\\|^.DS_Store$\\|^.projectile$\\|^.git$"))))
 
 
 (use-package display-time
@@ -419,7 +423,7 @@ When using Homebrew, install it using \"brew install trash\"."
         display-time-day-and-date t
         display-time-format))
 
-;;; -E-
+;; ---------- -E- --------------------------------------------------
 (use-package ebib
   :quelpa (ebib :fetcher github :repo "joostkremers/ebib")
   :commands (ebib)
@@ -483,7 +487,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (("*scratch*" . emacs-lisp-mode))
   :init
   (add-hook 'emacs-lisp-mode-hook
-            (lambda () (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)))
+            (lambda ()
+              (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)
+              (setq-local outline-regexp ";; ----------\\|^;;;")))
 
   (general-define-key
    :states '(normal emacs)
@@ -518,6 +524,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (general-define-key
    :states '(normal insert emacs)
    :keymaps 'eshell-mode-map
+    "<tab>" (lambda () (interactive) (pcomplete-std-complete))
     "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
 
 (use-package ess-site
@@ -560,7 +567,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
             (lambda () (flycheck-mode)
               (run-hooks 'prog-mode-hook 'company-mode-hook)))
   (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
-
+  (add-hook 'ess-mode-hook (lambda () (lesspy-mode 1)))
+  (add-hook 'ess-mode-hook (lambda () (aggressive-indent-mode -1)))
+  (add-hook 'ess-mode-hook (lambda () (setq-local outline-regexp "### ----------\\|^##' #")))
   :config
   (load-file "~/dotfile/emacs/ess-config.el"))
 
@@ -624,7 +633,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   (evil-set-initial-state 'esup-mode 'emacs)
 
   ;; cursor color by state
-  (setq evil-insert-state-cursor  '("#268bd2" bar)  ;; blue
+  (setq evil-insert-state-cursor  '("#268bd2" box)  ;; blue
         evil-normal-state-cursor  '("#b58900" box)  ;; blue
         evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
         evil-replace-state-cursor '("#859900" hbar) ;; green
@@ -645,8 +654,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
                                (speedbar-file-key-map)
                                (speedbar-buffers-key-map)
                                (calendar-mode-map)))
-  (load-file "~/dotfile/emacs/keybindings.el")
-  )
+  (load-file "~/dotfile/emacs/keybindings.el"))
 
 
 (use-package exec-path-from-shell :ensure t
@@ -671,6 +679,7 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   ;; pdf-tools package and reinstall both as at the start.
 
   (use-package pdf-tools :ensure t
+    :disabled t
     :mode ("\\.pdf\\'" . pdf-view-mode)
     :config
 
@@ -760,6 +769,8 @@ _c_  _e_  _r_ | ^^           | _0_: reset      |     _o_: outline
       ("." hydra-pdftools/body "back"))))
 
 (use-package expand-region :ensure t
+  :bind (("C-=" . er/expand-region)
+         ("C-°" . er/contract-region))
   :general
   ("s-SPC" 'hydra-expand-region/er/expand-region)
   :config
@@ -952,7 +963,7 @@ _R_: reset
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
 
-;;; -H-
+;; ---------- -H- --------------------------------------------------
 (use-package helm
   ;; disabled for now, but I've copy and pasted here the advice from
   ;; tuhdo about helm.
@@ -1024,7 +1035,8 @@ _R_: reset
 (use-package ivy
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
   :diminish (ivy-mode . "")
-  :commands ivy-switch-buffer
+  :commands (ivy-switch-buffer
+             ivy-switch-buffer-other-window)
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -1037,10 +1049,12 @@ _R_: reset
   (setq ivy-ignore-buffers '("company-statistics-cache.el" "company-statistics-autoload.el"))
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip nil)
+  (setq ivy-overlay-at nil)
   (setq ivy-re-builders-alist
         '((swiper . ivy--regex-ignore-order)
-          (t . ivy--regex-fuzzy)
-          (t   . ivy--regex-ignore-order)))
+          (manual-entry . ivy--regex-ignore-order)
+          (t      . ivy--regex)
+          (t      . ivy--regex-ignore-order)))
 
   (defun ivy-switch-project ()
     (interactive)
@@ -1129,20 +1143,7 @@ _R_: reset
   (lispy-define-key lispy-mode-map "X" 'special-lispy-x)
 
   ;; change avy-keys to default bépo home row keys.
-  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m))
-
-  (defun sam--lispy-newline-before-paren ()
-    (interactive)
-    (if-looking-at-do-else ")"
-                           (progn (end-of-line) (lispy-newline-and-indent-plain))
-                           (lispy-newline-and-indent-plain)))
-
-  (general-define-key
-   :states '(insert emacs)
-   :keymaps 'lispy-mode-map
-    "RET" 'sam--lispy-newline-before-paren )
-
-  )
+  (setq lispy-avy-keys '(?a ?u ?i ?e ?t ?s ?r ?n ?m)))
 
 (use-package lorem-ipsum :ensure t
   :commands
@@ -1150,7 +1151,7 @@ _R_: reset
    lorem-ipsum-insert-sentences
    lorem-ipsum-insert-paragraphs))
 
-;;; -M-
+;; ---------- -M- --------------------------------------------------
 (use-package magit :ensure t
   :commands
   (magit-blame
@@ -1202,10 +1203,16 @@ _R_: reset
 
 (use-package makefile-mode :defer t
   :init
-  (add-hook 'makefile-bsdmake-mode-hook 'makefile-gmake-mode))
+  ;; (add-hook 'makefile-mode-hook 'makefile-gmake-mode)
+  (add-hook 'makefile-bsdmake-mode-hook 'makefile-gmake-mode)
+  (add-hook 'makefile-mode-hook (lambda () (aggressive-indent-mode 0)
+                                  (setq-local outline-regexp "^## ----------")))
+  :config
+  (add-to-list 'company-backends 'company-shell))
 
 (use-package markdown-mode :ensure t
-  :mode ("\\.md\\'" . markdown-mode)
+  :mode (("\\.md\\'" . markdown-mode)
+         ("README"   . markdown-mode))
   :config
   (add-hook 'markdown-mode-hook (lambda () (auto-fill-mode 0)))
 
@@ -1274,8 +1281,7 @@ undo               _u_: undo
     "C-c C-s" "text"
     "C-c C-t" "header"
     "C-c C-x" "move"
-    )
-  )
+    ))
 
 (use-package move-text :ensure t
   :commands
@@ -1386,7 +1392,7 @@ _r_: show  _R_: show      _M-s_: move up
     ("i" outline-insert-heading "insert heading" :color blue)
     ("q" nil "quit" :color blue)))
 
-;;; -P-
+;; ---------- -P- --------------------------------------------------
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages))
@@ -1475,6 +1481,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
    projectile-cleanup-known-projects
    projectile-cache-current-file
    projectile-project-root
+   projectile-mode
+   projectile-project-p
    )
   :config
   (projectile-global-mode 1)
@@ -1498,9 +1506,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (load-file "~/dotfile/emacs/python-config.el"))
 
-;;; -Q-
+;; ---------- -Q- --------------------------------------------------
 
-;;; -R-
+;; ---------- -R- --------------------------------------------------
 (use-package rainbow-delimiters  :ensure t
   :commands rainbow-delimiters-mode
   :init
@@ -1524,6 +1532,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (setq ranger-cleanup-eagerly t))
 
 (use-package recentf
+  :commands (recentf-mode)
   :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
@@ -1536,14 +1545,13 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
              dired-directory)))))
   :init
   (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
-  (recentf-mode 1)
   :config
   (setq recentf-max-saved-items 50))
 
 (use-package restart-emacs :ensure t
   :commands restart-emacs)
 
-;;; -S-
+;; ---------- -S- --------------------------------------------------
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
@@ -1562,7 +1570,11 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
     :config
     (add-to-list 'company-backends 'company-shell))
-  (add-hook 'sh-mode-hook (lambda () (setq-local outline-regexp "###-----------------"))))
+  ;; (general-define-key
+  ;;  :states '(insert emacs)
+  ;;  :keymaps 'sh-mode-map
+  ;;   "r" 'sam-send-to-iterm )
+  )
 
 
 
@@ -1570,7 +1582,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package smartparens
   :ensure t
   :diminish (smartparens-mode . "")
-  :commands smartparens-global-mode
+  :defines hydra-sp/body
+  :commands (smartparens-global-mode
+             hydra-sp/body)
   :bind (("C-M-f" . sp-forward-sexp)
          ("C-M-b" . sp-backward-sexp)
          ("C-M-d" . sp-down-sexp)
@@ -1669,7 +1683,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     (setq spaceline-window-numbers-unicode t)
     :config
     (spaceline-emacs-theme)
-    (window-numbering-mode)))
+    (window-numbering-mode)
+    (spaceline-toggle-buffer-size-off)))
 
 (use-package subword :defer t
   :init
@@ -1679,7 +1694,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package swiper :ensure t
   :commands swiper)
 
-;;; -T-
+;; ---------- -T- --------------------------------------------------
 (use-package tex
   :ensure auctex
   :commands init-auctex
@@ -1744,7 +1759,10 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (use-package company-web :ensure t
     :config
-    (add-to-list 'company-backends 'company-web-html)))
+    (add-to-list 'company-backends 'company-web-html))
+  (add-hook 'web-mode-hook (lambda ()
+                             (setq-local tab-width 2)
+                             (setq-local outline-regexp "<!--*"))))
 
 (use-package wgrep :ensure t :defer t)
 
