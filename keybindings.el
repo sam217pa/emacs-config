@@ -35,43 +35,38 @@
 (use-package general :ensure t
   :config
 
-  (general-evil-setup t)
-
-
-;;; SPC-map
+;;; C-
   (general-define-key
-   :states '(normal visual insert emacs)
-   :prefix "SPC"
-   :non-normal-prefix " "
+   "C-S-c" 'sp-splice-sexp
+   "C-S-z" 'undo-tree-redo
+   "C-S-s" 'counsel-ag
+   "C-l" (lambda () (interactive)  (avy-goto-line 1))
+   "C-r" 'sp-slurp-hybrid-sexp
+   "C- " 'mark-line
+   "C-ç" 'avy-goto-char-in-line
+   "C-é" 'hydra-window/body
+   "C-'" 'avy-goto-word-or-subword-1)
 
-    ;; simple command
+;;; C-.
+  (general-define-key
+   :prefix "C-."
     "'"   '(sam--iterm-focus :which-key "iterm")
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
-    "/"   'counsel-ag
-    "-" 'evil-window-split
     "TAB" '(ivy-switch-buffer-other-window :which-key "buffer ow")
     "s-<tab>" 'other-frame
     "SPC" '(avy-goto-word-or-subword-1 :which-key "go to char")
-
-    ;; Applications
     "a" '(hydra-launcher/body :which-key "Applications")
-    ;; buffer - frame
     "b" '(hydra-buffer/body :which-key "Buffer")
     "M-b" '(hydra-frame/body :which-key "frames")
-    ;; Comment or Compile
     "c" '(:ignore t :which-key "Comment")
     "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
-    ;; Window management
     "é" '(hydra-window/body :which-key "Window")
-    ;; Find and Files
     "f" '(hydra-file/body :which-key "Files")
-    ;; Jump to :
     "g" '(:ignore t :which-key "Go to")
     "gc" 'avy-goto-char
     "gC" 'avy-goto-char-2
     "gl" 'avy-goto-line
     "gé" 'avy-goto-word-or-subword-1
-    ;; Insert
     "i" '(:ignore t :which-key "Insert")
     "it"  '(sam--insert-timestamp :which-key "timestamp")
     "il" '(:ignore t :which-key "insert link")
@@ -82,165 +77,96 @@
     "iLs" 'lorem-ipsum-insert-sentences
     "iLp" 'lorem-ipsum-insert-paragraphs
     "iLl" 'lorem-ipsum-insert-list
-    ;; Journal
     "j" '(hydra-journal/body :which-key "Journal")
     "m" '(hydra-make/body :which-key "make")
     "o" '(hydra-outline/body :which-key "outline")
-    ;; Project
     "p" '(hydra-projectile-if-projectile-p :which-key "Project")
-    ;; Quit
     "q" '(:ignore t :which-key "Quit")
     "qb" 'kill-buffer-if-not-modified
     "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
     "qr" '(restart-emacs :which-key "restart emacs")
-    ;; Save and search
     "s" '(:ignore t :which-key "Save/Search")
-    "s."  'save-buffer
-    "s,"  'server-edit
-    ;; Toggle UI elements
+    "s." 'save-buffer
+    "s," 'server-edit
     "t" '(hydra-toggle/body :which-key "Toggle")
-    ;; terminal related
     "T" '(hydra-term/body :which-key "term")
-    ;; zoom
     "z" '(hydra-zoom/body :which-key "zoom")
-    ;; Git related stuff
-    "v" '(hydra-git/body :which-key "Version Control")
-    "x" 'counsel-M-x)
+    "v" '(hydra-git/body :which-key "Version Control"))
 
-  ;; those are the direct keybindings. Just press the touch.
-;;; NORMAL map
-  (nvmap "'" (general-simulate-keys "C-c")
-         "<tab>" 'ivy-switch-buffer
-         "q" 'quoted-insert
-         "ç" 'evil-record-macro
-         "è" 'hydra-evil-mark/evil-goto-mark
-         "é" 'ace-window
-         "s-b" 'ivy-switch-buffer
-         "s-g" 'avy-goto-char
-         "C-p" 'counsel-yank-pop
-         "C-'" 'eshell-here
-         "?" 'evil-avy-goto-char-in-line
-         "f" 'evil-avy-goto-char-in-line
-         (general-chord "ff") 'evil-find-char
-         "|" 'ivy-switch-buffer
-         "c" 'evil-backward-char
-         "C" 'evil-window-top
-         "t" 'evil-next-line
-         "s" 'evil-previous-line
-         "r" 'evil-forward-char
-         "R" 'evil-window-bottom
-         "j" 'evil-avy-goto-char-in-line
-         "J" 'evil-find-char-to-backward
-         "l" 'evil-change
-         "L" 'evil-change-line
-         (general-chord "ll") 'avy-goto-line
-         "T" 'evil-join
-         "h" 'evil-replace
-         "H" 'evil-replace-state
-         "k" 'evil-substitute
-         "K" 'evil-change-whole-line
-         "M-b" 'ivy-switch-buffer
-         "C-é" 'hydra-window/body
-         "C-f" 'counsel-find-file
-         "M-é" 'ace-window
-         "p" #'hydra-paste/evil-paste-after
-         "P" #'hydra-paste/evil-paste-before
-         (general-chord "cl") #'sam--comment-or-uncomment-region-or-line
-         (general-chord "TT") #'hydra-toggle/body
-         (general-chord "()") #'hydra-sp/body
-         (general-chord "qb") #'ivy-switch-buffer
-         (general-chord "qd") #'kill-this-buffer
-         (general-chord "QD") #'kill-buffer-and-window
-         (general-chord "qf") #'delete-frame
-         (general-chord "ql") #'avy-goto-line
-         (general-chord "qr") #'ivy-switch-buffer
-         (general-chord "qs") #'save-buffer
-         (general-chord "xc") #'avy-goto-word-1
-         (general-chord "vv") #'magit-status)
-
-
-;;; INSERT map
-  (iemap "C-z" 'undo-tree-undo
-         "C-." 'hydra-move/body
-         "C-'" 'avy-goto-word-or-subword-1
-         "C- " 'mark-line
-         "C-l" '(avy-goto-line 1)
-         "C-r" 'sp-slurp-hybrid-sexp
-         "C-é" 'hydra-window/body
-         "C-ç" 'avy-goto-char-in-line
-         "M-é" 'ace-window
-         "C-S-c" 'sp-splice-sexp
-         "C-S-z" 'undo-tree-redo
-         (general-chord "()") #'hydra-sp/body
-         (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
-         (general-chord "qd") #'kill-this-buffer
-         (general-chord "qf") #'delete-frame
-         (general-chord "ql") #'avy-goto-line
-         (general-chord "qs") #'save-buffer
-         (general-chord "QP") #'hydra-projectile/body
-         (general-chord "QV") #'magit-status
-         (general-chord "qq") #'fill-paragraph
-         (general-chord "qQ") #'unfill-paragraph)
-
-;;; OPERATOR map
-  (general-omap :prefix "SPC"
-    "." 'avy-goto-word-or-subword-1
-    "l" 'evil-avy-goto-line
-    "é" 'evil-avy-goto-subword-0
-    "f" 'avy-goto-char-in-line )
-  (omap
-   "j" 'evil-find-char-to
-   "f" 'avy-goto-char-in-line
-   (general-chord  "ff") 'avy-goto-word-or-subword-1)
-
-;;; MOTION map
-  (mmap "t" 'evil-next-visual-line
-        "s" 'evil-previous-visual-line)
-
-;;; MODE specific map
-  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
-  (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
-  (general-define-key "C-M-i" 'complete-symbol)
-  (general-define-key :keymaps 'eshell-mode-map "C-'")
-
+;;; C-x
   (general-define-key
-;;; C-x MAP
+   "C-x /" 'counsel-ag
    "C-x C-b" 'ibuffer
    "C-x d" 'dired-other-window
    "C-x l" 'sam--chrome-plain-link
    "C-x n" 'narrow-or-widen-dwim
    "C-x p" 'hydra-projectile/body
    "C-x o" (lambda () (interactive) (other-frame -1))
-   "C-x M-b" 'hydra-frame/body
-;;; SUPER map (alt left)
+   "C-x v" 'hydra-git/body
+   "C-x M-b" 'hydra-frame/body)
+
+;;; M-
+  (general-define-key
+   "M-<backspace>" 'delete-to-sentence-beg
+   "M-é" 'ace-window
+   "M-/" 'hippie-expand
+   "M-«" 'beginning-of-buffer
+   "M-»" 'end-of-buffer
+   "M-g" 'hydra-error/body)
+
+;;; s-
+  (general-define-key
+   "s-<backspace>" 'ivy-switch-buffer
    "s-<tab>" 'sam--switch-to-other-buffer
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
-   "s-j" 'evil-join
+   "s-j" (lambda () (interactive) (join-line 4))
    "s-l" 'sam--comment-or-uncomment-region-or-line
    "s-m" 'delete-other-windows
    "s-q" nil                        ; don't close emacs with option q.
    "s-s" 'move-text-up
    "s-t" 'move-text-down
-   "s-w" 'delete-other-windows
-;;; HYPER map (ctlr left)
+   "s-w" 'delete-other-windows)
+
+;;; H-
+  (general-define-key
+   "H-<tab>" 'ivy-switch-buffer-other-window
+   "H-<backspace>" 'hydra-outline/body
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
    "H-r" 'counsel-recentf
    "H-n" 'buffer-to-new-frame
-   "H-m" 'delete-other-frames
-;;; META map (cmd right)
-   "M-<backspace>" 'delete-to-sentence-beg
-   "M-/" 'hippie-expand
-   "M-«" 'beginning-of-buffer
-   "M-»" 'end-of-buffer
-   "M-g" 'hydra-error/body))
+   "H-m" 'delete-other-frames)
 
-;;
-;;; ======================================================================
+;;; Key-chord
+
+  (use-package key-chord :ensure t
+    :defer 1
+    :config
+    (setq key-chord-two-keys-delay 0.2))
+
+;;; Key chords
+  (general-define-key
+   (general-chord "()") #'hydra-sp/body
+   (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
+   (general-chord "qd") #'kill-this-buffer
+   (general-chord "qf") #'delete-frame
+   (general-chord "ql") #'avy-goto-line
+   (general-chord "qs") #'save-buffer
+   (general-chord "QP") #'hydra-projectile/body
+   (general-chord "QV") #'magit-status
+   (general-chord "qq") #'fill-paragraph
+   (general-chord "qQ") #'unfill-paragraph)
+
+;;; Mode specific map
+  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+  (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
+  (general-define-key "C-M-i" 'complete-symbol)
+
+  (general-define-key :keymaps 'eshell-mode-map "C-'"))
+
 ;;; Which-key
-;;
 
 ;; key description for C-x
 (which-key-add-key-based-replacements
@@ -255,21 +181,9 @@
   "C-x r"   "rectangle"
   "C-x v"   "version control"
   "C-c &"   "yas"
-  "C-c @"   "hide-show"
-  )
+  "C-c @"   "hide-show")
 
-;;
-;;; Key-chord
-;;
-
-(use-package key-chord :ensure t
-  :defer 1
-  :config
-  (setq key-chord-two-keys-delay 0.2))
-
-;;
 ;;; Global
-;;
 
 ;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
 (when (eq system-type 'darwin)
@@ -300,9 +214,7 @@
   (global-set-key [double-wheel-right] 'my-previous-buffer)
   (global-set-key [double-wheel-left] 'my-next-buffer))
 
-;;; ======================================================================
 ;;; Hydra
-;;
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
@@ -462,73 +374,55 @@ _t_witter
   ("S" (sam--iterm-goto-filedir-or-home) )
   ("q" nil "quit"))
 
-(defhydra hydra-paste (:color red :hint nil)
-  "
-   Paste : [%s(length kill-ring-yank-pointer)/%s(length kill-ring)]
-         _n_ → cycle next          _p_ → paste before
-         _N_ → cycle previous      _P_ → paste after
-"
-  ("N" evil-paste-pop-next)
-  ("n" evil-paste-pop)
-  ("p" evil-paste-after)
-  ("P" evil-paste-before)
-  ("u" undo "undo" :color red)
-  ("l" counsel-yank-pop "list" :color blue)
-  ("q" nil "quit" :color blue))
+;; (defhydra hydra-window
+;;   (:hint nil
+;;    :color amaranth
+;;    :columns 4)
+;;   "
+;;  ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^   ^Window^
+;;  ^----^ ^^^^ ^ ^ ^ ^  ^-----^           ^ ^     ^----^    ^ ^   ^-------^   ^------^
 
-(defhydra hydra-window
-  (:hint nil
-   :color amaranth
-   :columns 4)
-  "
- ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^   ^Window^
- ^----^ ^^^^ ^ ^ ^ ^  ^-----^           ^ ^     ^----^    ^ ^   ^-------^   ^------^
+;;  ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
+;;  ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
+;;  _C_ _c_ _é_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
+;;  ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
+;;  ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
+;; "
+;;   ("c" windmove-left :color blue)
+;;   ("r" windmove-right :color blue)
+;;   ("t" windmove-down :color blue )
+;;   ("s" windmove-up :color blue)
+;;   ;; ("C" 'evil-window-move-far-left )
+;;   ;; ("R" 'evil-window-move-far-right )
+;;   ;; ("T" 'evil-window-move-very-bottom )
+;;   ;; ("S" 'evil-window-move-very-top )
 
- ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
- ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
- _C_ _c_ _é_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
- ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
- ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
-"
-  ("c" evil-window-left :color blue)
-  ("r" evil-window-right :color blue)
-  ("t" evil-window-down :color blue )
-  ("s" evil-window-up :color blue)
-  ("C" evil-window-move-far-left )
-  ("R" evil-window-move-far-right )
-  ("T" evil-window-move-very-bottom )
-  ("S" evil-window-move-very-top )
-  ;; splt
-  ("it" evil-window-split )
-  ("-" evil-window-split )
-  ("|" evil-window-vsplit )
-  ("ir" evil-window-vsplit )
-  ("v" evil-window-vsplit :color blue)
-  ;; delete other
-  ("m" delete-other-windows )
-  ("d" evil-window-delete )
-  ;; change height and width
-  ("f" evil-window-decrease-width )
-  ("b" evil-window-increase-width )
-  ("p" evil-window-decrease-height )
-  ("n" evil-window-increase-height )
+;;   ;; splt
+;;   ("it" split-window )
+;;   ("-" split-window )
+;;   ("|" split-window-horizontally )
+;;   ("ir" split-window-horizontally )
+;;   ("v" split-window-horizontally :color blue)
 
-  ("0" select-window-0 :color blue)
-  ("1" select-window-1 :color blue)
-  ("2" select-window-2 :color blue)
-  ("3" select-window-3 :color blue)
-  ("4" select-window-4 :color blue)
-  ("5" select-window-5 :color blue)
-  ("6" select-window-6 :color blue)
-  ("7" select-window-7 :color blue)
-  ("8" select-window-8 :color blue)
-  ("9" select-window-9 :color blue)
+;;   ("m" delete-other-windows )
+;;   ("d" delete-window )
 
-  ("N" evil-window-new :color blue)
-  ("=" balance-windows )
-  ("é" ace-window)
-  ("." hydra-buffer/body "buffers" :color blue)
-  ("q" nil "quit" :color blue))
+;;   ;; change height and width
+;;   ("0" select-window-0 :color blue)
+;;   ("1" select-window-1 :color blue)
+;;   ("2" select-window-2 :color blue)
+;;   ("3" select-window-3 :color blue)
+;;   ("4" select-window-4 :color blue)
+;;   ("5" select-window-5 :color blue)
+;;   ("6" select-window-6 :color blue)
+;;   ("7" select-window-7 :color blue)
+;;   ("8" select-window-8 :color blue)
+;;   ("9" select-window-9 :color blue)
+
+;;   ("=" balance-windows )
+;;   ("é" ace-window)
+;;   ("." hydra-buffer/body "buffers" :color blue)
+;;   ("q" nil "quit" :color blue))
 
 (defhydra hydra-error ()
   ("t" next-error "next")
@@ -540,7 +434,7 @@ _t_witter
   "
 ^Nav^     ^Menu^           ^Delete^           ^Actions^
 ^---^     ^----^           ^------^           ^-------^
-_n_ext    _b_: switch      _d_: del ←         _N_ew
+_n_ext    _b_: switch      _d_: del ←         ^ ^
 _p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
 ^ ^       _C-b_: menu      _M-d_: del + win   _._: window
   "
@@ -553,7 +447,6 @@ _p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
   ;; don't come back to previous buffer after delete
   ("C-d" (progn (kill-this-buffer) (next-buffer)) :color red)
   ("M-d" (progn (kill-this-buffer) (delete-window)) :color red)
-  ("N" evil-buffer-new )
   ("s" save-buffer :color red)
   ("." hydra-window/body :color blue)
   ("q" nil "quit" :color blue))
@@ -701,8 +594,7 @@ _N_: lab note         _c_: calendar
   (:color pink
    :hint nil
    :columns 4
-   :body-pre (calendar)
-   )
+   :body-pre (calendar))
   "
  ^Calendar^     ^Journal^   ^ ^           ^Quit^
   _._: today    _n_ext      _e_: edit     _b_: journal
@@ -791,4 +683,3 @@ _s_: shell    |  _p_: prev   _S_: select
   ("S" multi-term-dedicated-select)
   ("T" multi-term-dedicated-toggle)
   ("q" nil :color blue))
-;;; ======================================================================

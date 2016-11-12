@@ -1,4 +1,5 @@
 ;; -*- emacs-lisp -*-
+
 ;;; Package.el
 (setq gc-cons-threshold 8000000) ; augmente la taille du garbage collector
 (package-initialize t)
@@ -10,8 +11,8 @@
 (setq package-check-signature nil)
 (setq package-enable-at-startup nil)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-			 ("gnu" . "https://elpa.gnu.org/packages/")))
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
@@ -94,6 +95,9 @@
 
 (when window-system
   (set-frame-size (selected-frame) 85 61))
+
+(add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
+
 (add-to-list 'default-frame-alist '(height . 46))
 (add-to-list 'default-frame-alist '(width . 85))
 
@@ -122,12 +126,12 @@ When using Homebrew, install it using \"brew install trash\"."
     (call-process (executable-find "trash") nil nil nil file)))
 
 
-;;; -------------------------------------------------------------------
-;;; Packages
 
-;; ---------- -A- --------------------------------------------------
+;;; Packages -------------------------------------------------------------------
+
+;; ---------- A --------------------------------------------------
 (use-package abbrev :defer t
-  :diminish " α"
+  :diminish ""
   :init
   (add-hook 'text-mode-hook (lambda () (abbrev-mode 1)))
   ;; tell emacs where to read abbrev definitions from...
@@ -144,8 +148,7 @@ When using Homebrew, install it using \"brew install trash\"."
   :config
   (setq aw-keys '(?t ?s ?r ?n ?m ?a ?u ?i ?e))
   (setq aw-background t)
-  (setq aw-ignore-current t)
-  )
+  (setq aw-ignore-current t))
 
 (use-package ag :ensure t
   :commands (counsel-ag
@@ -164,9 +167,8 @@ When using Homebrew, install it using \"brew install trash\"."
   (diminish 'auto-fill-function ""))
 
 (use-package autorevert :defer t
-  :diminish auto-revert-mode
   ;; mainly to make autorevert disappear from the modeline
-  )
+  :diminish auto-revert-mode)
 
 (use-package avy :ensure t
   :commands (avy-goto-word-or-subword-1
@@ -195,27 +197,26 @@ When using Homebrew, install it using \"brew install trash\"."
    'aggressive-indent-dont-indent-if    ; do not indent line if
    '(and (derived-mode-p 'ess-mode)     ; in ess mode
          (null (string-match "\\(^#\\+ .+ $\\)" ; and in a roxygen block
-                             (thing-at-point 'line)))))
-  )
+                             (thing-at-point 'line))))))
 
-;; ---------- -B- --------------------------------------------------
+;; ---------- B --------------------------------------------------
+(use-package beacon
+  :diminish ""
+  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
+
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
-;; (use-package beacon
-;;  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
-
-
-;; ---------- -C- --------------------------------------------------
+;; ---------- C --------------------------------------------------
 (use-package calendar
   :commands (calendar)
   :config
   (general-define-key
    :keymaps 'calendar-mode-map
-   "P" 'org-journal-previous-entry
-   "N" 'org-journal-next-entry
-   "o" 'org-journal-read-entry
-   "." 'hydra-calendar/body))
+    "P" 'org-journal-previous-entry
+    "N" 'org-journal-next-entry
+    "o" 'org-journal-read-entry
+    "." 'hydra-calendar/body))
 
 (use-package color-theme-solarized :ensure t
   :init
@@ -373,8 +374,7 @@ When using Homebrew, install it using \"brew install trash\"."
               :caller 'counsel-package-install))
   (ivy-set-actions
    'counsel-find-file
-   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern")))
-  )
+   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern"))))
 
 (use-package counsel-osx-app :ensure t
   :commands counsel-osx-app
@@ -387,7 +387,7 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
-;; ---------- -D- --------------------------------------------------
+;; ---------- D --------------------------------------------------
 (use-package dired
   :commands (dired)
   :config
@@ -423,7 +423,7 @@ When using Homebrew, install it using \"brew install trash\"."
         display-time-day-and-date t
         display-time-format))
 
-;; ---------- -E- --------------------------------------------------
+;; ---------- E --------------------------------------------------
 (use-package ebib
   :quelpa (ebib :fetcher github :repo "joostkremers/ebib")
   :commands (ebib)
@@ -435,9 +435,6 @@ When using Homebrew, install it using \"brew install trash\"."
     "n" 'hydra-ebib/ebib-next-entry
     "C-p" 'hydra-ebib/ebib-push-bibtex-key-and-exit
     "C-n" 'hydra-ebib/ebib-search-next)
-
-  (evil-set-initial-state 'ebib-index-mode 'emacs)
-  (evil-set-initial-state 'ebib-entry-mode 'emacs)
 
   (setq ebib-preload-bib-files '("~/Dropbox/bibliography/stage_m2.bib"
                                  "~/Dropbox/bibliography/Biologie.bib"))
@@ -492,7 +489,6 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
               (setq-local outline-regexp ";; ----------\\|^;;;")))
 
   (general-define-key
-   :states '(normal emacs)
    :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
     "" '(:ignore t :which-key "Emacs Help")
@@ -513,16 +509,13 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   :config
   (use-package eshell-z :ensure t)
 
-  (require 'em-smart)
-
-
   (setq eshell-where-to-jump 'begin
         eshell-review-quick-commands nil
         eshell-smart-space-goes-to-end t)
-  (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
+
   (setq eshell-directory-name "~/dotfile/emacs/eshell/")
+
   (general-define-key
-   :states '(normal insert emacs)
    :keymaps 'eshell-mode-map
     "<tab>" (lambda () (interactive) (pcomplete-std-complete))
     "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
@@ -575,87 +568,6 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
 (use-package esup :ensure t
   :commands esup)
-
-(use-package evil :ensure t
-  :commands (evil-mode)
-  :init
-  (add-hook 'after-init-hook (lambda () (evil-mode 1)))
-  (setq evil-want-fine-undo t)
-  (setq evil-want-C-i-jump nil)
-  (setq evil-disable-insert-state-bindings t)
-
-  :config
-  (use-package evil-escape :ensure t
-    :diminish
-    (evil-escape-mode)
-    :config
-    (evil-escape-mode)
-    (setq-default evil-escape-key-sequence "xq"
-                  evil-escape-delay 0.2)
-    (setq evil-escape-unordered-key-sequence t))
-
-  (use-package evil-matchit :ensure t
-    :commands
-    evilmi-jump-items
-    :config
-    (global-evil-matchit-mode 1))
-
-  (use-package evil-surround :ensure t
-    :config
-    (global-evil-surround-mode))
-
-  (use-package evil-visual-mark-mode :ensure t
-    :commands (evil-visual-mark-mode
-               hydra-evil-mark/body
-               hydra-evil-mark/evil-goto-mark)
-    :defines (hydra-evil-mark/body
-              hydra-evil-mark/evil-goto-mark)
-    :config
-    (defhydra hydra-evil-mark
-      (:color teal
-       :hint nil
-       :pre (evil-visual-mark-mode)
-       :before-exit (evil-visual-mark-mode 0))
-      "mark"
-      ("é" evil-goto-mark "mark" :color red)
-      ("q" nil "quit" :color blue)))
-
-  (use-package evil-visualstar :ensure t
-    :config
-    (global-evil-visualstar-mode t))
-
-  (setq evil-default-state 'normal)
-  (evil-set-initial-state 'dired-mode 'emacs)
-  (evil-set-initial-state 'message-mode 'motion)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'ivy-occur-mode 'emacs)
-  (evil-set-initial-state 'calendar-mode 'emacs)
-  (evil-set-initial-state 'esup-mode 'emacs)
-
-  ;; cursor color by state
-  (setq evil-insert-state-cursor  '("#268bd2" box)  ;; blue
-        evil-normal-state-cursor  '("#b58900" box)  ;; blue
-        evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
-        evil-replace-state-cursor '("#859900" hbar) ;; green
-        evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
-
-  ;; maps that overrides evil-map.
-  ;; keeps default keybindings.
-  (setq evil-overriding-maps '((dired-mode-map)
-                               (Buffer-menu-mode-map)
-                               (color-theme-mode-map)
-                               (comint-mode-map)
-                               (compilation-mode-map)
-                               (grep-mode-map)
-                               (dictionary-mode-map)
-                               (ert-results-mode-map . motion)
-                               (Info-mode-map . motion)
-                               (speedbar-key-map)
-                               (speedbar-file-key-map)
-                               (speedbar-buffers-key-map)
-                               (calendar-mode-map)))
-  (load-file "~/dotfile/emacs/keybindings.el"))
-
 
 (use-package exec-path-from-shell :ensure t
   :defer 2
@@ -791,7 +703,7 @@ _R_: reset
     ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
-;; ---------- -F- --------------------------------------------------
+;; ---------- F --------------------------------------------------
 (use-package fastx
   :load-path "~/.emacs.d/private/fastx"
   :mode (("\\.fasta$" . fastx-mode)
@@ -816,7 +728,7 @@ _R_: reset
   (setq flycheck-highlighting-mode 'lines)
   (setq flycheck-check-syntax-automatically '(save)))
 
-;; ---------- -G- --------------------------------------------------
+;; ---------- G --------------------------------------------------
 (use-package git-gutter :ensure t
   :diminish ""
   :commands (global-git-gutter-mode)
@@ -935,9 +847,8 @@ _R_: reset
 
   ;; keybindings
   (general-define-key
-   :states '(normal visual)
    :keymaps 'go-mode-map
-    "," 'hydra-go/body)
+    "C-," 'hydra-go/body)
 
   (defhydra hydra-go (:hint nil :color teal)
     "
@@ -963,7 +874,7 @@ _R_: reset
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
 
-;; ---------- -H- --------------------------------------------------
+;; ---------- H --------------------------------------------------
 (use-package helm
   ;; disabled for now, but I've copy and pasted here the advice from
   ;; tuhdo about helm.
@@ -997,8 +908,7 @@ _R_: reset
   :commands hs-minor-mode
   :diminish hs-minor-mode
   :init
-  (add-hook 'prog-mode-hook 'hs-minor-mode)
-  )
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
 
 (use-package hl-line
   ;; souligne la ligne du curseur
@@ -1017,13 +927,20 @@ _R_: reset
   :init
   (add-hook 'hy-mode-hook (lambda () (lispy-mode 1))))
 
-;; ---------- -I- --------------------------------------------------
+;; ---------- I --------------------------------------------------
 (use-package ibuffer :ensure t
   :commands ibuffer
   :init
   (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
   :config
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
+
+(use-package ido
+  :defer t
+  :config
+  (use-package ido-vertical-mode :ensure t
+    :config
+    (ido-vertical-mode 1)))
 
 (use-package iedit :ensure t
   :bind (("C-*" . iedit-mode)))
@@ -1075,18 +992,17 @@ _R_: reset
      ("c" projectile-compile-project "Compile project")
      ("r" projectile-remove-known-project "Remove project(s)"))))
 
-;; ---------- -J- --------------------------------------------------
+;; ---------- J --------------------------------------------------
 
-;; ---------- -K- --------------------------------------------------
+;; ---------- K --------------------------------------------------
 
-;; ---------- -L- --------------------------------------------------
+;; ---------- L --------------------------------------------------
 (use-package lesspy
   :load-path "~/.emacs.d/private/lesspy"
   :diminish ""
   :commands (lesspy-mode)
   :config
   (general-define-key
-   :states 'insert
    :keymaps 'lesspy-mode-map
     "a" 'lesspy-avy-jump
     "p" 'lesspy-eval-function-or-paragraph
@@ -1151,7 +1067,7 @@ _R_: reset
    lorem-ipsum-insert-sentences
    lorem-ipsum-insert-paragraphs))
 
-;; ---------- -M- --------------------------------------------------
+;; ---------- M --------------------------------------------------
 (use-package magit :ensure t
   :commands
   (magit-blame
@@ -1256,10 +1172,8 @@ undo               _u_: undo
     )
 
   (general-define-key
-   :states '(normal visual insert emacs)
    :keymaps 'markdown-mode-map
-   :prefix ","
-   :non-normal-prefix "’"               ; Alt-, => ’
+   :prefix "C-,"
     "," 'hydra-markdown/body
     "=" 'markdown-promote
     "°" 'markdown-promote-subtree
@@ -1271,8 +1185,7 @@ undo               _u_: undo
     "«" 'markdown-exdent-region
     "gc" 'markdown-forward-same-level
     "gr" 'markdown-backward-same-level
-    "gs" 'markdown-up-heading
-    )
+    "gs" 'markdown-up-heading)
 
   (which-key-add-major-mode-key-based-replacements 'markdown-mode
     "C-c C-a" "insert"
@@ -1280,8 +1193,7 @@ undo               _u_: undo
     "C-c TAB" "images"
     "C-c C-s" "text"
     "C-c C-t" "header"
-    "C-c C-x" "move"
-    ))
+    "C-c C-x" "move"))
 
 (use-package move-text :ensure t
   :commands
@@ -1332,7 +1244,7 @@ undo               _u_: undo
              multi-term-dedicated-select
              multi-term-dedicated-toggle))
 
-;; ---------- -N- --------------------------------------------------
+;; ---------- N --------------------------------------------------
 (use-package nlinum :ensure t
   :commands (global-nlinum-mode
              nlinum-mode)
@@ -1345,7 +1257,7 @@ undo               _u_: undo
   (add-hook 'nlinum-mode-hook 'sam--fix-linum-size)
   (global-nlinum-mode))
 
-;; ---------- -O- --------------------------------------------------
+;; ---------- O --------------------------------------------------
 
 (use-package osx-clipboard :ensure t
   :if (not (window-system))
@@ -1392,7 +1304,7 @@ _r_: show  _R_: show      _M-s_: move up
     ("i" outline-insert-heading "insert heading" :color blue)
     ("q" nil "quit" :color blue)))
 
-;; ---------- -P- --------------------------------------------------
+;; ---------- P --------------------------------------------------
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages))
@@ -1443,7 +1355,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     ("L" persp-load-from-file-by-names)
     ("q" nil "quit"))
 
-  (define-key evil-normal-state-map (kbd "M-p") 'hydra-persp/body)
   (global-set-key (kbd "H-p") 'persp-prev)
   (global-set-key (kbd "H-n") 'persp-next))
 
@@ -1506,9 +1417,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (load-file "~/dotfile/emacs/python-config.el"))
 
-;; ---------- -Q- --------------------------------------------------
+;; ---------- Q --------------------------------------------------
 
-;; ---------- -R- --------------------------------------------------
+;; ---------- R --------------------------------------------------
 (use-package rainbow-delimiters  :ensure t
   :commands rainbow-delimiters-mode
   :init
@@ -1532,7 +1443,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (setq ranger-cleanup-eagerly t))
 
 (use-package recentf
-  :commands (recentf-mode)
+  :commands (recentf-mode
+             counsel-recentf)
   :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
@@ -1551,7 +1463,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package restart-emacs :ensure t
   :commands restart-emacs)
 
-;; ---------- -S- --------------------------------------------------
+;; ---------- S --------------------------------------------------
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
@@ -1569,15 +1481,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (use-package company-shell
     :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
     :config
-    (add-to-list 'company-backends 'company-shell))
-  ;; (general-define-key
-  ;;  :states '(insert emacs)
-  ;;  :keymaps 'sh-mode-map
-  ;;   "r" 'sam-send-to-iterm )
-  )
-
-
-
+    (add-to-list 'company-backends 'company-shell)))
 
 (use-package smartparens
   :ensure t
@@ -1678,7 +1582,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (use-package spaceline-config
     :init
-    (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
     (setq powerline-default-separator 'utf-8)
     (setq spaceline-window-numbers-unicode t)
     :config
@@ -1694,7 +1597,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package swiper :ensure t
   :commands swiper)
 
-;; ---------- -T- --------------------------------------------------
+;; ---------- T --------------------------------------------------
 (use-package tex
   :ensure auctex
   :commands init-auctex
@@ -1716,7 +1619,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (textpy-minor-mode)
   :config
   (general-define-key
-   :states '(insert emacs)
    :keymaps 'text-mode-map
     "A" 'textpy-avy-sentence
     "a" 'textpy-avy-jump
@@ -1729,16 +1631,18 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "v" 'textpy-git
     "/" 'textpy-search))
 
-;; ---------- -U- --------------------------------------------------
+;; ---------- U --------------------------------------------------
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
-  :bind* (("C-x u" . undo-tree-visualize)))
+  :bind* (("C-x u" . undo-tree-visualize)
+          ("C-z" . undo-tree-undo)
+          ("C-S-z" . undo-tree-redo)))
 
-;; ---------- -V- --------------------------------------------------
+;; ---------- V --------------------------------------------------
 (use-package visual-regexp-steroids :ensure t
   :commands (vr/replace vr/query-replace))
 
-;; ---------- -W- --------------------------------------------------
+;; ---------- W --------------------------------------------------
 (use-package web-mode :ensure t
   :mode
   (("\\.phtml\\'"      . web-mode)
@@ -1806,7 +1710,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "Do nothing, the display is handled by the powerline.")
   (window-numbering-install-mode-line))
 
-;; ---------- -X- --------------------------------------------------
+;; ---------- X --------------------------------------------------
 (use-package xterm-color
   :quelpa (xterm-color :fetcher github :repo "atomontage/xterm-color")
   :config
@@ -1816,7 +1720,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     (setq comint-output-filter-functions
           (remove 'ansi-color-process-output comint-output-filter-functions))))
 
-;; ---------- -Y- --------------------------------------------------
+;; ---------- Y --------------------------------------------------
 (use-package yaml-mode :ensure t :defer t)
 
 (use-package yasnippet
@@ -1832,7 +1736,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (yas-global-mode)
   (setq yas-indent-line 'none))
 
-;; ---------- -Z- --------------------------------------------------
+;; ---------- Z --------------------------------------------------
 (use-package zoom-frm :ensure t
   :commands
   (zoom-frm-in
@@ -1849,6 +1753,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (load-file "~/dotfile/emacs/functions.el")
 ;;; org
 (load-file "~/dotfile/emacs/org.el")
+;; ---------- keybindings -------------------------------------------------
+(load-file "~/dotfile/emacs/keybindings.el")
 
 ;;; custom
 (setq custom-file "~/.emacs.d/emacs-custom.el")

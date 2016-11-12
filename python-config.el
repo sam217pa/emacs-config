@@ -82,36 +82,31 @@ If not in a block, send the upper block.
 (defun python-shell-send-block-switch ()
   (interactive)
   (python-shell-send-block)
-  (python-shell-switch-to-shell)
-  (evil-insert-state))
+  (python-shell-switch-to-shell))
 
 (defun python-shell-send-line-switch ()
   (interactive)
   (python-shell-send-line)
-  (python-shell-switch-to-shell)
-  (evil-insert-state))
+  (python-shell-switch-to-shell))
 
 ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/%2Blang/python/packages.el
 (defun python-shell-send-buffer-switch ()
   "Send buffer content to shell and switch to it in insert mode"
   (interactive)
   (python-shell-send-buffer)
-  (python-shell-switch-to-shell)
-  (evil-insert-state))
+  (python-shell-switch-to-shell))
 
 (defun python-shell-send-defun-switch ()
   "send function content to shell and switch to it in insert mode"
   (interactive)
   (python-shell-send-defun nil)
-  (python-shell-switch-to-shell)
-  (evil-insert-state))
+  (python-shell-switch-to-shell))
 
 (defun python-shell-send-region-switch (start end)
   "Send region content to shell and switch to it in insert mode."
   (interactive "r")
   (python-shell-send-region start end)
-  (python-shell-switch-to-shell)
-  (evil-insert-state))
+  (python-shell-switch-to-shell))
 
 
 

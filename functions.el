@@ -367,18 +367,6 @@ Lisp function does not specify a special indentation."
     (goto-char (cdr (assoc (ivy-completing-read "Package: " packages)
                            packages)))))
 
-;; goto line motion, jumping to the same column
-;; (follow "evil-integration.el")
-;; (evil-define-motion evil-avy-goto-line-keep-column (count)
-;;   "Evil motion for avy-goto-line, restoring column."
-;;   :type exclusive :jump t :repeat abort
-;;   (evil-without-repeat
-;;     (evil-enclose-avy-for-motion
-;;       (evil-save-column (avy-goto-line)))))
-;; goto-line motion map
-;; (define-key evil-motion-state-map (kbd "g l")
-;;   'evil-avy-goto-line-keep-column)
-
 ;; adapted from
 ;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers
 (defun kill-diff-buffers ()
