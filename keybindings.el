@@ -35,12 +35,23 @@
 (use-package general :ensure t
   :config
 
-;;; SPC-map
+;;; C-
+  (general-define-key
+   "C-S-c" 'sp-splice-sexp
+   "C-S-z" 'undo-tree-redo
+   "C-S-s" 'counsel-ag
+   "C-l" (lambda () (interactive)  (avy-goto-line 1))
+   "C-r" 'sp-slurp-hybrid-sexp
+   "C- " 'mark-line
+   "C-ç" 'avy-goto-char-in-line
+   "C-é" 'hydra-window/body
+   "C-'" 'avy-goto-word-or-subword-1)
+
+;;; C-.
   (general-define-key
    :prefix "C-."
     "'"   '(sam--iterm-focus :which-key "iterm")
     "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
-    "/"   'counsel-ag
     "TAB" '(ivy-switch-buffer-other-window :which-key "buffer ow")
     "s-<tab>" 'other-frame
     "SPC" '(avy-goto-word-or-subword-1 :which-key "go to char")
@@ -75,27 +86,68 @@
     "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
     "qr" '(restart-emacs :which-key "restart emacs")
     "s" '(:ignore t :which-key "Save/Search")
-    "s."  'save-buffer
-    "s,"  'server-edit
+    "s." 'save-buffer
+    "s," 'server-edit
     "t" '(hydra-toggle/body :which-key "Toggle")
     "T" '(hydra-term/body :which-key "term")
     "z" '(hydra-zoom/body :which-key "zoom")
-    "v" '(hydra-git/body :which-key "Version Control")
-    "x" 'counsel-M-x)
+    "v" '(hydra-git/body :which-key "Version Control"))
 
-;;; INSERT map
+;;; C-x
   (general-define-key
-   "C-z" 'undo-tree-undo
-   "C-." 'hydra-move/body
-   "C-'" 'avy-goto-word-or-subword-1
-   "C- " 'mark-line
-   "C-l" '(avy-goto-line 1)
-   "C-r" 'sp-slurp-hybrid-sexp
-   "C-é" 'hydra-window/body
-   "C-ç" 'avy-goto-char-in-line
+   "C-x /" 'counsel-ag
+   "C-x C-b" 'ibuffer
+   "C-x d" 'dired-other-window
+   "C-x l" 'sam--chrome-plain-link
+   "C-x n" 'narrow-or-widen-dwim
+   "C-x p" 'hydra-projectile/body
+   "C-x o" (lambda () (interactive) (other-frame -1))
+   "C-x v" 'hydra-git/body
+   "C-x M-b" 'hydra-frame/body)
+
+;;; M-
+  (general-define-key
+   "M-<backspace>" 'delete-to-sentence-beg
    "M-é" 'ace-window
-   "C-S-c" 'sp-splice-sexp
-   "C-S-z" 'undo-tree-redo
+   "M-/" 'hippie-expand
+   "M-«" 'beginning-of-buffer
+   "M-»" 'end-of-buffer
+   "M-g" 'hydra-error/body)
+
+;;; s-
+  (general-define-key
+   "s-<backspace>" 'ivy-switch-buffer
+   "s-<tab>" 'sam--switch-to-other-buffer
+   "s-d" 'kill-buffer-and-window
+   "s-f" 'projectile-find-file
+   "s-j" (lambda () (interactive) (join-line 4))
+   "s-l" 'sam--comment-or-uncomment-region-or-line
+   "s-m" 'delete-other-windows
+   "s-q" nil                        ; don't close emacs with option q.
+   "s-s" 'move-text-up
+   "s-t" 'move-text-down
+   "s-w" 'delete-other-windows)
+
+;;; H-
+  (general-define-key
+   "H-<tab>" 'ivy-switch-buffer-other-window
+   "H-<backspace>" 'hydra-outline/body
+   "H-F" 'toggle-frame-fullscreen
+   "H-f" 'toggle-frame-maximized
+   "H-b" 'ivy-switch-buffer
+   "H-r" 'counsel-recentf
+   "H-n" 'buffer-to-new-frame
+   "H-m" 'delete-other-frames)
+
+;;; Key-chord
+
+  (use-package key-chord :ensure t
+    :defer 1
+    :config
+    (setq key-chord-two-keys-delay 0.2))
+
+;;; Key chords
+  (general-define-key
    (general-chord "()") #'hydra-sp/body
    (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
    (general-chord "qd") #'kill-this-buffer
@@ -107,55 +159,14 @@
    (general-chord "qq") #'fill-paragraph
    (general-chord "qQ") #'unfill-paragraph)
 
-  (general-define-key
-;;; C-x MAP
-   "C-x C-b" 'ibuffer
-   "C-x d" 'dired-other-window
-   "C-x l" 'sam--chrome-plain-link
-   "C-x n" 'narrow-or-widen-dwim
-   "C-x p" 'hydra-projectile/body
-   "C-x o" (lambda () (interactive) (other-frame -1))
-   "C-x v" 'hydra-git/body
-   "C-x M-b" 'hydra-frame/body
-;;; SUPER map (alt left)
-   "s-<backspace>" 'ivy-switch-buffer
-   "s-<tab>" 'sam--switch-to-other-buffer
-   "s-d" 'kill-buffer-and-window
-   "s-f" 'projectile-find-file
-   "s-j" (lambda () (interactive) (join-line 4))
-   "s-l" 'sam--comment-or-uncomment-region-or-line
-   "s-m" 'delete-other-windows
-   "s-q" nil                        ; don't close emacs with option q.
-   "s-s" 'move-text-up
-   "s-t" 'move-text-down
-   "s-w" 'delete-other-windows
-;;; HYPER map (ctlr left)
-   "H-<tab>" 'ivy-switch-buffer-other-window
-   "H-<backspace>" 'hydra-outline/body
-   "H-F" 'toggle-frame-fullscreen
-   "H-f" 'toggle-frame-maximized
-   "H-b" 'ivy-switch-buffer
-   "H-r" 'counsel-recentf
-   "H-n" 'buffer-to-new-frame
-   "H-m" 'delete-other-frames
-;;; META map (cmd right)
-   "M-<backspace>" 'delete-to-sentence-beg
-   "M-/" 'hippie-expand
-   "M-«" 'beginning-of-buffer
-   "M-»" 'end-of-buffer
-   "M-g" 'hydra-error/body)
-
-;;; MODE specific map
+;;; Mode specific map
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
   (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
   (general-define-key "C-M-i" 'complete-symbol)
 
   (general-define-key :keymaps 'eshell-mode-map "C-'"))
 
-;;
-;;; ======================================================================
 ;;; Which-key
-;;
 
 ;; key description for C-x
 (which-key-add-key-based-replacements
@@ -172,18 +183,7 @@
   "C-c &"   "yas"
   "C-c @"   "hide-show")
 
-;;
-;;; Key-chord
-;;
-
-(use-package key-chord :ensure t
-  :defer 1
-  :config
-  (setq key-chord-two-keys-delay 0.2))
-
-;;
 ;;; Global
-;;
 
 ;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
 (when (eq system-type 'darwin)
@@ -214,9 +214,7 @@
   (global-set-key [double-wheel-right] 'my-previous-buffer)
   (global-set-key [double-wheel-left] 'my-next-buffer))
 
-;;; ======================================================================
 ;;; Hydra
-;;
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
@@ -685,4 +683,3 @@ _s_: shell    |  _p_: prev   _S_: select
   ("S" multi-term-dedicated-select)
   ("T" multi-term-dedicated-toggle)
   ("q" nil :color blue))
-;;; ======================================================================

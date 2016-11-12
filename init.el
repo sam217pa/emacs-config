@@ -1,4 +1,5 @@
 ;; -*- emacs-lisp -*-
+
 ;;; Package.el
 (setq gc-cons-threshold 8000000) ; augmente la taille du garbage collector
 (package-initialize t)
@@ -93,8 +94,9 @@
   (diminish 'visual-line-mode "") )
 
 (when window-system
-  (set-frame-size (selected-frame) 85 61)
-  (set-cursor-color "#d33682"))
+  (set-frame-size (selected-frame) 85 61))
+
+(add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
 
 (add-to-list 'default-frame-alist '(height . 46))
 (add-to-list 'default-frame-alist '(width . 85))
@@ -124,12 +126,12 @@ When using Homebrew, install it using \"brew install trash\"."
     (call-process (executable-find "trash") nil nil nil file)))
 
 
-;;; -------------------------------------------------------------------
-;;; Packages
 
-;; ---------- -A- --------------------------------------------------
+;;; Packages -------------------------------------------------------------------
+
+;; ---------- A --------------------------------------------------
 (use-package abbrev :defer t
-  :diminish " α"
+  :diminish ""
   :init
   (add-hook 'text-mode-hook (lambda () (abbrev-mode 1)))
   ;; tell emacs where to read abbrev definitions from...
@@ -197,11 +199,15 @@ When using Homebrew, install it using \"brew install trash\"."
          (null (string-match "\\(^#\\+ .+ $\\)" ; and in a roxygen block
                              (thing-at-point 'line))))))
 
-;; ---------- -B- --------------------------------------------------
+;; ---------- B --------------------------------------------------
+(use-package beacon
+  :diminish ""
+  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
+
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
-;; ---------- -C- --------------------------------------------------
+;; ---------- C --------------------------------------------------
 (use-package calendar
   :commands (calendar)
   :config
@@ -381,7 +387,7 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
-;; ---------- -D- --------------------------------------------------
+;; ---------- D --------------------------------------------------
 (use-package dired
   :commands (dired)
   :config
@@ -417,7 +423,7 @@ When using Homebrew, install it using \"brew install trash\"."
         display-time-day-and-date t
         display-time-format))
 
-;; ---------- -E- --------------------------------------------------
+;; ---------- E --------------------------------------------------
 (use-package ebib
   :quelpa (ebib :fetcher github :repo "joostkremers/ebib")
   :commands (ebib)
@@ -697,7 +703,7 @@ _R_: reset
     ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
-;; ---------- -F- --------------------------------------------------
+;; ---------- F --------------------------------------------------
 (use-package fastx
   :load-path "~/.emacs.d/private/fastx"
   :mode (("\\.fasta$" . fastx-mode)
@@ -722,7 +728,7 @@ _R_: reset
   (setq flycheck-highlighting-mode 'lines)
   (setq flycheck-check-syntax-automatically '(save)))
 
-;; ---------- -G- --------------------------------------------------
+;; ---------- G --------------------------------------------------
 (use-package git-gutter :ensure t
   :diminish ""
   :commands (global-git-gutter-mode)
@@ -868,7 +874,7 @@ _R_: reset
 (use-package grab-mac-link :ensure t
   :commands grab-mac-link)
 
-;; ---------- -H- --------------------------------------------------
+;; ---------- H --------------------------------------------------
 (use-package helm
   ;; disabled for now, but I've copy and pasted here the advice from
   ;; tuhdo about helm.
@@ -921,13 +927,20 @@ _R_: reset
   :init
   (add-hook 'hy-mode-hook (lambda () (lispy-mode 1))))
 
-;; ---------- -I- --------------------------------------------------
+;; ---------- I --------------------------------------------------
 (use-package ibuffer :ensure t
   :commands ibuffer
   :init
   (add-hook 'ibuffer-hook #'hydra-ibuffer-main/body)
   :config
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body))
+
+(use-package ido
+  :defer t
+  :config
+  (use-package ido-vertical-mode :ensure t
+    :config
+    (ido-vertical-mode 1)))
 
 (use-package iedit :ensure t
   :bind (("C-*" . iedit-mode)))
@@ -979,11 +992,11 @@ _R_: reset
      ("c" projectile-compile-project "Compile project")
      ("r" projectile-remove-known-project "Remove project(s)"))))
 
-;; ---------- -J- --------------------------------------------------
+;; ---------- J --------------------------------------------------
 
-;; ---------- -K- --------------------------------------------------
+;; ---------- K --------------------------------------------------
 
-;; ---------- -L- --------------------------------------------------
+;; ---------- L --------------------------------------------------
 (use-package lesspy
   :load-path "~/.emacs.d/private/lesspy"
   :diminish ""
@@ -1054,7 +1067,7 @@ _R_: reset
    lorem-ipsum-insert-sentences
    lorem-ipsum-insert-paragraphs))
 
-;; ---------- -M- --------------------------------------------------
+;; ---------- M --------------------------------------------------
 (use-package magit :ensure t
   :commands
   (magit-blame
@@ -1231,7 +1244,7 @@ undo               _u_: undo
              multi-term-dedicated-select
              multi-term-dedicated-toggle))
 
-;; ---------- -N- --------------------------------------------------
+;; ---------- N --------------------------------------------------
 (use-package nlinum :ensure t
   :commands (global-nlinum-mode
              nlinum-mode)
@@ -1244,7 +1257,7 @@ undo               _u_: undo
   (add-hook 'nlinum-mode-hook 'sam--fix-linum-size)
   (global-nlinum-mode))
 
-;; ---------- -O- --------------------------------------------------
+;; ---------- O --------------------------------------------------
 
 (use-package osx-clipboard :ensure t
   :if (not (window-system))
@@ -1291,7 +1304,7 @@ _r_: show  _R_: show      _M-s_: move up
     ("i" outline-insert-heading "insert heading" :color blue)
     ("q" nil "quit" :color blue)))
 
-;; ---------- -P- --------------------------------------------------
+;; ---------- P --------------------------------------------------
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages))
@@ -1404,9 +1417,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (load-file "~/dotfile/emacs/python-config.el"))
 
-;; ---------- -Q- --------------------------------------------------
+;; ---------- Q --------------------------------------------------
 
-;; ---------- -R- --------------------------------------------------
+;; ---------- R --------------------------------------------------
 (use-package rainbow-delimiters  :ensure t
   :commands rainbow-delimiters-mode
   :init
@@ -1450,7 +1463,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package restart-emacs :ensure t
   :commands restart-emacs)
 
-;; ---------- -S- --------------------------------------------------
+;; ---------- S --------------------------------------------------
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
@@ -1584,7 +1597,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package swiper :ensure t
   :commands swiper)
 
-;; ---------- -T- --------------------------------------------------
+;; ---------- T --------------------------------------------------
 (use-package tex
   :ensure auctex
   :commands init-auctex
@@ -1618,18 +1631,18 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "v" 'textpy-git
     "/" 'textpy-search))
 
-;; ---------- -U- --------------------------------------------------
+;; ---------- U --------------------------------------------------
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
   :bind* (("C-x u" . undo-tree-visualize)
           ("C-z" . undo-tree-undo)
           ("C-S-z" . undo-tree-redo)))
 
-;; ---------- -V- --------------------------------------------------
+;; ---------- V --------------------------------------------------
 (use-package visual-regexp-steroids :ensure t
   :commands (vr/replace vr/query-replace))
 
-;; ---------- -W- --------------------------------------------------
+;; ---------- W --------------------------------------------------
 (use-package web-mode :ensure t
   :mode
   (("\\.phtml\\'"      . web-mode)
@@ -1697,7 +1710,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "Do nothing, the display is handled by the powerline.")
   (window-numbering-install-mode-line))
 
-;; ---------- -X- --------------------------------------------------
+;; ---------- X --------------------------------------------------
 (use-package xterm-color
   :quelpa (xterm-color :fetcher github :repo "atomontage/xterm-color")
   :config
@@ -1707,7 +1720,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     (setq comint-output-filter-functions
           (remove 'ansi-color-process-output comint-output-filter-functions))))
 
-;; ---------- -Y- --------------------------------------------------
+;; ---------- Y --------------------------------------------------
 (use-package yaml-mode :ensure t :defer t)
 
 (use-package yasnippet
@@ -1723,7 +1736,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (yas-global-mode)
   (setq yas-indent-line 'none))
 
-;; ---------- -Z- --------------------------------------------------
+;; ---------- Z --------------------------------------------------
 (use-package zoom-frm :ensure t
   :commands
   (zoom-frm-in
