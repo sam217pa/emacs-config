@@ -93,7 +93,9 @@
   (diminish 'visual-line-mode "") )
 
 (when window-system
-  (set-frame-size (selected-frame) 85 61))
+  (set-frame-size (selected-frame) 85 61)
+  (set-cursor-color "#d33682"))
+
 (add-to-list 'default-frame-alist '(height . 46))
 (add-to-list 'default-frame-alist '(width . 85))
 
@@ -1340,7 +1342,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     ("L" persp-load-from-file-by-names)
     ("q" nil "quit"))
 
-  (define-key evil-normal-state-map (kbd "M-p") 'hydra-persp/body)
   (global-set-key (kbd "H-p") 'persp-prev)
   (global-set-key (kbd "H-n") 'persp-next))
 
@@ -1429,7 +1430,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (setq ranger-cleanup-eagerly t))
 
 (use-package recentf
-  :commands (recentf-mode)
+  :commands (recentf-mode
+             counsel-recentf)
   :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
@@ -1567,7 +1569,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (use-package spaceline-config
     :init
-    ;; (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
     (setq powerline-default-separator 'utf-8)
     (setq spaceline-window-numbers-unicode t)
     :config
@@ -1620,7 +1621,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 ;; ---------- -U- --------------------------------------------------
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
-  :bind* (("C-x u" . undo-tree-visualize)))
+  :bind* (("C-x u" . undo-tree-visualize)
+          ("C-z" . undo-tree-undo)
+          ("C-S-z" . undo-tree-redo)))
 
 ;; ---------- -V- --------------------------------------------------
 (use-package visual-regexp-steroids :ensure t
