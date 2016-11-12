@@ -10,8 +10,8 @@
 (setq package-check-signature nil)
 (setq package-enable-at-startup nil)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("marmalade" . "https://marmalade-repo.org/packages/")
-			 ("gnu" . "https://elpa.gnu.org/packages/")))
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
@@ -144,8 +144,7 @@ When using Homebrew, install it using \"brew install trash\"."
   :config
   (setq aw-keys '(?t ?s ?r ?n ?m ?a ?u ?i ?e))
   (setq aw-background t)
-  (setq aw-ignore-current t)
-  )
+  (setq aw-ignore-current t))
 
 (use-package ag :ensure t
   :commands (counsel-ag
@@ -164,9 +163,8 @@ When using Homebrew, install it using \"brew install trash\"."
   (diminish 'auto-fill-function ""))
 
 (use-package autorevert :defer t
-  :diminish auto-revert-mode
   ;; mainly to make autorevert disappear from the modeline
-  )
+  :diminish auto-revert-mode)
 
 (use-package avy :ensure t
   :commands (avy-goto-word-or-subword-1
@@ -195,16 +193,11 @@ When using Homebrew, install it using \"brew install trash\"."
    'aggressive-indent-dont-indent-if    ; do not indent line if
    '(and (derived-mode-p 'ess-mode)     ; in ess mode
          (null (string-match "\\(^#\\+ .+ $\\)" ; and in a roxygen block
-                             (thing-at-point 'line)))))
-  )
+                             (thing-at-point 'line))))))
 
 ;; ---------- -B- --------------------------------------------------
 (use-package blank-mode :ensure t
   :commands blank-mode)
-
-;; (use-package beacon
-;;  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
-
 
 ;; ---------- -C- --------------------------------------------------
 (use-package calendar
@@ -212,10 +205,10 @@ When using Homebrew, install it using \"brew install trash\"."
   :config
   (general-define-key
    :keymaps 'calendar-mode-map
-   "P" 'org-journal-previous-entry
-   "N" 'org-journal-next-entry
-   "o" 'org-journal-read-entry
-   "." 'hydra-calendar/body))
+    "P" 'org-journal-previous-entry
+    "N" 'org-journal-next-entry
+    "o" 'org-journal-read-entry
+    "." 'hydra-calendar/body))
 
 (use-package color-theme-solarized :ensure t
   :init
@@ -373,8 +366,7 @@ When using Homebrew, install it using \"brew install trash\"."
               :caller 'counsel-package-install))
   (ivy-set-actions
    'counsel-find-file
-   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern")))
-  )
+   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern"))))
 
 (use-package counsel-osx-app :ensure t
   :commands counsel-osx-app
@@ -436,9 +428,6 @@ When using Homebrew, install it using \"brew install trash\"."
     "C-p" 'hydra-ebib/ebib-push-bibtex-key-and-exit
     "C-n" 'hydra-ebib/ebib-search-next)
 
-  (evil-set-initial-state 'ebib-index-mode 'emacs)
-  (evil-set-initial-state 'ebib-entry-mode 'emacs)
-
   (setq ebib-preload-bib-files '("~/Dropbox/bibliography/stage_m2.bib"
                                  "~/Dropbox/bibliography/Biologie.bib"))
 
@@ -492,7 +481,6 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
               (setq-local outline-regexp ";; ----------\\|^;;;")))
 
   (general-define-key
-   :states '(normal emacs)
    :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
     "" '(:ignore t :which-key "Emacs Help")
@@ -572,87 +560,6 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
 (use-package esup :ensure t
   :commands esup)
-
-(use-package evil :ensure t
-  :commands (evil-mode)
-  :init
-  (add-hook 'after-init-hook (lambda () (evil-mode 1)))
-  (setq evil-want-fine-undo t)
-  (setq evil-want-C-i-jump nil)
-  (setq evil-disable-insert-state-bindings t)
-
-  :config
-  (use-package evil-escape :ensure t
-    :diminish
-    (evil-escape-mode)
-    :config
-    (evil-escape-mode)
-    (setq-default evil-escape-key-sequence "xq"
-                  evil-escape-delay 0.2)
-    (setq evil-escape-unordered-key-sequence t))
-
-  (use-package evil-matchit :ensure t
-    :commands
-    evilmi-jump-items
-    :config
-    (global-evil-matchit-mode 1))
-
-  (use-package evil-surround :ensure t
-    :config
-    (global-evil-surround-mode))
-
-  (use-package evil-visual-mark-mode :ensure t
-    :commands (evil-visual-mark-mode
-               hydra-evil-mark/body
-               hydra-evil-mark/evil-goto-mark)
-    :defines (hydra-evil-mark/body
-              hydra-evil-mark/evil-goto-mark)
-    :config
-    (defhydra hydra-evil-mark
-      (:color teal
-       :hint nil
-       :pre (evil-visual-mark-mode)
-       :before-exit (evil-visual-mark-mode 0))
-      "mark"
-      ("é" evil-goto-mark "mark" :color red)
-      ("q" nil "quit" :color blue)))
-
-  (use-package evil-visualstar :ensure t
-    :config
-    (global-evil-visualstar-mode t))
-
-  (setq evil-default-state 'normal)
-  (evil-set-initial-state 'dired-mode 'emacs)
-  (evil-set-initial-state 'message-mode 'motion)
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'ivy-occur-mode 'emacs)
-  (evil-set-initial-state 'calendar-mode 'emacs)
-  (evil-set-initial-state 'esup-mode 'emacs)
-
-  ;; cursor color by state
-  (setq evil-insert-state-cursor  '("#268bd2" box)  ;; blue
-        evil-normal-state-cursor  '("#b58900" box)  ;; blue
-        evil-visual-state-cursor  '("#cb4b16" box)  ;; orange
-        evil-replace-state-cursor '("#859900" hbar) ;; green
-        evil-emacs-state-cursor   '("#d33682" box)) ;; magenta
-
-  ;; maps that overrides evil-map.
-  ;; keeps default keybindings.
-  (setq evil-overriding-maps '((dired-mode-map)
-                               (Buffer-menu-mode-map)
-                               (color-theme-mode-map)
-                               (comint-mode-map)
-                               (compilation-mode-map)
-                               (grep-mode-map)
-                               (dictionary-mode-map)
-                               (ert-results-mode-map . motion)
-                               (Info-mode-map . motion)
-                               (speedbar-key-map)
-                               (speedbar-file-key-map)
-                               (speedbar-buffers-key-map)
-                               (calendar-mode-map)))
-  (load-file "~/dotfile/emacs/keybindings.el"))
-
 
 (use-package exec-path-from-shell :ensure t
   :defer 2
@@ -932,9 +839,8 @@ _R_: reset
 
   ;; keybindings
   (general-define-key
-   :states '(normal visual)
    :keymaps 'go-mode-map
-    "," 'hydra-go/body)
+    "C-," 'hydra-go/body)
 
   (defhydra hydra-go (:hint nil :color teal)
     "
@@ -994,8 +900,7 @@ _R_: reset
   :commands hs-minor-mode
   :diminish hs-minor-mode
   :init
-  (add-hook 'prog-mode-hook 'hs-minor-mode)
-  )
+  (add-hook 'prog-mode-hook 'hs-minor-mode))
 
 (use-package hl-line
   ;; souligne la ligne du curseur
@@ -1083,7 +988,6 @@ _R_: reset
   :commands (lesspy-mode)
   :config
   (general-define-key
-   :states 'insert
    :keymaps 'lesspy-mode-map
     "a" 'lesspy-avy-jump
     "p" 'lesspy-eval-function-or-paragraph
@@ -1253,10 +1157,8 @@ undo               _u_: undo
     )
 
   (general-define-key
-   :states '(normal visual insert emacs)
    :keymaps 'markdown-mode-map
-   :prefix ","
-   :non-normal-prefix "’"               ; Alt-, => ’
+   :prefix "C-,"
     "," 'hydra-markdown/body
     "=" 'markdown-promote
     "°" 'markdown-promote-subtree
@@ -1268,8 +1170,7 @@ undo               _u_: undo
     "«" 'markdown-exdent-region
     "gc" 'markdown-forward-same-level
     "gr" 'markdown-backward-same-level
-    "gs" 'markdown-up-heading
-    )
+    "gs" 'markdown-up-heading)
 
   (which-key-add-major-mode-key-based-replacements 'markdown-mode
     "C-c C-a" "insert"
@@ -1277,8 +1178,7 @@ undo               _u_: undo
     "C-c TAB" "images"
     "C-c C-s" "text"
     "C-c C-t" "header"
-    "C-c C-x" "move"
-    ))
+    "C-c C-x" "move"))
 
 (use-package move-text :ensure t
   :commands
@@ -1566,15 +1466,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (use-package company-shell
     :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
     :config
-    (add-to-list 'company-backends 'company-shell))
-  ;; (general-define-key
-  ;;  :states '(insert emacs)
-  ;;  :keymaps 'sh-mode-map
-  ;;   "r" 'sam-send-to-iterm )
-  )
-
-
-
+    (add-to-list 'company-backends 'company-shell)))
 
 (use-package smartparens
   :ensure t
@@ -1675,7 +1567,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :config
   (use-package spaceline-config
     :init
-    (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
+    ;; (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
     (setq powerline-default-separator 'utf-8)
     (setq spaceline-window-numbers-unicode t)
     :config
@@ -1713,7 +1605,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (textpy-minor-mode)
   :config
   (general-define-key
-   :states '(insert emacs)
    :keymaps 'text-mode-map
     "A" 'textpy-avy-sentence
     "a" 'textpy-avy-jump
@@ -1846,6 +1737,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (load-file "~/dotfile/emacs/functions.el")
 ;;; org
 (load-file "~/dotfile/emacs/org.el")
+;; ---------- keybindings -------------------------------------------------
+(load-file "~/dotfile/emacs/keybindings.el")
 
 ;;; custom
 (setq custom-file "~/.emacs.d/emacs-custom.el")
