@@ -513,16 +513,13 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   :config
   (use-package eshell-z :ensure t)
 
-  (require 'em-smart)
-
-
   (setq eshell-where-to-jump 'begin
         eshell-review-quick-commands nil
         eshell-smart-space-goes-to-end t)
-  (add-hook 'eshell-mode-hook 'eshell-smart-initialize)
+
   (setq eshell-directory-name "~/dotfile/emacs/eshell/")
+
   (general-define-key
-   :states '(normal insert emacs)
    :keymaps 'eshell-mode-map
     "<tab>" (lambda () (interactive) (pcomplete-std-complete))
     "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
