@@ -40,58 +40,17 @@
    "C-S-c" 'sp-splice-sexp
    "C-S-z" 'undo-tree-redo
    "C-S-s" 'counsel-ag
-   "C-l" (lambda () (interactive)  (avy-goto-line 1))
+   "C-l" (lambda () (interactive)  (avy-goto-line 4))
    "C-r" 'sp-slurp-hybrid-sexp
    "C- " 'mark-line
    "C-ç" 'avy-goto-char-in-line
    "C-é" 'hydra-window/body
-   "C-'" 'avy-goto-word-or-subword-1)
+   "C-'" 'avy-goto-word-or-subword-1
+   "C-." 'hydra-main/body)
 
-;;; C-.
+;;; C-c
   (general-define-key
-   :prefix "C-."
-    "'"   '(sam--iterm-focus :which-key "iterm")
-    "?"   '(sam--iterm-goto-filedir-or-home :which-key "iterm - goto dir")
-    "TAB" '(ivy-switch-buffer-other-window :which-key "buffer ow")
-    "s-<tab>" 'other-frame
-    "SPC" '(avy-goto-word-or-subword-1 :which-key "go to char")
-    "a" '(hydra-launcher/body :which-key "Applications")
-    "b" '(hydra-buffer/body :which-key "Buffer")
-    "M-b" '(hydra-frame/body :which-key "frames")
-    "c" '(:ignore t :which-key "Comment")
-    "cl"  '(sam--comment-or-uncomment-region-or-line :which-key "comment line")
-    "é" '(hydra-window/body :which-key "Window")
-    "f" '(hydra-file/body :which-key "Files")
-    "g" '(:ignore t :which-key "Go to")
-    "gc" 'avy-goto-char
-    "gC" 'avy-goto-char-2
-    "gl" 'avy-goto-line
-    "gé" 'avy-goto-word-or-subword-1
-    "i" '(:ignore t :which-key "Insert")
-    "it"  '(sam--insert-timestamp :which-key "timestamp")
-    "il" '(:ignore t :which-key "insert link")
-    "ilm" '(sam--chrome-md-link :which-key "chrome - md")
-    "ilo" '(sam--chrome-org-link :which-key "chrome - org")
-    "ilf" '(sam--finder-md-link :which-key "finder - md")
-    "iL" '(:ignore t :which-key "lorem")
-    "iLs" 'lorem-ipsum-insert-sentences
-    "iLp" 'lorem-ipsum-insert-paragraphs
-    "iLl" 'lorem-ipsum-insert-list
-    "j" '(hydra-journal/body :which-key "Journal")
-    "m" '(hydra-make/body :which-key "make")
-    "o" '(hydra-outline/body :which-key "outline")
-    "p" '(hydra-projectile-if-projectile-p :which-key "Project")
-    "q" '(:ignore t :which-key "Quit")
-    "qb" 'kill-buffer-if-not-modified
-    "qq" '(save-buffers-kill-terminal :which-key "quit emacs")
-    "qr" '(restart-emacs :which-key "restart emacs")
-    "s" '(:ignore t :which-key "Save/Search")
-    "s." 'save-buffer
-    "s," 'server-edit
-    "t" '(hydra-toggle/body :which-key "Toggle")
-    "T" '(hydra-term/body :which-key "term")
-    "z" '(hydra-zoom/body :which-key "zoom")
-    "v" '(hydra-git/body :which-key "Version Control"))
+   "C-c v" 'magit-status)
 
 ;;; C-x
   (general-define-key
@@ -126,18 +85,20 @@
    "s-q" nil                        ; don't close emacs with option q.
    "s-s" 'move-text-up
    "s-t" 'move-text-down
-   "s-w" 'delete-other-windows)
+   "s-w" 'delete-other-windows
+   "s-'" 'sam--iterm-focus)
 
 ;;; H-
   (general-define-key
-   "H-<tab>" 'ivy-switch-buffer-other-window
-   "H-<backspace>" 'hydra-outline/body
+   "H-<backspace>" 'ivy-switch-buffer-other-window
+   "H-<tab>" 'hydra-outline/body
    "H-F" 'toggle-frame-fullscreen
    "H-f" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
    "H-r" 'counsel-recentf
    "H-n" 'buffer-to-new-frame
-   "H-m" 'delete-other-frames)
+   "H-m" 'delete-other-frames
+   "H-'" 'sam--iterm-goto-filedir-or-home)
 
 ;;; Key-chord
 
@@ -149,15 +110,14 @@
 ;;; Key chords
   (general-define-key
    (general-chord "()") #'hydra-sp/body
-   (general-chord "qb") #'hydra-buffer/ivy-switch-buffer-and-exit
+   (general-chord "qb") #'ivy-switch-buffer
    (general-chord "qd") #'kill-this-buffer
    (general-chord "qf") #'delete-frame
-   (general-chord "ql") #'avy-goto-line
+   (general-chord "ql") (lambda () (interactive) (avy-goto-line 4))
    (general-chord "qs") #'save-buffer
    (general-chord "QP") #'hydra-projectile/body
-   (general-chord "QV") #'magit-status
-   (general-chord "qq") #'fill-paragraph
-   (general-chord "qQ") #'unfill-paragraph)
+   (general-chord "VV") #'magit-status
+   (general-chord ";;") #'sam--comment-or-uncomment-region-or-line)
 
 ;;; Mode specific map
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
@@ -683,3 +643,57 @@ _s_: shell    |  _p_: prev   _S_: select
   ("S" multi-term-dedicated-select)
   ("T" multi-term-dedicated-toggle)
   ("q" nil :color blue))
+
+(defhydra hydra-insert (:hint nil :color blue)
+  "
+   ^INSERT^       ^LINK^    ^FINDER^
+^---------^   ^--------^ ^---------^
+_t_: time      _m_: md   _M_: md
+_s_: sentence  _o_: org  _O_: org
+_p_: paragraph
+"
+  ("t" sam--insert-timestamp)
+  ("m" (lambda () (interactive) (grab-mac-link 'chrome 'markdown)))
+  ("o" (lambda () (interactive) (grab-mac-link 'chrome 'markdown)))
+  ("M" (lambda () (interactive) (grab-mac-link 'finder 'markdown)))
+  ("O" (lambda () (interactive) (grab-mac-link 'finder 'org)))
+
+  ("s" lorem-ipsum-insert-sentences :color red)
+  ("p" lorem-ipsum-insert-paragraphs :color red)
+  ("q" nil "quit")
+  ("." hydra-main/body "back"))
+
+(defhydra hydra-quit (:hint nil :color blue)
+  "
+   ^QUIT^
+_q_: emacs
+_r_: restart
+"
+  ("q" save-buffers-kill-terminal)
+  ("r" restart-emacs)
+  ("." hydra-main/body "back"))
+
+(defhydra hydra-main (:hint nil :color blue)
+  "
+_a_: applications  _f_: file      _o_: outline   _T_: term
+_b_: buffer        _i_: insert    _p_: project   _v_: git
+_B_: frames        _j_: journal   _q_: quit      _z_: zoom
+_é_: window        _m_: make      _t_: toggle
+"
+  ("a" hydra-launcher/body)
+  ("b" hydra-buffer/body)
+  ("B" hydra-frame/body)
+  ("é" hydra-window/body)
+  ("f" hydra-file/body)
+  ("i" hydra-insert/body)
+  ("j" hydra-journal/body)
+  ("m" hydra-make/body)
+  ("o" hydra-outline/body)
+  ("p" hydra-projectile-if-projectile-p)
+  ("q" hydra-quit/body)
+  ("t" hydra-toggle/body)
+  ("T" hydra-term/body)
+  ("v" hydra-git/body)
+  ("z" hydra-zoom/body)
+  ("s-<tab>" other-frame)
+  ("." nil "quit"))
