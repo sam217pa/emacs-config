@@ -4,6 +4,7 @@
   :defer t
   :commands (org-mode
              org-agenda-list
+             org-capture
              org-store-link)
 
   :bind*
@@ -13,16 +14,7 @@
   :config
 
 ;;;* Use-package
-;;;** worf
-  (use-package worf :ensure t
-    :init
-    (add-hook 'org-mode-hook (lambda () (worf-mode)))
-    :config
-    (worf-define-key worf-mode-map "c" 'worf-left)
-    (worf-define-key worf-mode-map "t" 'worf-down)
-    (worf-define-key worf-mode-map "s" 'worf-up)
-    (worf-define-key worf-mode-map "r" 'worf-right)
-    (worf-define-key worf-mode-map "h" 'worf-change-mode))
+
 ;;;** ox-tufte
   (use-package ox-tufte :ensure t)
 
@@ -110,7 +102,10 @@
      ("s" "stage" entry (file+headline "~/stage/TODO" "capture")   "** TODO %? %^G\n%U \n%i")
      ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
      ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
-     ("J" "lab-journal" entry (file+datetree "~/stage/notes/journal.org") "* %?\nAjouté le %U\n %i\n %a")))
+     ("J" "lab-journal" entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?\n" )))
+
+  (defun hour-minute-timestamp ()
+    (format-time-string "%H:%M" (current-time)))
 
   (add-to-list 'org-modules 'org-mac-iCal)
   (setq org-agenda-include-diary t)
@@ -263,33 +258,10 @@
     (general-chord ";C") 'org-metaleft
     (general-chord ";T") 'org-metadown
     (general-chord ";S") 'org-metaup
-    (general-chord ";R") 'org-metaright)
-
-  )
-
-;;;* Org-journal
-(use-package org-journal :ensure t
-  :commands (org-journal-new-entry
-             org-journal-next-entry
-             org-journal-previous-entry
-             org-journal-read-entry)
-  :config
-  (setq org-journal-dir "~/these/meta/nb")
-  (setq org-journal-file-format "%Y%m%d.org")
-  (add-to-list 'org-agenda-files org-journal-dir)
-  (setq org-agenda-file-regexp "\\`[^.].*\\.org'\\|[0-9]+"))
+    (general-chord ";R") 'org-metaright))
 
 ;;;* Keybindings
-(general-define-key
- :states '(normal visual insert emacs)
- :keymaps 'org-mode-map
- :prefix ","
- :non-normal-prefix "’"
-  "e" 'org-export-dispatch)
 
-(general-define-key
- :states '(normal)
-  (general-chord "OA") 'org-agenda)
 
 ;; TODO j'ai eu l'idée d'un snippet qui permettrait de splitter les
 ;; chunks en deux. au moment où je dois choisir le file to tangle in,
