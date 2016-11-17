@@ -66,9 +66,9 @@
 
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
   (setq org-agenda-files
-        (delq nil
-              (mapcar (lambda (x) (and (file-exists-p x) x))
-                      '("~/Org/TODO"))))
+        (list "~/Org/TODO"
+              "~/these/meta/nb/TODO.org"))
+
   (setq org-agenda-span 7)
   (setq org-agenda-tags-column -100) ; take advantage of the screen width
   (setq org-agenda-sticky nil)
