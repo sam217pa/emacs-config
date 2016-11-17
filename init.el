@@ -102,8 +102,8 @@
 (add-to-list 'default-frame-alist '(width . 85))
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Inconsolata 14"))
-(set-face-attribute 'default nil :font "Inconsolata 14")
+(add-to-list 'default-frame-alist '(font . "Go Mono 12"))
+(set-face-attribute 'default nil :font "Go Mono 12")
 
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
