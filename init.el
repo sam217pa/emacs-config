@@ -78,6 +78,7 @@
 (line-number-mode) ; display line number in mode line
 (column-number-mode) ; display colum number in mode line
 (save-place-mode)    ; save cursor position between sessions
+(delete-selection-mode 1)               ; replace highlighted text with type
 (setq initial-major-mode 'fundamental-mode)
 ;; supprime les caractères en trop en sauvegardant.
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -182,7 +183,8 @@ When using Homebrew, install it using \"brew install trash\"."
           (avy-goto-word-or-subword-1 . post))))
 
 (use-package avy-zap :ensure t
-  :bind (("M-z" . avy-zap-to-char-dwim)))
+  :bind (("M-z" . avy-zap-to-char-dwim)
+         ("M-Z" . avy-zap-up-to-char-dwim)))
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
@@ -230,11 +232,13 @@ When using Homebrew, install it using \"brew install trash\"."
   (defun solarized-switch-to-dark ()
     (interactive)
     (set-frame-parameter nil 'background-mode 'dark)
-    (enable-theme 'solarized))
+    (enable-theme 'solarized)
+    (set-cursor-color "#d33682"))
   (defun solarized-switch-to-light ()
     (interactive)
     (set-frame-parameter nil 'background-mode 'light)
-    (enable-theme 'solarized))
+    (enable-theme 'solarized)
+    (set-cursor-color "#d33682"))
 
   (solarized-switch-to-dark))
 
@@ -314,12 +318,10 @@ When using Homebrew, install it using \"brew install trash\"."
   (("M-x"     . counsel-M-x)
    ("C-s"     . counsel-grep-or-swiper)
    ("C-x C-f" . counsel-find-file)
-   ("C-x C-r" . counsel-recentf)
    ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
    ("C-c /"   . counsel-ag)
-   ("C-c l"   . counsel-locate)
-   )
+   ("C-c l"   . counsel-locate))
   :config
   (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
 
@@ -681,8 +683,9 @@ _c_  _e_  _r_ | ^^           | _0_: reset      |     _o_: outline
       ("." hydra-pdftools/body "back"))))
 
 (use-package expand-region :ensure t
-  :bind (("C-=" . er/expand-region)
-         ("C-°" . er/contract-region))
+  :defines hydra-expand-region/body
+  :bind (("C-=" . hydra-expand-region/er/expand-region)
+         ("C-°" . hydra-expand-region/er/contract-region))
   :general
   ("s-SPC" 'hydra-expand-region/er/expand-region)
   :config
@@ -692,10 +695,12 @@ _c_  _e_  _r_ | ^^           | _0_: reset      |     _o_: outline
 ^Expand region^   ^Cursors^
 _c_: expand       _n_: next
 _r_: contract     _p_: prev
+_e_: exchange
 _R_: reset
 "
     ("c" er/expand-region)
     ("r" er/contract-region)
+    ("e" exchange-point-and-mark)
     ("R" (lambda () (interactive)
            (let ((current-prefix-arg '(0)))
              (call-interactively #'er/contract-region))) :color blue)
@@ -1203,8 +1208,8 @@ undo               _u_: undo
 (use-package multiple-cursors
   :quelpa (multiple-cursors :fetcher github :repo "magnars/multiple-cursors.el")
   :general
-  ("C-M-s" 'mc/mark-previous-like-this
-   "C-M-t" 'mc/mark-next-like-this
+  ("C-M-s" 'hydra-mc/mc/mark-previous-like-this
+   "C-M-t" 'hydra-mc/mc/mark-next-like-this
    "C-M-S-s" 'mc/unmark-next-like-this
    "C-M-S-t" 'mc/unmark-previous-like-this
    "H-SPC" 'hydra-mc/body)
@@ -1404,11 +1409,11 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (setq projectile-completion-system 'ivy)
   (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
 
-
 (use-package python
   :ensure python-mode
   :mode
   (("\\.py\\'" . python-mode)
+   ("\\.pyx\\'" . python-mode)
    ("\\.wsgi$" . python-mode))
   :interpreter
   (("ipython" . python-mode)
