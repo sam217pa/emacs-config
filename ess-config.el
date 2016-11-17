@@ -73,7 +73,6 @@
 ;; ---------- keybindings -------------------------------------------------
 
 (general-define-key
- :states '(normal insert)
  :keymaps 'ess-mode-map
   "C-RET" 'ess-eval-region-or-line
   "M-RET" 'ess-eval-function-or-paragraph
@@ -84,7 +83,6 @@
   (general-chord ",t") 'ess-eval-function-or-paragraph)
 
 (general-define-key
- :states '(insert)
  :keymaps 'inferior-ess-mode-map
   "s-c" 'ess-transcript-clean-buffer
   "s-d" 'ess-insert-pipe)
