@@ -390,6 +390,11 @@ When using Homebrew, install it using \"brew install trash\"."
   :mode (("\\.css\\'" . css-mode)))
 
 ;; ---------- D --------------------------------------------------
+(use-package debian-control-mode
+  :load-path "~/.emacs.d/private/dcf/"
+  :commands debian-control-mode
+  :mode (("DESCRIPTION" . debian-control-mode)))
+
 (use-package dired
   :commands (dired)
   :config
@@ -734,6 +739,13 @@ _R_: reset
   (setq flycheck-check-syntax-automatically '(save)))
 
 ;; ---------- G --------------------------------------------------
+(use-package ggtags :ensure t
+  :commands (ggtags-mode)
+  :config
+  (general-define-key :keymaps 'ggtags-mode-map
+    "M-s-," 'ggtags-navigation-mode-abort
+    "M-s-." 'ggtags-find-tag-dwim))
+
 (use-package git-gutter :ensure t
   :diminish ""
   :commands (global-git-gutter-mode)
@@ -870,7 +882,6 @@ _R_: reset
     ("ia" go-import-add)
     ("ir" go-remove-unused-imports)
     ("q" nil "quit" :color blue)))
-
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
@@ -1636,6 +1647,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "v" 'textpy-git
     "/" 'textpy-search))
 
+(use-package tiny :ensure t
+  :bind* (("C-;" . tiny-expand)))
+
 ;; ---------- U --------------------------------------------------
 (use-package undo-tree :ensure t
   :diminish undo-tree-mode
@@ -1714,6 +1728,16 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (defun window-numbering-install-mode-line (&optional position)
     "Do nothing, the display is handled by the powerline.")
   (window-numbering-install-mode-line))
+
+(use-package wrap-region :ensure t
+  :config
+  (wrap-region-mode 1)
+  (wrap-region-add-wrappers
+   '(("$" "$")
+     ("{-" "-}" "#")
+     ("/" "/" nil ruby-mode)
+     ("/* " " */" "#" (java-mode javascript-mode css-mode))
+     ("`" "`" nil (markdown-mode ruby-mode)))))
 
 ;; ---------- X --------------------------------------------------
 (use-package xterm-color
