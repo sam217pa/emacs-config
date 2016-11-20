@@ -389,6 +389,38 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
+(use-package csv-mode :ensure t
+  :mode (("\\.csv\\'" . csv-mode))
+  :bind (:map csv-mode-map
+         ("," . hydra-csv/body))
+  :defines hydra-csv/body
+  :config
+  (defhydra hydra-csv (:hint nil :color amaranth)
+    "
+^NAV^        ^TRANSFORM^      ^ALIGN^         ^TOGGLE^         ^YANK^
+_f_: fwd     _s_: sort        _a_: align      _d_: desc        _k_: kill
+_b_: bwd     _S_: sort num    _A_: unalign    _T_: invisible   _y_: yank
+_n_: next    _t_: transpose   ^ ^             ^ ^              _Y_: yank as new table
+_p_: prev    _r_: reverse
+"
+    ("f" csv-forward-field)
+    ("b" csv-backward-field)
+    ("n" next-line)
+    ("p" previous-line)
+    ("t" csv-transpose)
+    ("s" csv-sort-fields)
+    ("S" csv-sort-numeric-fields)
+    ("a" csv-align-fields)
+    ("A" csv-unalign-fields)
+    ("r" csv-reverse-region)
+    ("d" csv-toggle-descending)
+    ("T" csv-toggle-invisibility)
+    ("k" csv-kill-fields)
+    ("y" csv-yank-fields)
+    ("Y" csv-yank-as-new-table)
+    ("u" undo "undo")
+    ("q" nil "quit" :color blue)))
+
 ;; ---------- D --------------------------------------------------
 (use-package debian-control-mode
   :load-path "~/.emacs.d/private/dcf/"
