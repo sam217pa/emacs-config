@@ -386,6 +386,9 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq counsel-osx-app-location
         '("/Applications/" "~/Applications/" "~/sam_app/")))
 
+(use-package counsel-gtags :ensure t
+  :defer t)
+
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
 
