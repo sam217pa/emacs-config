@@ -66,6 +66,11 @@
    "C-x C-r" 'ivy-switch-buffer
    "C-x M-b" 'hydra-frame/body)
 
+;;; C-M-
+  (general-define-key
+   "C-M-t" 'isearch-forward-regexp
+   "C-M-s" 'isearch-backward-regexp)
+
 ;;; M-
   (general-define-key
    "M-<backspace>" 'delete-to-sentence-beg

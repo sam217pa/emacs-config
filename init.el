@@ -1254,10 +1254,10 @@ undo               _u_: undo
 (use-package multiple-cursors
   :quelpa (multiple-cursors :fetcher github :repo "magnars/multiple-cursors.el")
   :general
-  ("C-M-s" 'hydra-mc/mc/mark-previous-like-this
-   "C-M-t" 'hydra-mc/mc/mark-next-like-this
-   "C-M-S-s" 'mc/unmark-next-like-this
-   "C-M-S-t" 'mc/unmark-previous-like-this
+  ("M-s-s" 'hydra-mc/mc/mark-previous-like-this
+   "M-s-t" 'hydra-mc/mc/mark-next-like-this
+   "M-s-S" 'mc/unmark-next-like-this
+   "M-s-T" 'mc/unmark-previous-like-this
    "H-SPC" 'hydra-mc/body)
   :commands
   (hydra-mc/mc/mark-previous-like-this
