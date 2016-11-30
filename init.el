@@ -760,6 +760,9 @@ _R_: reset
          ("r" . fastx-show-sequence)))
 
 
+(use-package fish-mode :ensure t
+  :mode (("\\.fish$" . fish-mode)))
+
 (use-package flx :ensure t)
 
 (use-package flycheck :ensure t
