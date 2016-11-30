@@ -1,7 +1,5 @@
-;; TODO use org 8.3
 (use-package org
   :load-path ("~/.emacs.d/private/org-mode")
-  :defer t
   :commands (org-mode
              org-agenda-list
              org-capture
@@ -13,30 +11,23 @@
 
   :config
 
-;;;* Use-package
-
-;;;** ox-tufte
+  ;; ---------- Extension ---------------------------------------------------
   (use-package ox-tufte :ensure t)
 
-;;;** org-bullets
   (use-package org-bullets :ensure t
     :init
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
     :config
     (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪")))
-;;;** org-indent
-  (use-package org-indent
-    :diminish "")
 
-;;;** org-magit
-  (use-package orgit :ensure t)
+  (use-package org-indent :diminish "")
 
+  (use-package orgit :ensure t :disabled t)
 
-;;;** org-gfm
   (use-package ox-gfm :ensure t)
 
-;;;* babel
+  ;; ---------- BABEL -------------------------------------------------------
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
                                  (python . t)
@@ -60,8 +51,7 @@
     "s-l" 'org-latex-export-to-latex
     )
 
-;;;* sane default
-
+  ;; ---------- default -----------------------------------------------------
   (require 'org-agenda)
 
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
@@ -87,9 +77,9 @@
 
   (org-add-link-type "ebib" 'ebib-open-org-link)
 
+;;;*** gtd with org
   (setq
    org-modules '(org-crypt)
-;;;*** gtd with org
    org-tags-column 80	     ; aligne les tags très loin sur la droite
    org-hide-block-startup t  ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
@@ -98,11 +88,10 @@
                         ("~/Org/knowledge.org" :level . 2))
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
-   '(("c" "collecte" entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %^G\n%U \n%i")
-     ("s" "stage" entry (file+headline "~/stage/TODO" "capture")   "** TODO %? %^G\n%U \n%i")
-     ("j" "journal" entry (file+datetree "~/Org/journal.org")      "* %?\nAjouté le %U\n %i\n  %a")
-     ("n" "notes" entry (file+headline "~/Org/notes.org" "Notes")  "** %U  %^g\n%?")
-     ("J" "lab-journal" entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?\n" )))
+   '(("t" "these - todo" entry (file "~/these/meta/nb/TODO.org") "* TODO %?")
+     ("T" "todo" entry (file+headline "~/Org/TODO" "Collecte") "** TODO %?")
+     ("n" "notes" entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?\n")
+     ("j" "lab-journal" entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?\n" )))
 
   (defun hour-minute-timestamp ()
     (format-time-string "%H:%M" (current-time)))
@@ -236,21 +225,9 @@
     (org-move-subtree-down)
     (end-of-line 1))
 
-  ;; FIXME. does not work.
-  (defun orgpy-italicize (arg)
-    (interactive "p")
-    (cond ((looking-back "[a-zA-z]\\>")
-           (insert "/")
-           (save-excursion
-             (backward-word)
-             (insert "/")))
-          (t
-           (self-insert-command arg))))
-
 ;;;* Keybindings
   (general-define-key
    :keymaps 'org-mode-map
-    "/" 'orgpy-italicize
     (general-chord ",c") 'org-shiftcontrolleft
     (general-chord ",t") 'org-shiftcontroldown
     (general-chord ",s") 'org-shiftcontrolup
