@@ -520,11 +520,11 @@ _r_: restart
                            :color pink
                            :post (deactivate-mark))
   "
-  ^_s_^     _d_elete    _S_tring
-_c_   _r_   _q_uit      _y_ank
-  ^_t_^     _n_ew-copy  _R_eset
-^^^^        _e_xchange  _u_ndo
-^^^^        ^ ^         _p_aste
+  ^_s_^     _d_elete      _S_tring
+_c_   _r_   _q_uit        _y_ank
+  ^_t_^     _n_ew-copy    _R_eset
+^^^^        _e_xchange    _u_ndo
+^^^^        ^ ^           _k_ill
 "
   ("c" backward-char nil)
   ("r" forward-char nil)
@@ -539,7 +539,8 @@ _c_   _r_   _q_uit      _y_ank
   ("y" yank-rectangle nil)
   ("u" undo nil)
   ("S" string-rectangle nil)
-  ("p" kill-rectangle nil)
+  ("k" kill-rectangle nil)
+  ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
   ("q" nil nil))
 
 

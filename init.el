@@ -781,52 +781,7 @@ _R_: reset
 
   :config
   (add-to-list 'git-gutter:update-commands 'other-window)
-  (add-to-list 'git-gutter:update-commands 'save-buffer)
-
-  (use-package git-gutter-fringe :ensure t
-    :init
-    ;; (setq-default left-fringe-width 10)
-    (setq-default right-fringe-width 0)
-    (setq-default left-fringe-width 2)
-    :config
-    (set-face-foreground 'git-gutter-fr:modified "#268bd2") ;blue
-    (set-face-foreground 'git-gutter-fr:added "#859900")    ;green
-    (set-face-foreground 'git-gutter-fr:deleted "#dc322f")  ;red
-
-    (fringe-helper-define 'git-gutter-fr:added nil
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   ")
-    (fringe-helper-define 'git-gutter-fr:deleted 'top
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      )
-    (fringe-helper-define 'git-gutter-fr:modified 'top
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   "
-      "   --   ")))
+  (add-to-list 'git-gutter:update-commands 'save-buffer))
 
 (use-package google-this :ensure t
   :bind (("C-x g" . google-this-mode-submap)
@@ -915,6 +870,15 @@ _R_: reset
   :commands grab-mac-link)
 
 ;; ---------- H --------------------------------------------------
+(use-package haskell-mode :ensure t
+  :mode (("\\.hs\\'" . haskell-mode))
+  :config
+  (use-package intero :ensure t
+    :init
+    (add-hook 'haskell-mode-hook 'intero-mode)
+    :commands (intero-mode)
+    :diminish " λ"))
+
 (use-package helm
   ;; disabled for now, but I've copy and pasted here the advice from
   ;; tuhdo about helm.
@@ -932,11 +896,11 @@ _R_: reset
     "Hide minibuffer in Helm session if we use the header line as input field."
     (when (with-helm-buffer helm-echo-input-in-header-line)
       (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-	(overlay-put ov 'window (selected-window))
-	(overlay-put ov 'face
-		     (let ((bg-color (face-background 'default nil)))
-		       `(:background ,bg-color :foreground ,bg-color)))
-	(setq-local cursor-type nil))))
+        (overlay-put ov 'window (selected-window))
+        (overlay-put ov 'face
+                     (let ((bg-color (face-background 'default nil)))
+                       `(:background ,bg-color :foreground ,bg-color)))
+        (setq-local cursor-type nil))))
 
   (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
 
