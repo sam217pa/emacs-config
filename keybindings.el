@@ -41,6 +41,7 @@
    "C-S-z" 'undo-tree-redo
    "C-S-s" 'counsel-ag
    "C-S-k" 'kill-whole-line
+
    "C-r" 'sp-slurp-hybrid-sexp
    "C- " 'mark-line
    "C-ç" 'avy-goto-char-in-line
@@ -78,7 +79,8 @@
    "M-/" 'hippie-expand
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
-   "M-g" 'hydra-error/body
+   "M-ê" 'hydra-error/body
+   "M-g" 'avy-goto-char-in-line
 
    "M-s-n" 'forward-paragraph
    "M-s-p" 'backward-paragraph)
@@ -90,14 +92,18 @@
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
    "s-j" (lambda () (interactive) (join-line 4))
+   "s-k" (lambda () (interactive) (kill-visual-line -1))
    "s-l" 'sam--comment-or-uncomment-region-or-line
    "s-m" 'delete-other-windows
    "s-q" nil                        ; don't close emacs with option q.
    "s-s" 'move-text-up
    "s-t" 'move-text-down
+   "s-u" 'negative-argument
    "s-w" 'delete-other-windows
    "s-W" 'delete-window
-   "s-'" 'sam--iterm-focus)
+   "s-'" 'avy-goto-char-2
+   "s-." 'hydra-secondary/body
+   "s-\"" 'ffap)
 
 ;;; H-
   (general-define-key
@@ -109,8 +115,9 @@
    "H-r" 'counsel-recentf
    "H-n" 'buffer-to-new-frame
    "H-m" 'delete-other-frames
-   "H-'" 'sam--iterm-goto-filedir-or-home
    "H-t" 'shell
+   "H-u" 'revert-buffer
+   "H-'" 'sam--iterm-goto-filedir-or-home
    ;; H-M-
    "H-M-p" 'scroll-up-command
    "H-M-n" 'scroll-down-command)
@@ -301,6 +308,16 @@ _C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
   ("O" (lambda () (interactive) (find-file "~/dotfile/emacs/org.el")))
   ("F" (lambda () (interactive) (find-file "~/dotfile/emacs/functions.el")))
   ("t" sam--edit-todo))
+
+(defhydra hydra-font (:hint nil :exit t)
+  "
+^MONO^   ^PROPORTIONAL^  ^VARIABLE
+_g_: go  _i_: input      _r_: roboto
+
+"
+  ("g" (lambda () (interactive) (set-frame-font "Go Mono 12" t)))
+  ("i" (lambda () (interactive) (set-frame-font "Input Sans 12" t) (text-scale-increase 1 :1)))
+  ("r" (lambda () (interactive) (set-frame-font "Roboto 13"))))
 
 (defhydra hydra-frame (:hint nil :columns 3 :color blue)
   "frames"
@@ -568,56 +585,53 @@ _l_ight   li_n_um        ^ ^          _m_aximized
   ("t" toggle-truncate-lines)
   ("q" nil "quit" :color blue))
 
-;; (defhydra hydra-window
-;;   (:hint nil
-;;    :color amaranth
-;;    :columns 4)
-;;   "
-;;  ^Move^ ^^^^ ^ ^ ^ ^  ^Split^           ^ ^     ^Size^    ^ ^   ^Command^   ^Window^
-;;  ^----^ ^^^^ ^ ^ ^ ^  ^-----^           ^ ^     ^----^    ^ ^   ^-------^   ^------^
+(defhydra hydra-window
+  (:hint nil
+   :color amaranth
+   :columns 4)
+  "
+^MOVE^ ^^^^ ^ ^  ^SPLIT^          ^SIZE^    ^ ^   ^COMMAND^   ^WINDOW^
+^ ^ _s_ ^ ^   _-_ : split H    ^ ^ _p_ ^ ^  ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
+_c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
+^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^  ^ ^   ^ ^         ^9^ ^0^
+^ ^ ^ ^ ^ ^   _v_ : split V
+"
+  ("c" windmove-left :color blue)
+  ("r" windmove-right :color blue)
+  ("t" windmove-down :color blue )
+  ("s" windmove-up :color blue)
 
-;;  ^ ^ ^ ^ _S_ ^ ^ ^ ^   _it_: split H    ^ ^      ^ ^      ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
-;;  ^ ^ ^ ^ _s_ ^ ^ ^ ^   _-_ : split H    ^ ^      _p_: - H ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
-;;  _C_ _c_ _é_ _r_ _R_   _|_ : split V    + W: _b_ ^=^ _f_: - W   _N_ew       ^9^ ^0^
-;;  ^ ^ ^ ^ _t_ ^ ^ ^ ^   _ir_: split V    ^ ^      _n_: + H ^ ^
-;;  ^ ^ ^ ^ _T_ ^ ^ ^ ^   _v_ : split V
-;; "
-;;   ("c" windmove-left :color blue)
-;;   ("r" windmove-right :color blue)
-;;   ("t" windmove-down :color blue )
-;;   ("s" windmove-up :color blue)
-;;   ;; ("C" 'evil-window-move-far-left )
-;;   ;; ("R" 'evil-window-move-far-right )
-;;   ;; ("T" 'evil-window-move-very-bottom )
-;;   ;; ("S" 'evil-window-move-very-top )
+  ;; splt
+  ("-" split-window-vertically )
+  ("|" split-window-horizontally )
+  ("v" split-window-horizontally :color blue)
+  ("h" split-window-vertically :color blue)
 
-;;   ;; splt
-;;   ("it" split-window )
-;;   ("-" split-window )
-;;   ("|" split-window-horizontally )
-;;   ("ir" split-window-horizontally )
-;;   ("v" split-window-horizontally :color blue)
+  ;; size
+  ("p" (lambda () (interactive) (enlarge-window -1)))
+  ("b" enlarge-window-horizontally)
+  ("f" (lambda () (interactive) (enlarge-window-horizontally -1)))
+  ("n" (lambda () (interactive) (enlarge-window 1)))
 
+  ("m" delete-other-windows )
+  ("d" delete-window )
 
-;;   ("m" delete-other-windows )
-;;   ("d" delete-window )
+  ;; change height and width
+  ("0" select-window-0 :color blue)
+  ("1" select-window-1 :color blue)
+  ("2" select-window-2 :color blue)
+  ("3" select-window-3 :color blue)
+  ("4" select-window-4 :color blue)
+  ("5" select-window-5 :color blue)
+  ("6" select-window-6 :color blue)
+  ("7" select-window-7 :color blue)
+  ("8" select-window-8 :color blue)
+  ("9" select-window-9 :color blue)
 
-;;   ;; change height and width
-;;   ("0" select-window-0 :color blue)
-;;   ("1" select-window-1 :color blue)
-;;   ("2" select-window-2 :color blue)
-;;   ("3" select-window-3 :color blue)
-;;   ("4" select-window-4 :color blue)
-;;   ("5" select-window-5 :color blue)
-;;   ("6" select-window-6 :color blue)
-;;   ("7" select-window-7 :color blue)
-;;   ("8" select-window-8 :color blue)
-;;   ("9" select-window-9 :color blue)
-
-;;   ("=" balance-windows )
-;;   ("é" ace-window)
-;;   ("." hydra-buffer/body "buffers" :color blue)
-;;   ("q" nil "quit" :color blue))
+  ("=" balance-windows )
+  ("é" ace-window)
+  ("." hydra-buffer/body "buffers" :color blue)
+  ("q" nil "quit" :color blue))
 
 (defhydra hydra-zoom (:hint nil)
   "
@@ -656,3 +670,13 @@ _é_: window        _m_: make      _t_: toggle
   ("z" hydra-zoom/body)
   ("s-<tab>" other-frame)
   ("." nil "quit"))
+
+(defhydra hydra-secondary (:hint nil :color blue)
+  "
+_t_: todo
+_a_: agenda
+_f_: font
+"
+  ("t" (lambda () (interactive) (org-agenda 1 "t")))
+  ("a" (lambda () (interactive) (org-agenda 1 "a")))
+  ("f" hydra-font/body))

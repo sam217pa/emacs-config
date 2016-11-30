@@ -180,8 +180,8 @@ When using Homebrew, install it using \"brew install trash\"."
           (avy-goto-word-or-subword-1 . post))))
 
 (use-package avy-zap :ensure t
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
+  :bind (("M-Z" . avy-zap-to-char-dwim)
+         ("M-z" . avy-zap-up-to-char-dwim)))
 
 (use-package aggressive-indent :ensure t
   :diminish (aggressive-indent-mode . "")
@@ -207,16 +207,6 @@ When using Homebrew, install it using \"brew install trash\"."
   :commands blank-mode)
 
 ;; ---------- C --------------------------------------------------
-(use-package calendar
-  :commands (calendar)
-  :config
-  (general-define-key
-   :keymaps 'calendar-mode-map
-    "P" 'org-journal-previous-entry
-    "N" 'org-journal-next-entry
-    "o" 'org-journal-read-entry
-    "." 'hydra-calendar/body))
-
 (use-package color-theme-solarized :ensure t
   :init
   ;; to make the byte compiler happy.
@@ -313,7 +303,6 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package counsel :ensure t
   :bind*
   (("M-x"     . counsel-M-x)
-   ("C-s"     . counsel-grep-or-swiper)
    ("C-x C-f" . counsel-find-file)
    ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
@@ -721,8 +710,10 @@ _c_  _e_  _r_ | ^^           | _0_: reset      |     _o_: outline
 
 (use-package expand-region :ensure t
   :defines hydra-expand-region/body
-  :bind (("C-=" . hydra-expand-region/er/expand-region)
-         ("C-°" . hydra-expand-region/er/contract-region))
+  :bind (("C-=" . er/expand-region)
+         ("s-=" . hydra-expand-region/er/expand-region)
+         ("C-°" . er/contract-region)
+         ("s-°" . hydra-expand-region/er/contract-region))
   :general
   ("s-SPC" 'hydra-expand-region/er/expand-region)
   :config
@@ -769,9 +760,7 @@ _R_: reset
   :commands flycheck-mode
   :diminish (flycheck-mode . "ⓕ")
   :config
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc r-lintr))
-  (setq flycheck-highlighting-mode 'lines)
-  (setq flycheck-check-syntax-automatically '(save)))
+  (setq flycheck-highlighting-mode 'symbols))
 
 ;; ---------- G --------------------------------------------------
 (use-package ggtags :ensure t
@@ -1164,22 +1153,22 @@ abort completely with `C-g'."
 
 ;; ---------- M --------------------------------------------------
 (use-package magit :ensure t
-  :commands
-  (magit-blame
-   magit-commit
-   magit-commit-popup
-   magit-diff-popup
-   magit-diff-unstaged
-   magit-fetch-popup
-   magit-init
-   magit-log-popup
-   magit-pull-popup
-   magit-push-popup
-   magit-revert
-   magit-stage-file
-   magit-status
-   magit-unstage-file
-   magit-blame-mode)
+  :commands (magit-blame
+             magit-commit
+             magit-commit-popup
+             magit-diff-popup
+             magit-diff-unstaged
+             magit-fetch-popup
+             magit-init
+             magit-log-popup
+             magit-pull-popup
+             magit-push-popup
+             magit-revert
+             magit-stage-file
+             magit-status
+             magit-unstage-file
+             magit-blame-mode)
+  :bind (("s-v" . magit-status))
 
   :config
   (global-git-commit-mode)
@@ -1465,31 +1454,31 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
+  :defines hydra-projectile/body
   :diminish (projectile-mode . "ⓟ")
-  :commands
-  (projectile-ag
-   projectile-switch-to-buffer
-   projectile-invalidate-cache
-   projectile-find-dir
-   projectile-find-file
-   projectile-find-file-dwim
-   projectile-find-file-in-directory
-   projectile-ibuffer
-   projectile-kill-buffers
-   projectile-kill-buffers
-   projectile-multi-occur
-   projectile-multi-occur
-   projectile-switch-project
-   projectile-switch-project
-   projectile-switch-project
-   projectile-recentf
-   projectile-remove-known-project
-   projectile-cleanup-known-projects
-   projectile-cache-current-file
-   projectile-project-root
-   projectile-mode
-   projectile-project-p
-   )
+  :commands (projectile-ag
+             projectile-switch-to-buffer
+             projectile-invalidate-cache
+             projectile-find-dir
+             projectile-find-file
+             projectile-find-file-dwim
+             projectile-find-file-in-directory
+             projectile-ibuffer
+             projectile-kill-buffers
+             projectile-kill-buffers
+             projectile-multi-occur
+             projectile-multi-occur
+             projectile-switch-project
+             projectile-switch-project
+             projectile-switch-project
+             projectile-recentf
+             projectile-remove-known-project
+             projectile-cleanup-known-projects
+             projectile-cache-current-file
+             projectile-project-root
+             projectile-mode
+             projectile-project-p)
+  :bind ("s-p" . hydra-projectile/body)
   :config
   (projectile-global-mode 1)
 
@@ -1729,7 +1718,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :diminish "")
 
 (use-package swiper :ensure t
-  :commands swiper)
+  :bind* ("C-s" . swiper))
 
 ;; ---------- T --------------------------------------------------
 (use-package tex
@@ -1848,6 +1837,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (window-numbering-install-mode-line))
 
 (use-package wrap-region :ensure t
+  :diminish ""
   :config
   (wrap-region-mode 1)
   (wrap-region-add-wrappers
@@ -1855,7 +1845,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
      ("{-" "-}" "#")
      ("/" "/" nil ruby-mode)
      ("/* " " */" "#" (java-mode javascript-mode css-mode))
-     ("`" "`" nil (markdown-mode ruby-mode)))))
+     ("`" "`" nil (markdown-mode ruby-mode))
+     ("*" "*" nil (markdown-mode))
+     ("_" "_" nil (markdown-mode)))))
 
 ;; ---------- X --------------------------------------------------
 (use-package xterm-color
