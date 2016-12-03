@@ -90,21 +90,22 @@
   (menu-bar-mode -1)                    ; barre de menu
   (scroll-bar-mode -1)                 ; enlève la barre de défilement
   (set-frame-font "Inconsolata 14")    ; police par défault
-  (blink-cursor-mode -1)               ; pas de clignotement
+  (blink-cursor-mode 1)               ; pas de clignotement
   (global-visual-line-mode)
-  (diminish 'visual-line-mode "") )
+  (diminish 'visual-line-mode ""))
 
 (when window-system
   (set-frame-size (selected-frame) 85 61))
 
+(setq-default cursor-type 'hbar)
 (add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
 
 (add-to-list 'default-frame-alist '(height . 46))
 (add-to-list 'default-frame-alist '(width . 85))
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Go Mono 12"))
-(set-face-attribute 'default nil :font "Go Mono 12")
+(add-to-list 'default-frame-alist '(font . "Source Code Pro 13"))
+(set-face-attribute 'default nil :font "Source Code Pro 13")
 
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
@@ -157,6 +158,13 @@ When using Homebrew, install it using \"brew install trash\"."
     (setq ag-reuse-buffers t)
     (add-to-list 'ag-arguments "--word-regexp")))
 
+(use-package all-the-icons )
+
+(use-package anzu :ensure t
+  :diminish ""
+  :config
+  (global-anzu-mode 1))
+
 (use-package auto-fill-mode
   :diminish auto-fill-function
   :commands turn-on-auto-fill
@@ -208,6 +216,7 @@ When using Homebrew, install it using \"brew install trash\"."
 
 ;; ---------- C --------------------------------------------------
 (use-package color-theme-solarized :ensure t
+  :disabled t
   :init
   ;; to make the byte compiler happy.
   ;; emacs25 has no color-themes variable
@@ -980,7 +989,7 @@ abort completely with `C-g'."
   (add-hook 'linum-mode-hook 'sam--fix-linum-size))
 
 (use-package lispy :ensure t
-  :diminish (lispy-mode . "λ")
+  :diminish (lispy-mode . " λ")
   :commands lispy-mode
   :init
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
@@ -1317,7 +1326,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
 (use-package projectile :ensure t
   :defines hydra-projectile/body
-  :diminish (projectile-mode . "ⓟ")
+  :diminish (projectile-mode . " ⓟ")
   :commands (projectile-ag
              projectile-switch-to-buffer
              projectile-invalidate-cache
@@ -1562,25 +1571,13 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (smooth-scrolling-mode)
   (setq smooth-scroll-margin 5))
 
-(use-package spaceline :ensure t
-  :defer 1
-  :config
-  (use-package spaceline-config
-    :init
-    (setq powerline-default-separator 'utf-8)
-    (setq spaceline-window-numbers-unicode t)
-    :config
-    (spaceline-emacs-theme)
-    (window-numbering-mode)
-    (spaceline-toggle-buffer-size-off)))
-
 (use-package subword :defer t
   :init
   (add-hook 'prog-mode-hook (lambda () (subword-mode 1)))
   :diminish "")
 
 (use-package swiper :ensure t
-  :bind* ("C-s" . swiper))
+  :bind* ("s-s" . swiper))
 
 ;; ---------- T --------------------------------------------------
 (use-package tex
@@ -1738,6 +1735,11 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (setq yas-indent-line 'none))
 
 ;; ---------- Z --------------------------------------------------
+(use-package zerodark-theme :ensure t
+  :defer 1
+  :config
+  (zerodark-setup-modeline-format))
+
 (use-package zoom-frm :ensure t
   :commands
   (zoom-frm-in
