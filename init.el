@@ -860,6 +860,32 @@ _R_: reset
   :quelpa (imenu-anywhere :fetcher github :repo "vspinu/imenu-anywhere")
   :commands ivy-imenu-anywhere)
 
+(use-package "isearch"
+  :bind* (("C-s" . isearch-forward)
+          ("C-r" . isearch-backward))
+  :config
+  (defun symbol-name-at-point ()
+    (let ((symbol (symbol-at-point)))
+      (if symbol (symbol-name symbol) "")))
+
+  (defun current-thing ()
+    "Return the current \"thing\":
+- if the region is active, return the region's text and deactivate the mark
+- else return the symbol at point or the empty string."
+    (let ((thing (if (region-active-p)
+                     (buffer-substring (region-beginning) (region-end))
+                   (symbol-name-at-point))))
+      (deactivate-mark) thing))
+
+  (defun isearch-thing ()
+    "Search for the current \"thing\":
+- if the region is active, return the region's text and deactivate the mark
+- else return the symbol at point or the empty string."
+    (interactive)
+    (isearch-yank-string (current-thing)))
+
+  (define-key isearch-mode-map (kbd "C-t") #'isearch-thing))
+
 (use-package ispell :ensure t
   :defines ispell-word-then-abbrev
   :commands (ispell-word-then-abbrev
