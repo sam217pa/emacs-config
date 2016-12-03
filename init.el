@@ -849,9 +849,9 @@ _R_: reset
 (use-package ido
   :defer t
   :config
-  (use-package ido-vertical-mode :ensure t
-    :config
-    (ido-vertical-mode 1)))
+  (general-define-key :keymaps 'ido-completion-map
+    "C-n" 'ido-next-match
+    "C-p" 'ido-prev-match))
 
 (use-package iedit :ensure t
   :bind (("C-*" . iedit-mode)))
@@ -1223,7 +1223,9 @@ undo               _u_: undo
              multi-term-dedicated-open
              multi-term-dedicated-close
              multi-term-dedicated-select
-             multi-term-dedicated-toggle))
+             multi-term-dedicated-toggle)
+  :init
+  (setq multi-term-program "/usr/local/bin/bash"))
 
 ;; ---------- N --------------------------------------------------
 (use-package nlinum :ensure t
@@ -1651,7 +1653,10 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
 ;; ---------- V --------------------------------------------------
 (use-package visual-regexp-steroids :ensure t
-  :commands (vr/replace vr/query-replace))
+  :bind* (("s-%" . vr/replace)
+          ("M-s-%" . vr/query-replace))
+  :config
+  (setq vr/auto-show-help nil))
 
 ;; ---------- W --------------------------------------------------
 (use-package web-mode :ensure t
@@ -1788,3 +1793,4 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 ;;; custom
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file)
+(put 'erase-buffer 'disabled nil)
