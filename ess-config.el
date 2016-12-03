@@ -84,7 +84,6 @@
 
 (general-define-key
  :keymaps 'inferior-ess-mode-map
-  "s-c" 'ess-transcript-clean-buffer
   "s-d" 'ess-insert-pipe)
 
 ;; ---------- hydra -------------------------------------------------------

@@ -61,8 +61,10 @@
    "C-x l" 'sam--chrome-plain-link
    "C-x n" 'narrow-or-widen-dwim
    "C-x p" 'hydra-projectile/body
-   "C-x o" (lambda () (interactive) (other-frame -1))
+   "C-x o" 'other-window
    "C-x v" 'hydra-git/body
+   "C-x =" 'balance-windows
+
    "C-x C-b" 'ibuffer
    "C-x C-r" 'ivy-switch-buffer
    "C-x M-b" 'hydra-frame/body)
@@ -89,6 +91,8 @@
   (general-define-key
    "s-<backspace>" 'ivy-switch-buffer
    "s-<tab>" 'sam--switch-to-other-buffer
+   "s-c" 'windmove-left
+   "s-r" 'windmove-right
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
    "s-j" (lambda () (interactive) (join-line 4))
@@ -96,8 +100,6 @@
    "s-l" 'sam--comment-or-uncomment-region-or-line
    "s-m" 'delete-other-windows
    "s-q" nil                        ; don't close emacs with option q.
-   "s-s" 'move-text-up
-   "s-t" 'move-text-down
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
    "s-W" 'delete-window
@@ -109,15 +111,19 @@
   (general-define-key
    "H-<backspace>" 'ivy-switch-buffer-other-window
    "H-<tab>" 'hydra-outline/body
-   "H-f" 'toggle-frame-fullscreen
+   "H-'" 'sam--iterm-goto-filedir-or-home
    "H-F" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
-   "H-r" 'counsel-recentf
-   "H-n" 'buffer-to-new-frame
+   "H-f" 'toggle-frame-fullscreen
+   "H-l" 'sam--duplicate-line
    "H-m" 'delete-other-frames
-   "H-t" 'shell
+   "H-n" 'buffer-to-new-frame
+   "H-s" 'move-text-up
+   "H-t" 'move-text-down
+   "H-r" 'counsel-recentf
    "H-u" 'revert-buffer
-   "H-'" 'sam--iterm-goto-filedir-or-home
+   "H-w" 'ace-delete-window
+
    ;; H-M-
    "H-M-p" 'scroll-up-command
    "H-M-n" 'scroll-down-command)
@@ -136,6 +142,7 @@
    (general-chord "qf") #'delete-frame
    (general-chord "ql") (lambda () (interactive) (avy-goto-line 4))
    (general-chord "qs") #'save-buffer
+   (general-chord "qw") #'delete-window
    (general-chord "QP") #'hydra-projectile/body
    (general-chord "VV") #'magit-status
    (general-chord ";;") #'sam--comment-or-uncomment-region-or-line)
@@ -144,7 +151,9 @@
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
   (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
   (general-define-key "C-M-i" 'complete-symbol)
-  (general-define-key :keymaps 'shell-mode-map "s-c" 'erase-buffer))
+  (general-define-key :keymaps 'shell-mode-map "H-c" 'erase-buffer)
+  (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer))
+
 
 ;;; Which-key
 
@@ -543,7 +552,6 @@ _c_   _r_   _q_uit        _y_ank
   ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
   ("q" nil nil))
 
-
 (defhydra hydra-term (:hint nil :exit t)
   "
    ^TERM^           ^MULTITERM^
@@ -553,7 +561,7 @@ _e_: eshell   |  _n_: next   _o_: open
 _s_: shell    |  _p_: prev   _S_: select
 ^ ^           |  ^ ^         _T_: toggle
 "
-  ("t" term)
+  ("t" (lambda () (interactive) (term "/usr/local/bin/bash")))
   ("e" eshell)
   ("s" shell)
   ("m" multi-term)
@@ -589,13 +597,15 @@ _l_ight   li_n_um        ^ ^          _m_aximized
 (defhydra hydra-window
   (:hint nil
    :color amaranth
-   :columns 4)
+   :columns 4
+   :pre (winner-mode 1)
+   :post (balance-windows))
   "
 ^MOVE^ ^^^^ ^ ^  ^SPLIT^          ^SIZE^    ^ ^   ^COMMAND^   ^WINDOW^
 ^ ^ _s_ ^ ^   _-_ : split H    ^ ^ _p_ ^ ^  ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
 _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
-^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^  ^ ^   ^ ^         ^9^ ^0^
-^ ^ ^ ^ ^ ^   _v_ : split V
+^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^  ^ ^   _u_ndo      ^9^ ^0^
+^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^ ^ ^ ^ ^  ^ ^   _R_edo
 "
   ("c" windmove-left :color blue)
   ("r" windmove-right :color blue)
@@ -603,7 +613,7 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("s" windmove-up :color blue)
 
   ;; splt
-  ("-" split-window-vertically )
+  ("-" split-window-vertically)
   ("|" split-window-horizontally )
   ("v" split-window-horizontally :color blue)
   ("h" split-window-vertically :color blue)
@@ -614,6 +624,8 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("f" (lambda () (interactive) (enlarge-window-horizontally -1)))
   ("n" (lambda () (interactive) (enlarge-window 1)))
 
+  ("u" winner-undo)
+  ("R" winner-redo)
   ("m" delete-other-windows )
   ("d" delete-window )
 
