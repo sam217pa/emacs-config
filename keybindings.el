@@ -1,37 +1,3 @@
-;; Most of the configuration should be done under general.el
-;; Most of the keybindings should have a clear and precise prefix.
-;; common functions should be under the same prefix (leader)
-;;
-
-;; I define most of my frequently used keybindings under the SPC
-;; prefix. Free keyboard touch are ê, à, ç, é, è.
-;;
-;; The META map can be used in different ways between the normal map
-;; and the insert map. In insert state, in should respect emacs
-;; default, since it is often used by packages. It is free in normal
-;; state map.
-;;
-;; The SUPER and HYPER key are kind of hard to use, but they can be
-;; used as placeholder for common functions. In ess, one can give
-;; different function to M-RET, C-RET, S-RET or H-RET for example. It
-;; should nonetheless stay consistent and obvious what each keypress
-;; does. When it's not, consider wrapping it with which-key or an hydra.
-;;
-;; I tend to attribute the same meaning to S-x and H-x, but the H-x
-;; must feel stronger than the S-x. Like maximise with S-x and
-;; fullscreen with H-x. It is not really consistent for now, as the
-;; S-x is sometimes more useful than the H-x definition.
-;;
-;; I also and finally use key-seq, a key-chord related packages, but
-;; the order of keys matters. I constructed a prefix around x, a touch
-;; that I do not press that often in french. Like xs to save the
-;; buffer, without leaving the insert mode. Or xv to stage the current
-;; hunk. They key-seq keymap must be strictly reserved to really
-;; frequent functions. The xs sequence for example allow me to save
-;; the buffer with two keypress instead of having to press `C-x C-s`,
-;; or `xq (ESC) SPC s .`. It must not be bloated. I reserve it for
-;; function that I use often in insert state.
-
 (use-package general :ensure t
   :config
 
@@ -44,10 +10,13 @@
 
    "C-r" 'sp-slurp-hybrid-sexp
    "C- " 'mark-line
-   "C-ç" 'avy-goto-char-in-line
    "C-é" 'hydra-window/body
    "C-'" 'avy-goto-word-or-subword-1
    "C-." 'hydra-main/body)
+
+;;; C-M-
+  (general-define-key
+   "C-M-i" 'complete-symbol)
 
 ;;; C-c
   (general-define-key
@@ -55,7 +24,6 @@
 
 ;;; C-x
   (general-define-key
-   "C-x /" 'counsel-ag
    "C-x SPC" 'hydra-rectangle/body
    "C-x d" 'dired-other-window
    "C-x l" 'sam--chrome-plain-link
@@ -68,11 +36,6 @@
    "C-x C-b" 'ibuffer
    "C-x C-r" 'ivy-switch-buffer
    "C-x M-b" 'hydra-frame/body)
-
-;;; C-M-
-  (general-define-key
-   "C-M-t" 'isearch-forward-regexp
-   "C-M-s" 'isearch-backward-regexp)
 
 ;;; M-
   (general-define-key
@@ -96,16 +59,19 @@
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
    "s-j" (lambda () (interactive) (join-line 4))
-   "s-k" (lambda () (interactive) (kill-visual-line -1))
+   "s-k" (lambda () (interactive)
+           (save-excursion
+             (move-beginning-of-line nil)
+             (kill-visual-line -1)))    ; delete previous line
    "s-l" 'sam--comment-or-uncomment-region-or-line
-   "s-m" 'delete-other-windows
    "s-q" nil                        ; don't close emacs with option q.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
    "s-W" 'delete-window
    "s-'" 'avy-goto-char-2
    "s-." 'hydra-secondary/body
-   "s-\"" 'ffap)
+   "s-\"" 'ffap
+   "s-(" 'hydra-sp/body)
 
 ;;; H-
   (general-define-key
@@ -135,7 +101,6 @@
     (setq key-chord-two-keys-delay 0.2))
 
   (general-define-key
-   (general-chord "()") #'hydra-sp/body
    (general-chord "qq") #'avy-goto-word-or-subword-1
    (general-chord "qb") #'ivy-switch-buffer
    (general-chord "qd") #'kill-this-buffer
@@ -143,14 +108,11 @@
    (general-chord "ql") (lambda () (interactive) (avy-goto-line 4))
    (general-chord "qs") #'save-buffer
    (general-chord "qw") #'delete-window
-   (general-chord "QP") #'hydra-projectile/body
-   (general-chord "VV") #'magit-status
-   (general-chord ";;") #'sam--comment-or-uncomment-region-or-line)
+   (general-chord "VV") #'magit-status)
 
 ;;; Mode specific map
-  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
-  (define-key emacs-lisp-mode-map (kbd "s-e") 'eval-defun)
-  (general-define-key "C-M-i" 'complete-symbol)
+  (general-define-key :keymaps 'Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+  (general-define-key :keymaps 'emacs-lisp-mode-map "s-e" 'eval-defun)
   (general-define-key :keymaps 'shell-mode-map "H-c" 'erase-buffer)
   (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer))
 
@@ -207,9 +169,8 @@
 
 (defhydra hydra-buffer (:color blue :columns 3 :hint nil)
   "
-^Nav^     ^Menu^           ^Delete^           ^Actions^
-^---^     ^----^           ^------^           ^-------^
-_n_ext    _b_: switch      _d_: del ←         ^ ^
+^NAV^     ^MENU^           ^DELETE^           ^ACTIONS^
+_n_ext      _b_: switch      _d_: del ←         ^ ^
 _p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
 ^ ^       _C-b_: menu      _M-d_: del + win   _._: window
   "
@@ -230,8 +191,7 @@ _p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
   (:color pink
    :hint nil)
   "
-^Nav^      ^Mark^         ^Unmark^        ^Actions^          ^Search^
-^---^      ^----^         ^------^        ^-------^          ^------^
+^NAV^      ^MARK^         ^UNMARK^        ^ACTIONS^          ^SEARCH^
 _p_: prev  _m_: mark      _u_: unmark     _x_: execute       _R_: re-isearch
 _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
 ^ ^        _d_: delete    ^ ^             _g_: refresh       _O_: multi-occur
@@ -261,8 +221,7 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
 
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
   "
-^^^Nav^ ^^   ^Edit^                ^Mark^      ^Action^
-^^^---^ ^^   ^----^                ^----^      ^------^
+^^^NAV^ ^^   ^EDIT^                ^MARK^      ^ACTION^
 ^ ^ _s_ ^ ^  _o_pen other window   _m_ark      _h_: show hidden
 _c_ ^ ^ _r_  _R_ename              _u_nmark
 ^ ^ _t_ ^ ^  _S_ort                _d_elete
@@ -295,8 +254,7 @@ _c_ ^ ^ _r_  _R_ename              _u_nmark
 
 (defhydra hydra-file (:hint nil :exit t)
   "
-     ^Find^           ^Recent^      ^Command^      ^Bookmarks^
-     ^----^           ^------^      ^-------^      ^---------^
+  ^FIND^           ^RECENT^      ^COMMAND^      ^BOOKMARKS^
   _f_: file        _r_: recent   _s_: save      _i_: init
 _C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
   _p_: project      ^^           _d_: delete    _O_: org
@@ -340,12 +298,11 @@ _g_: go  _i_: input      _r_: roboto
                 (message "killed diff buffers"))
    :hint nil)
   "
-^Nav^                 ^Hunk^            ^Files^        ^Actions^
-^---^                 ^----^            ^-----^        ^-------^
-_n_: next hunk        _s_tage hunk      _S_tage        _c_ommit
-_p_: previous hunk    _r_evert hunk     _R_evert       _b_lame
-_C-P_: first hunk     _P_opup hunk      _d_iff         _C_heckout
-_C-N_: last hunk      _R_evision start  _t_imemachine
+^NAV^               ^HUNK^            ^FILES^        ^ACTIONS^
+  _n_: next hunk    _s_tage hunk      _S_tage        _c_ommit
+  _p_: prev hunk    _r_evert hunk     _R_evert       _b_lame
+_C-P_: first hunk   _P_opup hunk      _d_iff         _C_heckout
+_C-N_: last hunk    _R_evision start  _t_imemachine
 "
   ("n" git-gutter:next-hunk)
   ("p" git-gutter:previous-hunk)
@@ -378,8 +335,7 @@ _C-N_: last hunk      _R_evision start  _t_imemachine
   ;; this is genius hydra making from
   ;; https://github.com/abo-abo/hydra/wiki/Ibuffer
   "
-     ^Navigation^     ^Mark^          ^Actions^          ^View^
-     ^----------^     ^----^          ^-------^          ^----^
+     ^NAVIGATION^     ^MARK^          ^ACTIONS^          ^VIEW^
   _s_:    ↑        _m_: mark       _d_: delete        _g_: refresh
   _r_:  visit      _u_: unmark     _S_: save          _O_: sort
   _t_:    ↓        _*_: specific   _a_: all actions   _/_: filter
@@ -467,8 +423,7 @@ _C-N_: last hunk      _R_evision start  _t_imemachine
 
 (defhydra hydra-insert (:hint nil :color blue)
   "
-   ^INSERT^       ^LINK^    ^FINDER^
-^---------^   ^--------^ ^---------^
+^INSERT^       ^LINK^    ^FINDER^
 _t_: time      _m_: md   _M_: md
 _s_: sentence  _o_: org  _O_: org
 _p_: paragraph
@@ -486,11 +441,10 @@ _p_: paragraph
 
 (defhydra hydra-launcher (:color blue :hint nil)
   "
-^Web^        ^Blog^       ^Explorer^       ^Apps^
-^---^        ^----^       ^--------^       ^----^
-_g_oogle    _bn_ew post  _d_ired          _s_hell
-_r_eddit    _bp_ublish   _D_eer           _S_hell gotodir
-_w_iki      _bs_server   _r_anger         _a_pps
+^WEB^       ^BLOG^         ^EXPLORER^     ^APPS^
+_g_oogle    _bn_ew post    _d_ired        _s_hell
+_r_eddit    _bp_ublish     _D_eer         _S_hell gotodir
+_w_iki      _bs_server     _r_anger       _a_pps
 _t_witter
 "
   ("a" counsel-osx-apps)
@@ -517,7 +471,7 @@ _t_witter
 
 (defhydra hydra-quit (:hint nil :color blue)
   "
-   ^QUIT^
+^QUIT^
 _q_: emacs
 _r_: restart
 "
@@ -526,36 +480,36 @@ _r_: restart
   ("." hydra-main/body "back"))
 
 (defhydra hydra-rectangle (:body-pre (rectangle-mark-mode 1)
+                           :hint nil
                            :color pink
                            :post (deactivate-mark))
   "
-  ^_s_^     _d_elete      _S_tring
+  ^_s_^     _d_elete      _S_tring    _k_ill
 _c_   _r_   _q_uit        _y_ank
   ^_t_^     _n_ew-copy    _R_eset
 ^^^^        _e_xchange    _u_ndo
-^^^^        ^ ^           _k_ill
+^^^^        ^ ^
 "
-  ("c" backward-char nil)
-  ("r" forward-char nil)
-  ("s" previous-line nil)
-  ("t" next-line nil)
-  ("e" exchange-point-and-mark nil)
-  ("n" copy-rectangle-as-kill nil)
-  ("d" delete-rectangle nil)
+  ("c" backward-char)
+  ("r" forward-char)
+  ("s" previous-line)
+  ("t" next-line)
+  ("e" exchange-point-and-mark)
+  ("n" copy-rectangle-as-kill)
+  ("d" delete-rectangle)
   ("R" (if (region-active-p)
            (deactivate-mark)
-         (rectangle-mark-mode 1)) nil)
-  ("y" yank-rectangle nil)
-  ("u" undo nil)
-  ("S" string-rectangle nil)
-  ("k" kill-rectangle nil)
+         (rectangle-mark-mode 1)))
+  ("y" (lambda () (interactive) (save-excursion (yank-rectangle))))
+  ("u" undo)
+  ("S" string-rectangle)
+  ("k" kill-rectangle)
   ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
-  ("q" nil nil))
+  ("q" nil))
 
 (defhydra hydra-term (:hint nil :exit t)
   "
-   ^TERM^           ^MULTITERM^
-   ^----^           ^---------^
+^TERM^           ^MULTITERM^
 _t_: term     |  _m_: multi  _c_: close
 _e_: eshell   |  _n_: next   _o_: open
 _s_: shell    |  _p_: prev   _S_: select
@@ -575,8 +529,7 @@ _s_: shell    |  _p_: prev   _S_: select
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
-^themes^  ^modes^        ^modeline^   ^frame^        ^line^
-^------^  ^-----^        ^--------^   ^-----^        ^----^
+^THEMES^  ^MODES^        ^MODELINE^   ^FRAME^        ^LINE^
 _d_ark    _f_lycheck     _T_ime       _F_ullscreen   _t_runcate
 _l_ight   li_n_um        ^ ^          _m_aximized
 ^^        _w_hitespace   ^ ^          ^ ^
@@ -601,11 +554,11 @@ _l_ight   li_n_um        ^ ^          _m_aximized
    :pre (winner-mode 1)
    :post (balance-windows))
   "
-^MOVE^ ^^^^ ^ ^  ^SPLIT^          ^SIZE^    ^ ^   ^COMMAND^   ^WINDOW^
-^ ^ _s_ ^ ^   _-_ : split H    ^ ^ _p_ ^ ^  ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
-_c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
-^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^  ^ ^   _u_ndo      ^9^ ^0^
-^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^ ^ ^ ^ ^  ^ ^   _R_edo
+^MOVE^ ^^^^   ^SPLIT^          ^SIZE^ ^^^^   ^COMMAND^   ^WINDOW^
+^ ^ _s_ ^ ^   _-_ : split H    ^ ^ _p_ ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
+_c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
+^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^   _u_ndo      ^9^ ^0^
+^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^ ^ ^ ^ ^   _R_edo
 "
   ("c" windmove-left :color blue)
   ("r" windmove-right :color blue)
@@ -648,7 +601,7 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_  ^ ^   _m_aximize  ^5^ ^6^ ^7^ ^8^
 
 (defhydra hydra-zoom (:hint nil)
   "
-^Zoom Buffer^  ^Zoom Frame^   ^Action^
+^BUFFER^       ^FRAME^        ^ACTION^
 _t_: in        _T_: in        _0_: reset
 _s_: out       _S_: out       _q_: quit
 "
@@ -686,6 +639,7 @@ _é_: window        _m_: make      _t_: toggle
 
 (defhydra hydra-secondary (:hint nil :color blue)
   "
+[^s-.^] :
 _t_: todo
 _a_: agenda
 _f_: font
