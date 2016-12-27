@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: knitr-options
+# key: knitr
+# --
+library(knitr)
+opts_chunk$set(
+  cache = FALSE, dev = 'png', include = TRUE,
+  fig.path  = "graphics/", echo = TRUE, warning = FALSE,
+  error = FALSE, message = FALSE, global.par = TRUE
+)
