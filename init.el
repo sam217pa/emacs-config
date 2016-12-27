@@ -548,7 +548,9 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
   :mode (("\\.epub\\'" . ereader-mode)))
 
 (use-package eshell
-  :commands eshell
+  :defines eshell-here
+  :commands (eshell
+             eshell-here)
   :config
   (use-package eshell-z :ensure t)
 

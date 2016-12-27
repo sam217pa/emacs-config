@@ -405,32 +405,10 @@ Lisp function does not specify a special indentation."
      ("cyan     " "#2aa198")
      ("green    " "#859900"))
    :action '(1 ("o" (lambda (x)
-		      (with-ivy-window
-			(insert (elt x 1))))))))
+                      (with-ivy-window
+                        (insert (elt x 1))))))))
 
-;; from http://www.howardism.org/Technical/Emacs/eshell-fun.html
-(defun eshell-here ()
-  "Opens up a new shell in the directory associated with the
-current buffer's file. The eshell is renamed to match that
-directory to make multiple eshell windows easier."
-  (interactive)
-  (let* ((parent (if (buffer-file-name)
-                     (file-name-directory (buffer-file-name))
-                   default-directory))
-         (height (/ (window-total-height) 3))
-         (name   (car (last (split-string parent "/" t)))))
-    (split-window-vertically (- height))
-    (other-window 1)
-    (eshell "new")
-    (rename-buffer (concat "*eshell: " name "*"))
 
-    (insert (concat "ls"))
-    (eshell-send-input)))
-
-(defun eshell/q ()
-  (insert "exit")
-  (eshell-send-input)
-  (delete-window))
 
 ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
 (defun unfill-paragraph (&optional region)
