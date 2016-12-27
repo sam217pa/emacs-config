@@ -3,8 +3,8 @@
   (("\\.Rmd\\'" . poly-markdown+r-mode)))
 
 (projectile-mode)
-;; ---------- defaults ----------------------------------------------------
 
+;; ---------- defaults ----------------------------------------------------
 (setq ess-completing-read 'ivy-completing-read)
 
 (setq ess-R-font-lock-keywords
@@ -21,12 +21,8 @@
         (ess-R-fl-keyword:F&T . t)
         (ess-R-fl-keyword:%op% . t)))
 
-(setq ess-offset-continued 2          ; offset after first statement
-      ess-expression-offset 2         ; offset for expression
-      ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
-      ess-default-style 'DEFAULT) ; set default style for R source file
 
-(setq ess-indent-with-fancy-comments nil)
+(ess-toggle-underscore nil)
 
 (sp-local-pair 'ess-mode "%" "%")
 ;; when pressed RET after { or (,
@@ -76,6 +72,10 @@
  :keymaps 'ess-mode-map
   "C-RET" 'ess-eval-region-or-line
   "M-RET" 'ess-eval-function-or-paragraph
+  "M-p"   'sp-backward-up-sexp
+  "M-n"   'sp-up-sexp
+  " " 'ess-insert-S-assign               ; shift alt space
+  " " 'ess-insert-S-assign               ; shift space
   (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
   (general-chord ",,") 'hydra-ess/body
   (general-chord ",l") 'ess-eval-line

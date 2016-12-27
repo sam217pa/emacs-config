@@ -3,17 +3,19 @@
 # key: header
 # --
 #' ---
-#' title: $1
-#' author: Samuel BARRETO"
+#' title: "$1"
+#' author: "Samuel BARRETO"
 #' date: $2
 #' output:
 #'   html_document:
 #'     highlight: tango
-#'     theme: paper
+#'     theme: ${3:paper}
 #'     code_folding: hide
 #'     toc: true
 #'     toc_depth: 2
 #'     toc_float: true
+#'     fig_width: 10
+#'     fig_height: 6.18
 #' ---
 
 $0
