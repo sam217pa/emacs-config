@@ -172,6 +172,12 @@ When using Homebrew, install it using \"brew install trash\"."
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (diminish 'auto-fill-function ""))
 
+(use-package auto-insert-mode
+  :config
+  (auto-insert-mode)
+  (setq auto-insert-directory "~/dotfile/emacs/autoinsert")
+  (define-auto-insert "\\.R\\'" "header.R"))
+
 (use-package autorevert :defer t
   ;; mainly to make autorevert disappear from the modeline
   :diminish auto-revert-mode)
