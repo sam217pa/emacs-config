@@ -7,10 +7,12 @@
    "C-S-z" 'undo-tree-redo
    "C-S-s" 'counsel-ag
    "C-S-k" 'kill-whole-line
+   "C-S-n" 'next-line-end
+   "C-S-p" 'prev-line-end
 
-   "C-r" 'sp-slurp-hybrid-sexp
    "C- " 'mark-line
    "C-é" 'hydra-window/body
+   "C-l" (lambda () (interactive) (avy-goto-line 4))
    "C-'" 'avy-goto-word-or-subword-1
    "C-." 'hydra-main/body)
 
@@ -58,16 +60,21 @@
    "s-r" 'windmove-right
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
+   "s-i" 'indent-region
    "s-j" (lambda () (interactive) (join-line 4))
    "s-k" (lambda () (interactive)
            (save-excursion
              (move-beginning-of-line nil)
              (kill-visual-line -1)))    ; delete previous line
    "s-l" 'sam--comment-or-uncomment-region-or-line
+   "s-o" 'sam--open-in-external-app
    "s-q" nil                        ; don't close emacs with option q.
+   "s-t" nil                        ; don't show font panel with s-t.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
-   "s-W" 'delete-window
+   "s-N" 'narrow-to-region
+   "s-W" 'widen
+   "s-z" 'hydra-zoom/body
    "s-'" 'avy-goto-char-2
    "s-." 'hydra-secondary/body
    "s-\"" 'ffap
@@ -80,6 +87,7 @@
    "H-'" 'sam--iterm-goto-filedir-or-home
    "H-F" 'toggle-frame-maximized
    "H-b" 'ivy-switch-buffer
+   "H-e" 'eshell-here
    "H-f" 'toggle-frame-fullscreen
    "H-l" 'sam--duplicate-line
    "H-m" 'delete-other-frames
@@ -335,7 +343,7 @@ _C-N_: last hunk    _R_evision start  _t_imemachine
   ;; this is genius hydra making from
   ;; https://github.com/abo-abo/hydra/wiki/Ibuffer
   "
-     ^NAVIGATION^     ^MARK^          ^ACTIONS^          ^VIEW^
+  ^NAVIGATION^     ^MARK^          ^ACTIONS^          ^VIEW^
   _s_:    ↑        _m_: mark       _d_: delete        _g_: refresh
   _r_:  visit      _u_: unmark     _S_: save          _O_: sort
   _t_:    ↓        _*_: specific   _a_: all actions   _/_: filter
@@ -601,9 +609,9 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
 
 (defhydra hydra-zoom (:hint nil)
   "
-^BUFFER^       ^FRAME^        ^ACTION^
-_t_: in        _T_: in        _0_: reset
-_s_: out       _S_: out       _q_: quit
+^BUFFER^   ^FRAME^    ^ACTION^
+_t_: +     _T_: +     _0_: reset
+_s_: -     _S_: -     _q_: quit
 "
   ("t" zoom-in )
   ("s" zoom-out )

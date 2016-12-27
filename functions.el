@@ -545,7 +545,7 @@ is already narrowed."
   (interactive)
   (move-beginning-of-line nil)
   (set-mark-command nil)
-  (move-end-of-line nil)
+  (next-line)
   (setq deactivate-mark nil))
 
 (defun ignore-error-wrapper (fn)
@@ -556,3 +556,13 @@ is already narrowed."
       (interactive)
       (ignore-errors
         (funcall fn)))))
+
+(defun next-line-end ()
+  (interactive)
+  (next-line)
+  (end-of-line))
+
+(defun prev-line-end ()
+  (interactive)
+  (previous-line)
+  (end-of-line))
