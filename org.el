@@ -12,7 +12,7 @@
   :config
 
   ;; ---------- Extension ---------------------------------------------------
-  (use-package ox-tufte :ensure t)
+  (use-package ox-tufte :ensure t :disabled t)
 
   (use-package org-bullets :ensure t
     :init
@@ -25,7 +25,7 @@
 
   (use-package orgit :ensure t :disabled t)
 
-  (use-package ox-gfm :ensure t)
+  (use-package ox-gfm :ensure t :disabled t)
 
   ;; ---------- BABEL -------------------------------------------------------
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -97,7 +97,7 @@
     (format-time-string "%H:%M" (current-time)))
 
   (add-to-list 'org-modules 'org-mac-iCal)
-  (setq org-agenda-include-diary t)
+  (setq org-agenda-include-diary nil)
 ;;;*** src block and babel
   (setq
    org-src-preserve-indentation t
@@ -166,7 +166,7 @@
                               (makefile "make")
                               (R "r"))
    ;; files extensions that org considers as latex byproducts.
-   org-latex-logfiles-extensions '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
+   org-latex-logfiles-extensions '("tex" "aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
                                    "log" "nav" "out" "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "bbl")
    org-latex-minted-langs '((emacs-lisp "common-lisp")
                             (cc "c++")
@@ -180,8 +180,7 @@
    org-latex-table-caption-above nil
    org-latex-tables-booktabs t
    org-startup-with-inline-images nil
-   org-startup-indented t
-   )
+   org-startup-indented t)
 
   (with-eval-after-load 'ox-latex
     (append-to-list
