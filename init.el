@@ -162,8 +162,13 @@ When using Homebrew, install it using \"brew install trash\"."
 
 (use-package anzu :ensure t
   :diminish ""
+  :bind*
+  (("C-/" . anzu-query-replace-at-cursor)
+   ("C-9" . anzu-replace-at-cursor-thing))
   :config
-  (global-anzu-mode 1))
+  (global-anzu-mode 1)
+  (global-set-key [remap query-replace] 'anzu-query-replace)
+  (global-set-key [remap query-replace-regexp] 'anzu-query-replace-regexp))
 
 (use-package auto-fill-mode
   :diminish auto-fill-function
@@ -215,7 +220,9 @@ When using Homebrew, install it using \"brew install trash\"."
 ;; ---------- B --------------------------------------------------
 (use-package beacon
   :diminish ""
-  :quelpa (beacon :fetcher github :repo "Malabarba/beacon"))
+  :quelpa (beacon :fetcher github :repo "Malabarba/beacon")
+  :config
+  (beacon-mode 1))
 
 (use-package blank-mode :ensure t
   :commands blank-mode)
@@ -455,7 +462,13 @@ _p_: prev    _r_: reverse
     (add-hook 'dired-mode-hook #'dired-omit-mode)
     (setq dired-omit-verbose nil)
     (setq dired-omit-files
-          (concat dired-omit-files "\\|^\\..*$\\|^.DS_Store$\\|^.projectile$\\|^.git$"))))
+          (concat dired-omit-files "\\|^\\..*$\\|^.DS_Store$\\|^.projectile$\\|^.git$")))
+
+  (use-package dired-details :ensure t
+    :config
+    (dired-details-install)
+    (setq dired-details-hidden-string " + "
+          dired-details-hide-link-targets nil)))
 
 
 (use-package display-time
@@ -868,6 +881,9 @@ _R_: reset
   :quelpa (imenu-anywhere :fetcher github :repo "vspinu/imenu-anywhere")
   :commands ivy-imenu-anywhere)
 
+(use-package indent-tools :ensure t
+  :bind (("C-c C-i" . indent-tools-hydra/body)))
+
 (use-package "isearch"
   :bind* (("C-s" . isearch-forward)
           ("C-r" . isearch-backward))
@@ -1249,11 +1265,16 @@ undo               _u_: undo
   (global-nlinum-mode))
 
 ;; ---------- O --------------------------------------------------
-
 (use-package osx-clipboard :ensure t
   :if (not (window-system))
   :init
   (osx-clipboard-mode +1))
+
+(use-package openwith :ensure t
+  :config
+  (openwith-mode 1)
+  (setq openwith-associations
+        '(("\\.pdf\\'" "/Applications/Preview.app/Contents/MacOS/Preview" (file)))))
 
 ;; TODO work on outline hydra. useful for tex
 (use-package outline
@@ -1494,6 +1515,9 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :commands restart-emacs)
 
 ;; ---------- S --------------------------------------------------
+(use-package scratch :ensure t
+  :bind* (("s-n" . scratch)))
+
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
