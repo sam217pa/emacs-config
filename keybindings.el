@@ -605,6 +605,7 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("=" balance-windows )
   ("é" ace-window)
   ("." hydra-buffer/body "buffers" :color blue)
+  ("'" hydra-tile/body "tile" :color blue)
   ("q" nil "quit" :color blue))
 
 (defhydra hydra-zoom (:hint nil)

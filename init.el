@@ -1673,6 +1673,45 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     "v" 'textpy-git
     "/" 'textpy-search))
 
+(use-package tile :ensure t
+  :defines (hydra-tile/body)
+  :bind* (("C-c t" . hydra-tile/body)
+          ("s-t" . tile))
+  :config
+
+
+  (tile :strategy tile-master-right-3)
+  (tile :strategy tile-master-left-3)
+  (tile :strategy tile-master-top-3)
+  (tile :strategy tile-wide-3)
+  (tile :strategy tile-wide)
+  (tile :strategy tile-one)
+
+  (defhydra hydra-tile (:hint nil :color red :columns 4)
+    "tile "
+    ("a" (tile :strategy tile-tall-3) "tall 3")
+    ("u" (tile :strategy (tile-split-n-tall 4)) "tall 4")
+    ("i" (tile :strategy (tile-split-n-wide 2)) "wide 2")
+    ("e" (tile :strategy (tile-split-n-wide 3)) "wide 3")
+    ("c" (tile :strategy tile-master-left-3) "left 3")
+    ("t" (tile :strategy tile-master-bottom-3) "bottom 3")
+    ("s" (tile :strategy tile-master-top-3) "top 3")
+    ("r" (tile :strategy tile-master-right-3) "right 3")
+
+    ("m" tile-select "chose")
+    ("w" (tile :strategy tile-one) "one")
+    ("n" tile "tile")
+    ("U" winner-undo "undo")
+    ("é" hydra-window/body "windows" :color blue)
+
+    ("q" nil :color blue "quit"))
+
+  (setq tile-cycler (tile-strategies :strategies
+                      (list tile-strategy-tall
+                            tile-strategy-master
+                            tile-strategy-wide
+                            tile-one))))
+
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
 
