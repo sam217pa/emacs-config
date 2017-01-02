@@ -566,3 +566,56 @@ is already narrowed."
   (interactive)
   (previous-line)
   (end-of-line))
+
+(defun delete-word-ap (arg)
+  (interactive "P")
+  (let* ((argp (and arg (= 4 (prefix-numeric-value arg))))
+         (beg (beginning-of-thing (if argp 'symbol 'word)))
+         (end (end-of-thing (if argp 'symbol 'word))))
+    (save-excursion
+      (delete-region beg end)
+      (delete-char 1))))
+
+;; from  http://endlessparentheses.com/kill-entire-line-with-prefix-argument.html
+(defmacro bol-with-prefix (function)
+  "Define a new function which calls FUNCTION.
+Except it moves to beginning of line before calling FUNCTION when
+called with a prefix argument. The FUNCTION still receives the
+prefix argument."
+  (let ((name (intern (format "sam:%s-BOL" function))))
+    `(progn
+       (defun ,name (p)
+         ,(format
+           "Call `%s', but move to BOL when called with a prefix argument."
+           function)
+         (interactive "P")
+         (when p
+           (forward-line 0))
+         (call-interactively ',function))
+       ',name)))
+
+;; from  http://endlessparentheses.com/fill-and-unfill-paragraphs-with-a-single-key.html
+(defun sam/fill-or-unfill ()
+  "Like `fill-paragraph', but unfill if used twice."
+  (interactive)
+  (let ((fill-column
+         (if (eq last-command 'sam/fill-or-unfill)
+             (progn (setq this-command nil)
+                    (point-max))
+           fill-column)))
+    (call-interactively #'fill-paragraph)))
+
+(defadvice upcase-word (before upcase-word-advice activate)
+  (unless (and (looking-back "\\b" (beginning-of-line))
+               (not (derived-mode-p 'text-mode)))
+    (backward-word)))
+
+(defadvice downcase-word (before downcase-word-advice activate)
+  (unless (and (looking-back "\\b" (beginning-of-line))
+               (not (derived-mode-p 'text-mode)))
+    (backward-word)))
+
+(defadvice capitalize-word (before capitalize-word-advice activate)
+  (unless (and (looking-back "\\b" (beginning-of-line))
+               (not (derived-mode-p 'text-mode)))
+    (backward-word)))
