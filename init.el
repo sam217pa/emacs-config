@@ -38,9 +38,6 @@
   :config
   (unless (server-running-p) (server-start)))
 
-;; met en place le serveur pour emacsclient
-;;(unless (server-running-p) (server-start))
-
 ;;; Sane default
 (setq
  use-package-verbose nil  ; use-package décrit les appels qu'il fait
@@ -55,7 +52,7 @@
  coding-system-for-read 'utf-8          ; use UTF8 pour tous les fichiers
  coding-system-for-write 'utf-8         ; idem
  sentence-end-double-space nil          ; sentences does not end with double space.
- default-fill-column 70
+ default-fill-column 80
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
  help-window-select t			; focus help window when opened
@@ -97,15 +94,13 @@
 (when window-system
   (set-frame-size (selected-frame) 85 61))
 
-(setq-default cursor-type 'hbar)
-(add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
 
 (add-to-list 'default-frame-alist '(height . 46))
 (add-to-list 'default-frame-alist '(width . 85))
 
 ;; change la police par défault pour la frame courante et les futures.
-(add-to-list 'default-frame-alist '(font . "Source Code Pro 13"))
-(set-face-attribute 'default nil :font "Source Code Pro 13")
+(add-to-list 'default-frame-alist '(font . "Iosevka Light 13"))
+(set-face-attribute 'default nil :font "Iosevka Light 13")
 
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
@@ -150,8 +145,7 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq aw-ignore-current t))
 
 (use-package ag :ensure t
-  :commands (counsel-ag
-             ag)
+  :commands (ag)
   :config
   (progn
     (setq ag-highlight-search t)
@@ -329,6 +323,7 @@ When using Homebrew, install it using \"brew install trash\"."
    ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
    ("C-c /"   . counsel-ag)
+   ("C-S-s"   . counsel-ag)
    ("C-c l"   . counsel-locate))
   :config
   (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
@@ -394,6 +389,12 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq counsel-osx-app-location
         '("/Applications/" "~/Applications/" "~/sam_app/")))
 
+(use-package counsel-projectile :ensure t
+  :bind* (("H-P" . counsel-projectile-switch-to-buffer)
+          ("H-p" . counsel-projectile))
+  :config
+  (counsel-projectile-on))
+
 (use-package counsel-gtags :ensure t
   :defer t)
 
@@ -441,21 +442,8 @@ _p_: prev    _r_: reverse
 (use-package dired
   :commands (dired)
   :config
-  (bind-keys :map dired-mode-map
-    ("." . hydra-dired-main/body)
-    ("t" . dired-next-line)
-    ("s" . dired-previous-line)
-    ("r" . dired-find-file)
-    ("c" . dired-up-directory))
-
-  ;; use GNU ls instead of BSD ls
-  (let ((gls "/usr/local/bin/gls"))
-    (if (file-exists-p gls)
-        (setq insert-directory-program gls)))
-  ;; change default arguments to ls. must include -l
-  (setq dired-listing-switches "-XGalg --group-directories-first --human-readable --dired")
-
   (use-package dired-x
+    :bind* (("C-x C-'" . dired-jump-other-window))
     :init
     (add-hook 'dired-load-hook (lambda () (load "dired-x")))
     :config
@@ -468,7 +456,23 @@ _p_: prev    _r_: reverse
     :config
     (dired-details-install)
     (setq dired-details-hidden-string " + "
-          dired-details-hide-link-targets nil)))
+          dired-details-hide-link-targets nil))
+
+  (let ((gls "/usr/local/bin/gls"))
+    (if (file-exists-p gls)
+        (setq insert-directory-program gls)))
+
+  (setq dired-listing-switches "-XGalg --group-directories-first --human-readable --dired")
+
+  (bind-keys :map dired-mode-map
+    ("." . hydra-dired-main/body)
+    ("t" . dired-next-line)
+    ("s" . dired-previous-line)
+    ("r" . dired-find-file)
+    ("c" . dired-up-directory)
+    ("'" . dired-open-term))
+
+  )
 
 
 (use-package display-time
@@ -573,6 +577,32 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
   (setq eshell-directory-name "~/dotfile/emacs/eshell/")
 
+  ;; from http://www.howardism.org/Technical/Emacs/eshell-fun.html
+  (defun eshell-here ()
+    "
+Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier.
+"
+    (interactive)
+    (let* ((parent (if (buffer-file-name)
+                       (file-name-directory (buffer-file-name))
+                     default-directory))
+           (height (/ (window-total-height) 3))
+           (name   (car (last (split-string parent "/" t)))))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (eshell "new")
+      (rename-buffer (concat "*eshell: " name "*"))
+
+      (insert (concat "ls"))
+      (eshell-send-input)))
+
+  (defun eshell/q ()
+    (insert "exit")
+    (eshell-send-input)
+    (delete-window))
+
   (general-define-key
    :keymaps 'eshell-mode-map
     "<tab>" (lambda () (interactive) (pcomplete-std-complete))
@@ -614,13 +644,19 @@ _M-p_: prev db     _f_: file        ^ ^           _C-p_: push key
 
   :init
   (add-hook 'ess-mode-hook 'company-mode)
-  (add-hook 'ess-mode-hook
-            (lambda () (flycheck-mode)
-              (run-hooks 'prog-mode-hook 'company-mode-hook)))
+  (add-hook 'ess-mode-hook (lambda () (run-hooks 'prog-mode-hook 'company-mode-hook)))
   (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
   (add-hook 'ess-mode-hook (lambda () (lesspy-mode 1)))
   (add-hook 'ess-mode-hook (lambda () (aggressive-indent-mode -1)))
-  (add-hook 'ess-mode-hook (lambda () (setq-local outline-regexp "### ----------\\|^##' #")))
+  (add-hook 'ess-mode-hook (lambda () (setq-local outline-regexp "### ----------\\|^##' #\\|^#' #")))
+  (setq ess-offset-continued 2          ; offset after first statement
+        ess-expression-offset 2         ; offset for expression
+        ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
+        ess-default-style 'RStudio) ; set default style for R source file
+
+  (setq ess-indent-with-fancy-comments nil)
+  ;; do not truncate line in the R repl:
+  (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
   :config
   (load-file "~/dotfile/emacs/ess-config.el"))
 
@@ -699,6 +735,7 @@ _R_: reset
     "M-s-." 'ggtags-find-tag-dwim))
 
 (use-package git-gutter :ensure t
+  :disabled t                           ;; conflicts with linum, don't need it anymore.
   :diminish ""
   :commands (global-git-gutter-mode)
   :init
@@ -706,10 +743,9 @@ _R_: reset
   (setq git-gutter:modified-sign "|")
   (setq git-gutter:added-sign "|")
   (setq git-gutter:deleted-sign "|")
-
   :config
-  (add-to-list 'git-gutter:update-commands 'other-window)
-  (add-to-list 'git-gutter:update-commands 'save-buffer))
+  (setq git-gutter:update-interval 20)
+  (git-gutter:linum-setup))
 
 (use-package google-this :ensure t
   :bind (("C-x g" . google-this-mode-submap)
@@ -847,12 +883,17 @@ _R_: reset
   :init
   (global-hl-line-mode))
 
+(use-package htmlize :ensure t
+  :defer t)
+
 (use-package hungry-delete :ensure t
   :diminish ""
   :config
   (global-hungry-delete-mode))
 
-(use-package hydra :ensure t)
+(use-package hydra :ensure t
+  :config
+  (setq hydra-is-helpful t))
 
 (use-package hy-mode :ensure t
   :mode (("\\.hy\\'" . hy-mode))
@@ -1032,7 +1073,10 @@ abort completely with `C-g'."
     "C-d" 'lesspy-delete-forward
     "C-e" 'lesspy-end-of-sexp
     "C-(" 'lesspy-paren-wrap-next
-    "DEL" 'lesspy-delete-backward))
+    "DEL" 'lesspy-delete-backward)
+  (general-define-key
+   :keymaps 'inferior-ess-mode-map
+    "C-(" 'lesspy-paren-wrap-next))
 
 (use-package linum :defer t
   :init
@@ -1240,6 +1284,55 @@ undo               _u_: undo
     ("q" nil :color blue)
     (" " nil "quit" :color blue)))
 
+(use-package mu4e
+  :commands (mu4e)
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e"
+  :config
+  (use-package smtpmail)
+
+  (setq mu4e-maildir (expand-file-name "~/Maildir/")
+        mu4e-drafts-folder "/drafts"
+        mu4e-sent-folder "/sent"
+        mu4e-trash-folder "/trash"
+
+        mu4e-get-mail-command "offlineimap"
+        mu4e-html2text-command "w3m -T text/html"
+        mu4e-headers-auto-update t)
+
+  (setq mu4e-maildir-shortcuts
+        '( ("/INBOX"               . ?i)
+           ("/Sent Items"   . ?s)
+           ("/Trash"       . ?t)
+           ("/Drafts"    . ?d)))
+
+  (setq mu4e-compose-reply-to-address "samuel.barreto8@gmail.com"
+        user-mail-address "samuel.barreto8@gmail.com"
+        user-full-name "Samuel Barreto")
+
+  ;; show images
+  (setq mu4e-show-images t)
+
+  ;; use imagemagick, if available
+  (when (fboundp 'imagemagick-register-types)
+    (imagemagick-register-types)))
+
+(use-package multi-line :ensure t
+  :bind* (("C-c d" . multi-line))
+  :config
+  ;; TODO définir une bonne expression pour multi-liner les longues
+  ;; lignes dans un script R
+  ;;
+  ;; (multi-line-defhook ess
+  ;;   (make-instance
+  ;;    multi-line-strategy
+  ;;    :find (make-instance
+  ;;           multi-line-forward-sexp-find-strategy
+  ;;           :split-regex "[[:space:]\n]+"
+  ;;           :done-regex "[[:space:]]*)]}"
+  ;;           :split-advance-fn 'multi-line-lisp-advance-fn )
+  ;;    :respace multi-line-lisp-respacer))
+  )
+
 (use-package multi-term :ensure t
   :commands (multi-term
              multi-term-next
@@ -1264,6 +1357,11 @@ undo               _u_: undo
   (add-hook 'nlinum-mode-hook 'sam--fix-linum-size)
   (global-nlinum-mode))
 
+(use-package nlinum-relative :ensure t
+  :commands (nlinum-relative-mode)
+  :init
+  (add-hook 'prog-mode-hook 'nlinum-relative-mode))
+
 ;; ---------- O --------------------------------------------------
 (use-package osx-clipboard :ensure t
   :if (not (window-system))
@@ -1283,8 +1381,8 @@ undo               _u_: undo
              outline-show-all
              outline-minor-mode
              hydra-outline/body)
-  :general ("C-M-c" 'outline-previous-heading
-            "C-M-r" 'outline-next-heading)
+  :general ("M-s-c" 'outline-previous-heading
+            "M-s-r" 'outline-next-heading)
   :diminish ((outline-minor-mode . "")
              (outline-major-mode . ""))
   :config
@@ -1393,11 +1491,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
              projectile-find-file-in-directory
              projectile-ibuffer
              projectile-kill-buffers
-             projectile-kill-buffers
              projectile-multi-occur
-             projectile-multi-occur
-             projectile-switch-project
-             projectile-switch-project
              projectile-switch-project
              projectile-recentf
              projectile-remove-known-project
@@ -1406,11 +1500,18 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
              projectile-project-root
              projectile-mode
              projectile-project-p)
-  :bind ("s-p" . hydra-projectile/body)
+  :bind (("s-p" . hydra-projectile/body)
+         ("s-b" . projectile-switch-to-buffer))
   :config
   (projectile-global-mode 1)
 
-  (use-package counsel-projectile :ensure t)
+  (use-package org-projectile :ensure t
+    :bind* (("C-c n p" . org-projectile:project-todo-completing-read))
+    :config
+    (org-projectile:per-repo)
+    (setq org-projectile:per-repo-filename "project_todo.org")
+    (setq org-agenda-files (append org-agenda-files (org-projectile:todo-files)))
+    (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
 
   (setq projectile-switch-project-action 'projectile-dired)
   (setq projectile-completion-system 'ivy)
@@ -1496,18 +1597,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package recentf
   :commands (recentf-mode
              counsel-recentf)
-  :preface
-  (defun recentf-add-dired-directory ()
-    (if (and dired-directory
-             (file-directory-p dired-directory)
-             (not (string= "/" dired-directory)))
-        (let ((last-idx (1- (length dired-directory))))
-          (recentf-add-file
-           (if (= ?/ (aref dired-directory last-idx))
-               (substring dired-directory 0 last-idx)
-             dired-directory)))))
-  :init
-  (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
   :config
   (setq recentf-max-saved-items 50))
 
@@ -1644,6 +1733,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (smooth-scrolling-mode)
   (setq smooth-scroll-margin 5))
 
+;; (use-package solarized-theme :ensure t)
+
 (use-package subword :defer t
   :init
   (add-hook 'prog-mode-hook (lambda () (subword-mode 1)))
@@ -1653,6 +1744,55 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :bind* ("s-s" . swiper))
 
 ;; ---------- T --------------------------------------------------
+(use-package term
+  :config
+  (defun terminal ()
+    "switch to terminal, launch if non-existent."
+    (interactive)
+    (if (get-buffer "*ansi-term*")
+        (switch-to-buffer "*ansi-term*")
+      (ansi-term "/bin/bash"))
+    (get-buffer-process "*ansi-term*"))
+  (defalias 'tt 'terminal)
+
+  (defun dired-open-term ()
+    (interactive)
+    (let ((current-dir (dired-current-directory)))
+      (term-send-string
+       (terminal)
+       (if (file-remote-p current-dir)
+           (let ((v (tramp-dissect-file-name current-dir t)))
+             (format "ssh %s@%s\n" (aref v 1) (aref v 2)))
+         (format "cd '%s'\n" current-dir))))))
+
+(use-package "text-mode"
+  :config
+
+  (defun dcaps-to-scaps ()
+    "Convert word in DOuble CApitals to Single Capitals."
+    (interactive)
+    (and (= ?w (char-syntax (char-before)))
+         (save-excursion
+           (and (if (called-interactively-p)
+                    (skip-syntax-backward "w")
+                  (= -3 (skip-syntax-backward "w")))
+                (let (case-fold-search)
+                  (looking-at "\\b[[:upper:]]\\{2\\}[[:lower:]]"))
+                (capitalize-word 1)))))
+
+  (add-hook 'post-self-insert-hook #'dcaps-to-scaps nil 'local)
+
+  (define-minor-mode dubcaps-mode
+    "Toggle `dubcaps-mode'.  Converts words in DOuble CApitals to
+Single Capitals as you type."
+    :init-value nil
+    :lighter (" DubCap")
+    (if dubcaps-mode
+        (add-hook 'post-self-insert-hook #'dcaps-to-scaps nil 'local)
+      (remove-hook 'post-self-insert-hook #'dcaps-to-scaps 'local)))
+
+  (add-hook 'text-mode-hook #'dubcaps-mode))
+
 (use-package tex
   :ensure auctex
   :commands init-auctex
@@ -1691,16 +1831,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   :bind* (("C-c t" . hydra-tile/body)
           ("s-t" . tile))
   :config
-
-
-  (tile :strategy tile-master-right-3)
-  (tile :strategy tile-master-left-3)
-  (tile :strategy tile-master-top-3)
-  (tile :strategy tile-wide-3)
-  (tile :strategy tile-wide)
-  (tile :strategy tile-one)
-
-  (defhydra hydra-tile (:hint nil :color red :columns 4)
+  (defhydra hydra-tile (:hint nil :color red :columns 4
+                        :body-pre (winner-mode 1))
     "tile "
     ("a" (tile :strategy tile-tall-3) "tall 3")
     ("u" (tile :strategy (tile-split-n-tall 4)) "tall 4")
@@ -1714,16 +1846,18 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     ("m" tile-select "chose")
     ("w" (tile :strategy tile-one) "one")
     ("n" tile "tile")
-    ("U" winner-undo "undo")
+    ("C-u" winner-undo "undo")
+    ("M-u" winner-redo "redo")
     ("é" hydra-window/body "windows" :color blue)
 
     ("q" nil :color blue "quit"))
 
-  (setq tile-cycler (tile-strategies :strategies
-                      (list tile-strategy-tall
-                            tile-strategy-master
-                            tile-strategy-wide
-                            tile-one))))
+  (setq tile-cycler
+        (tile-strategies :strategies
+          (list tile-tall-3
+                tile-master-left-3
+                tile-master-top-3
+                tile-one))))
 
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
@@ -1816,12 +1950,20 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
   (wrap-region-mode 1)
   (wrap-region-add-wrappers
    '(("$" "$")
+     (" " " ")
      ("{-" "-}" "#")
-     ("/" "/" nil ruby-mode)
+     ("/" "/" nil (ruby-mode org-mode))
+     ("=" "=" nil (org-mode))
      ("/* " " */" "#" (java-mode javascript-mode css-mode))
      ("`" "`" nil (markdown-mode ruby-mode))
-     ("*" "*" nil (markdown-mode))
+     ("*" "*" nil (markdown-mode org-mode))
      ("_" "_" nil (markdown-mode)))))
+
+(use-package writegood-mode
+  :load-path "~/.emacs.d/private/writegood-mode"
+  :bind (("C-c w" . writegood-mode))
+  :commands (writegood-reading-ease
+             writegood-grade-level))
 
 ;; ---------- X --------------------------------------------------
 (use-package xterm-color
@@ -1851,9 +1993,13 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
 ;; ---------- Z --------------------------------------------------
 (use-package zerodark-theme :ensure t
-  :defer 1
+  :init
+  (setq-default cursor-type 'hbar)
+  (add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
   :config
-  (zerodark-setup-modeline-format))
+  (zerodark-setup-modeline-format)
+  (load-theme 'zerodark t)
+  (set-cursor-color "#d33682"))
 
 (use-package zoom-frm :ensure t
   :commands
@@ -1878,3 +2024,4 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file)
 (put 'erase-buffer 'disabled nil)
+(put 'narrow-to-region 'disabled nil)

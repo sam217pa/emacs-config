@@ -1,6 +1,10 @@
 (use-package general :ensure t
   :config
 
+;;; Alt-
+  (general-define-key
+   "ð" 'delete-word-ap)
+
 ;;; C-
   (general-define-key
    "C-S-c" 'sp-splice-sexp
@@ -14,7 +18,8 @@
    "C-é" 'hydra-window/body
    "C-l" (lambda () (interactive) (avy-goto-line 4))
    "C-'" 'avy-goto-word-or-subword-1
-   "C-." 'hydra-main/body)
+   "C-." 'hydra-main/body
+   "C--" 'delete-word-ap)
 
 ;;; C-M-
   (general-define-key
@@ -124,6 +129,10 @@
   (general-define-key :keymaps 'shell-mode-map "H-c" 'erase-buffer)
   (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer))
 
+;;; Global
+(global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
+(global-set-key [remap kill-line] (bol-with-prefix kill-line))
+(global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
 
 ;;; Which-key
 
