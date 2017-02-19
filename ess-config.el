@@ -4,6 +4,14 @@
 
 (projectile-mode)
 
+(use-package ess-R-data-view :ensure t
+  :bind* (:map ess-mode-map
+          ("C-c d" . ess-R-dv-ctable)
+          ("C-c v" . ess-R-dv-pprint))
+  )
+
+(use-package ctable :ensure t)
+
 ;; ---------- defaults ----------------------------------------------------
 (setq ess-completing-read 'ivy-completing-read)
 
@@ -38,10 +46,6 @@
 
 
 ;; ---------- function definition -----------------------------------------
-(defun sam--double-hash-at-line-begin ()
-  (interactive)
-  (if-looking-at-do-else "^" (insert "## ") (insert "#")))
-
 (defun lesspy-backward-slurp (arg)
   "slurp sexp backward if at an opening paren"
   (interactive "p")
@@ -52,9 +56,17 @@
 (defun lesspy-forward-slurp (arg)
   "slurp sexp forward if at a closing paren"
   (interactive "p")
-  (cond ((looking-at ess-opening-delim)
-         (hydra-sp/sp-forward-slurp-sexp))
+  (cond ((looking-back ess-closing-delim)
+         (sp-backward-down-sexp)
+         (sp-slurp-hybrid-sexp)
+         (sp-forward-sexp 2))
         (t (self-insert-command arg))))
+
+(defun lesspy-kill-wip ()
+  (interactive)
+  (let ((beg (re-search-backward "^## \/\\*"))
+        (end (re-search-forward "^## \\*\/")))
+    (kill-region beg end)))
 
 (defun ess-insert-pipe ()
   (interactive)

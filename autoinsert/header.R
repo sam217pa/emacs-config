@@ -5,7 +5,7 @@
 #' output:
 #'   html_document:
 #'     highlight: tango
-#'     theme: paper
+#'     theme: flatly
 #'     code_folding: hide
 #'     toc: true
 #'     toc_depth: 2
@@ -23,7 +23,7 @@ opts_chunk$set(
 )
 
 ## /*
-rmarkdown::render("/Users/samuelbarreto/these/microbio/comptages/161214/comptages.R")
+rmarkdown::render((buffer-file-name), encoding = "UTF-8")
 ## */
 
 ### ---------- Setup -------------------------------------------------------
