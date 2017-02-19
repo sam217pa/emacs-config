@@ -69,7 +69,11 @@
 
 (defun sam--chrome-plain-link ()
   (interactive)
-  (insert (concat " " (grab-mac-link 'chrome 'plain))))
+  (insert (grab-mac-link 'chrome 'plain)))
+
+(defun sam--firefox-plain-link ()
+  (interactive)
+  (insert (grab-mac-link 'firefox 'plain)))
 
 (defun sam--chrome-org-link ()
   (interactive)
@@ -314,9 +318,7 @@ Lisp function does not specify a special indentation."
                                       (shell-quote-argument (or default-directory "~"))))
     "   end tell\n"
     " end tell\n"
-    " do shell script \"open -a iTerm\"\n"
-    ))
-  )
+    " do shell script \"open -a iTerm\"\n")))
 
 (defun sam--iterm-focus ()
   (interactive)
@@ -567,14 +569,13 @@ is already narrowed."
   (previous-line)
   (end-of-line))
 
-(defun delete-word-ap (arg)
+(defun kill-word-ap (arg)
   (interactive "P")
   (let* ((argp (and arg (= 4 (prefix-numeric-value arg))))
          (beg (beginning-of-thing (if argp 'symbol 'word)))
          (end (end-of-thing (if argp 'symbol 'word))))
     (save-excursion
-      (delete-region beg end)
-      (delete-char 1))))
+      (kill-region beg end))))
 
 ;; from  http://endlessparentheses.com/kill-entire-line-with-prefix-argument.html
 (defmacro bol-with-prefix (function)
@@ -605,17 +606,164 @@ prefix argument."
            fill-column)))
     (call-interactively #'fill-paragraph)))
 
-(defadvice upcase-word (before upcase-word-advice activate)
-  (unless (and (looking-back "\\b" (beginning-of-line))
-               (not (derived-mode-p 'text-mode)))
-    (backward-word)))
+;; (defun sam/end-of-line (arg)
+;;   (interactive "P")
+;;   (let* ((argp (and arg (= 4 (prefix-numeric-value arg)))))))
 
-(defadvice downcase-word (before downcase-word-advice activate)
-  (unless (and (looking-back "\\b" (beginning-of-line))
-               (not (derived-mode-p 'text-mode)))
-    (backward-word)))
+;; from  http://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
+(defun smarter-move-beginning-of-line (arg)
+  "Move point back to indentation of beginning of line.
 
-(defadvice capitalize-word (before capitalize-word-advice activate)
-  (unless (and (looking-back "\\b" (beginning-of-line))
-               (not (derived-mode-p 'text-mode)))
-    (backward-word)))
+Move point to the first non-whitespace character on this line.
+If point is already there, move to the beginning of the line.
+Effectively toggle between the first non-whitespace character and
+the beginning of the line.
+
+If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+point reaches the beginning or end of the buffer, stop there."
+  (interactive "^p")
+  (setq arg (or arg 1))
+
+  ;; Move lines first
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+;; stolen from https://github.com/Fuco1/.emacs.d/blob/master/site-lisp/my-defuns-edit.el !
+
+(defun sam--move-end-of-line (&optional arg)
+  "Move to end of line respecting `visual-line-mode'."
+  (cond
+   ((eq major-mode 'org-mode)
+    (org-end-of-line arg))
+   (visual-line-mode
+    (end-of-visual-line arg))
+   (t (move-end-of-line arg))))
+
+(defun sam--line-beginning-position (&optional arg)
+  "Return the point at the beginning of line.
+
+Uses `sam--move-beginning-of-line'."
+  (save-excursion
+    (sam--move-beginning-of-line arg)
+    (point)))
+
+(defun sam--move-beginning-of-line (&optional arg)
+  "Move to beginning of line respecting `visual-line-mode'."
+  (cond
+   ((eq major-mode 'org-mode)
+    (org-beginning-of-line arg))
+   (visual-line-mode
+    (beginning-of-visual-line arg))
+   (t (move-beginning-of-line arg))))
+
+(defun sam--line-end-position (&optional arg)
+  "Return the point at the end of line.
+
+Uses `sam--move-end-of-line'."
+  (save-excursion
+    (sam--move-end-of-line arg)
+    (point)))
+
+(defun sam--point-in-comment ()
+  "Determine if the point is inside a comment"
+  (or (sp-point-in-comment)
+      ;; TODO: add this into SP?
+      (-when-let (s (car (syntax-after (point))))
+        (or (/= 0 (logand (lsh 1 16) s))
+            (/= 0 (logand (lsh 1 17) s))
+            (/= 0 (logand (lsh 1 18) s))
+            (/= 0 (logand (lsh 1 19) s))))))
+
+(defun sam/end-of-code-or-line (&optional arg)
+  "Move to the end of code.  If already there, move to the end of line,
+that is after the possible comment.  If at the end of line, move
+to the end of code.
+
+If the point is in org table, first go to the last non-whitespace
+of the cell, then to the end of line.
+
+If CUA rectangle is active, alternate between end of current
+line, end of code, and end of the longest line in rectangle.
+
+Example:
+  (serious |code here)1 ;; useless commend2
+
+In the example, | is the current point, 1 is the position of
+point after one invocation of this funciton, 2 is position after
+repeated invocation. On subsequent calls the point jumps between
+1 and 2.
+
+Comments are recognized in any mode that sets syntax-ppss
+properly."
+  (interactive "p")
+  (cond
+   ((and (functionp 'org-table-p)
+         (org-table-p))
+    (let ((eoc (save-excursion
+                 (if (re-search-forward "|" nil t)
+                     (progn
+                       (backward-char 1)
+                       (skip-chars-backward " ")
+                       (point))
+                   (line-end-position)))))
+      (if (= (point) eoc)
+          (sam--move-end-of-line)
+        (goto-char eoc))))
+   ((eq major-mode 'org-mode)
+    (org-end-of-line))
+   (t
+    (let ((eoc (save-excursion
+                 (sam--move-end-of-line)
+                 (while (and (sam--point-in-comment)
+                             (not (bolp)))
+                   (backward-char))
+                 (skip-syntax-backward " ")
+                 ;; if we skipped all the way to the beginning, that
+                 ;; means there's only comment on this line, so this
+                 ;; should just jump to the end.
+                 (if (= (point) (sam--line-beginning-position))
+                     (sam--line-end-position)
+                   (point)))))
+      ;; refactor this: make some "move actions" and call them in
+      ;; order until point changes.
+      (cond
+       ((= (point) eoc)
+        (sam--move-end-of-line))
+       ((and (sam--point-in-comment)
+             (/= (point) (sam--line-end-position))
+             (> (point) eoc))
+        (sam--move-end-of-line))
+       ((= (point) (progn (sam--move-end-of-line) (point)))
+        (goto-char eoc))
+       (t (goto-char eoc)))))))
+
+;; insert file name
+(defun sam/insert-filename ()
+  (interactive)
+  (insert (buffer-file-name)))
+
+(defun sam--set-transparency (inc)
+  "Increase or decrease the selected frame transparency"
+  (let* ((alpha (frame-parameter (selected-frame) 'alpha))
+         (next-alpha (cond ((not alpha) 100)
+                           ((> (- alpha inc) 100) 100)
+                           ((< (- alpha inc) 0) 0)
+                           (t (- alpha inc)))))
+    (set-frame-parameter (selected-frame) 'alpha next-alpha)))
+
+;; from http://emacsredux.com/blog/2013/06/21/eval-and-replace/
+(defun eval-and-replace ()
+  "Replace the preceding sexp with its value."
+  (interactive)
+  (backward-kill-sexp)
+  (condition-case nil
+      (prin1 (eval (read (current-kill 0)))
+             (current-buffer))
+    (error (message "Invalid expression")
+           (insert (current-kill 0)))))

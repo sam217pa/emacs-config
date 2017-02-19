@@ -1,9 +1,13 @@
 (use-package general :ensure t
   :config
 
+;;; Shift
+  (general-define-key
+   "S-<return>" 'projectile-find-file-dwim)
+
 ;;; Alt-
   (general-define-key
-   "ð" 'delete-word-ap)
+   "ð" 'kill-word-ap)
 
 ;;; C-
   (general-define-key
@@ -19,7 +23,7 @@
    "C-l" (lambda () (interactive) (avy-goto-line 4))
    "C-'" 'avy-goto-word-or-subword-1
    "C-." 'hydra-main/body
-   "C--" 'delete-word-ap)
+   "C--" 'kill-word-ap)
 
 ;;; C-M-
   (general-define-key
@@ -33,7 +37,7 @@
   (general-define-key
    "C-x SPC" 'hydra-rectangle/body
    "C-x d" 'dired-other-window
-   "C-x l" 'sam--chrome-plain-link
+   "C-x l" 'sam--firefox-plain-link
    "C-x n" 'narrow-or-widen-dwim
    "C-x p" 'hydra-projectile/body
    "C-x o" 'other-window
@@ -133,6 +137,9 @@
 (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
 (global-set-key [remap kill-line] (bol-with-prefix kill-line))
 (global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
+(global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
+(global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
+(global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
 
 ;;; Which-key
 
