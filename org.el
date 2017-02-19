@@ -3,7 +3,10 @@
   :commands (org-mode
              org-agenda-list
              org-capture
-             org-store-link)
+             org-store-link
+             org-agenda)
+  :mode (("\\.org\\'" . org-mode)
+         ("*Org Agenda*" . org-agenda-mode))
 
   :bind*
   (:map dired-mode-map
@@ -61,7 +64,7 @@
 
   (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
   (setq org-agenda-span 7)
-  (setq org-agenda-tags-column -100) ; take advantage of the screen width
+  (setq org-agenda-tags-column -100)    ; take advantage of the screen width
   (setq org-agenda-sticky nil)
   (setq org-agenda-inhibit-startup t)
   (setq org-agenda-use-tag-inheritance t)
@@ -76,13 +79,18 @@
   ;; agenda start on mondays
   (setq org-agenda-start-on-weekday 1)
 
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
+
   (org-add-link-type "ebib" 'ebib-open-org-link)
 
 ;;;*** gtd with org
   (setq
    org-modules '(org-crypt)
-   org-tags-column 80	     ; aligne les tags très loin sur la droite
-   org-hide-block-startup t  ; cache les blocks par défaut.
+   org-tags-column 80                  ; aligne les tags très loin sur la droite
+   org-hide-block-startup t            ; cache les blocks par défaut.
    org-refile-targets '(("~/Org/TODO" :level . 2)
                         ("~/stage/TODO" :level . 1)
                         ("~/Org/someday.org" :level . 1)
@@ -90,6 +98,8 @@
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
    '(("t" "these - todo" entry (file+headline "~/these/meta/nb/TODO.org" "Thèse") "** TODO %? %T")
+     ("e" "enseignements" entry (file+headline "~/these/meta/nb/TODO.org" "Enseignements") "** TODO %? %T")
+     ("r" "réunion" entry (file+headline "~/these/meta/nb/TODO.org" "Réunion") "** %? %T")
      ("T" "todo" entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")
      ("n" "notes" entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?\n")
      ("j" "lab-journal" entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?\n" )))
@@ -124,25 +134,12 @@
    org-latex-default-class "tufte-handout"
    ;; default package list with sensible options
    org-latex-default-packages-alist
-   (quote (("AUTO" "inputenc" t)
-           ("T1" "fontenc" t)
-           ("" "graphicx" t)
-           ("" "longtable" t)
-           ("" "float" nil)
-           ("" "hyperref" nil)
-           ("" "wrapfig" nil)
-           ("" "rotating" nil)
-           ("normalem" "ulem" t)
-           ("" "amsmath" t)
-           ("" "textcomp" t)
-           ("" "marvosym" t)
-           ("" "wasysym" t)
-           ("" "amssymb" t)
-           ("scaled=0.9" "zi4" t)
-           ("x11names, dvipsnames" "xcolor" t)
+   (quote (("AUTO" "inputenc" t) ("T1" "fontenc" t) ("" "graphicx" t) ("" "longtable" t) ("" "float" nil)
+           ("" "hyperref" nil) ("" "wrapfig" nil) ("" "rotating" nil) ("normalem" "ulem" t)
+           ("" "amsmath" t) ("" "textcomp" t) ("" "marvosym" t) ("" "wasysym" t)
+           ("" "amssymb" t) ("scaled=0.9" "zi4" t) ("x11names, dvipsnames" "xcolor" t)
            ("protrusion=true, expansion=alltext, tracking=true, kerning=true" "microtype" t)
-           ("" "siunitx" t)
-           ("french" "babel" t)))
+           ("" "siunitx" t) ("french" "babel" t)))
    ;; extensions that listings packages in latex recognize.
    org-latex-listings-langs '((emacs-lisp "Lisp")
                               (lisp "Lisp")
@@ -167,7 +164,7 @@
                               (makefile "make")
                               (R "r"))
    ;; files extensions that org considers as latex byproducts.
-   org-latex-logfiles-extensions '("tex" "aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
+   org-latex-logfiles-extensions '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
                                    "log" "nav" "out" "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "bbl")
    org-latex-minted-langs '((emacs-lisp "common-lisp")
                             (cc "c++")
@@ -225,57 +222,29 @@
     (org-move-subtree-down)
     (end-of-line 1))
 
-  (define-key org-agenda-mode-map "v" 'hydra-org-agenda-view/body)
-
   (defun org-agenda-cts ()
     (let ((args (get-text-property
                  (min (1- (point-max)) (point))
                  'org-last-args)))
       (nth 2 args)))
 
-  (defhydra hydra-org-agenda-view (:hint nil)
-    "
-_d_: ?d? day        _g_: time grid=?g? _a_: arch-trees
-_w_: ?w? week       _[_: inactive      _A_: arch-files
-_t_: ?t? fortnight  _f_: follow=?f?    _r_: report=?r?
-_m_: ?m? month      _e_: entry =?e?    _D_: diary=?D?
-_y_: ?y? year       _q_: quit          _L__l__c_: ?l?"
+  (defhydra hydra-org-agenda-view (:hint nil :columns 1)
+    "VIEW"
     ("SPC" org-agenda-reset-view)
     ("d" org-agenda-day-view
-     (if (eq 'day (org-agenda-cts))
-         "[x]" "[ ]"))
+     (format "%s - day" (if (eq 'day (org-agenda-cts)) "[x]" "[ ]")))
     ("w" org-agenda-week-view
-     (if (eq 'week (org-agenda-cts))
-         "[x]" "[ ]"))
+     (format "%s - week" (if (eq 'week (org-agenda-cts)) "[x]" "[ ]")))
     ("t" org-agenda-fortnight-view
-     (if (eq 'fortnight (org-agenda-cts))
-         "[x]" "[ ]"))
+     (format "%s - fortnight" (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]")))
     ("m" org-agenda-month-view
-     (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
+     (format "%s - month" (if (eq 'month (org-agenda-cts)) "[x]" "[ ]")))
     ("y" org-agenda-year-view
-     (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
-    ("l" org-agenda-log-mode
-     (format "% -3S" org-agenda-show-log))
-    ("L" (org-agenda-log-mode '(4)))
-    ("c" (org-agenda-log-mode 'clockcheck))
-    ("f" org-agenda-follow-mode
-     (format "% -3S" org-agenda-follow-mode))
-    ("a" org-agenda-archives-mode)
-    ("A" (org-agenda-archives-mode 'files))
-    ("r" org-agenda-clockreport-mode
-     (format "% -3S" org-agenda-clockreport-mode))
-    ("e" org-agenda-entry-text-mode
-     (format "% -3S" org-agenda-entry-text-mode))
-    ("g" org-agenda-toggle-time-grid
-     (format "% -3S" org-agenda-use-time-grid))
-    ("D" org-agenda-toggle-diary
-     (format "% -3S" org-agenda-include-diary))
-    ("!" org-agenda-toggle-deadlines)
-    ("["
-     (let ((org-agenda-include-inactive-timestamps t))
-       (org-agenda-check-type t 'timeline 'agenda)
-       (org-agenda-redo)))
+     (format "%s - year" (if (eq 'year (org-agenda-cts)) "[x]" "[ ]")))
     ("q" (message "Abort") :exit t))
+
+  (bind-key (kbd "v") #'hydra-org-agenda-view/body org-agenda-mode-map)
+
 
 ;;;* Keybindings
   (general-define-key
