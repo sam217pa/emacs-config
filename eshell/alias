@@ -1,7 +1,7 @@
 alias ee find-file-other-window $1
 alias e find-file $1
 alias er ivy-switch-buffer
-alias ll = ls -l
+alias ll gls -alh --group-directories-first
 alias ff find-file $1
 alias d dired-other-window $1
 alias gs magit-status
