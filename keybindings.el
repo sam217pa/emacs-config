@@ -20,6 +20,7 @@
 
    "C- " 'mark-line
    "C-é" 'hydra-window/body
+   "C-€" 'hydra-transparency/body
    "C-l" (lambda () (interactive) (avy-goto-line 4))
    "C-'" 'avy-goto-word-or-subword-1
    "C-." 'hydra-main/body
@@ -31,7 +32,8 @@
 
 ;;; C-c
   (general-define-key
-   "C-c v" 'magit-status)
+   "C-c v" 'magit-status
+   "C-c T" 'hydra-transparency/body)
 
 ;;; C-x
   (general-define-key
@@ -64,12 +66,13 @@
 ;;; s-
   (general-define-key
    "s-<backspace>" 'ivy-switch-buffer
+   "s-S-<backspace>" 'projectile-switch-to-buffer
    "s-<tab>" 'sam--switch-to-other-buffer
    "s-c" 'windmove-left
    "s-r" 'windmove-right
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
-   "s-i" 'indent-region
+   "s-i" (lambda () (interactive) (save-excursion (mark-paragraph) (indent-region (region-beginning) (region-end))))
    "s-j" (lambda () (interactive) (join-line 4))
    "s-k" (lambda () (interactive)
            (save-excursion
@@ -77,12 +80,12 @@
              (kill-visual-line -1)))    ; delete previous line
    "s-l" 'sam--comment-or-uncomment-region-or-line
    "s-o" 'sam--open-in-external-app
-   "s-q" nil                        ; don't close emacs with option q.
-   "s-t" nil                        ; don't show font panel with s-t.
+   "s-q" nil                            ; don't close emacs with option q.
+   "s-t" nil                            ; don't show font panel with s-t.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
-   "s-N" 'narrow-to-region
-   "s-W" 'widen
+   "s-n" 'narrow-to-region
+   "s-N" 'widen
    "s-z" 'hydra-zoom/body
    "s-'" 'avy-goto-char-2
    "s-." 'hydra-secondary/body
@@ -95,9 +98,10 @@
    "H-<tab>" 'hydra-outline/body
    "H-'" 'sam--iterm-goto-filedir-or-home
    "H-F" 'toggle-frame-maximized
-   "H-b" 'ivy-switch-buffer
+   "H-b" 'projectile-ibuffer
    "H-e" 'eshell-here
    "H-f" 'toggle-frame-fullscreen
+   "H-i" 'sam/insert-filename
    "H-l" 'sam--duplicate-line
    "H-m" 'delete-other-frames
    "H-n" 'buffer-to-new-frame
@@ -109,7 +113,8 @@
 
    ;; H-M-
    "H-M-p" 'scroll-up-command
-   "H-M-n" 'scroll-down-command)
+   "H-M-n" 'scroll-down-command
+   "H-M-s" 'mark-sexp)
 
 ;;; Key chords
   (use-package key-chord :ensure t
@@ -131,9 +136,15 @@
   (general-define-key :keymaps 'Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
   (general-define-key :keymaps 'emacs-lisp-mode-map "s-e" 'eval-defun)
   (general-define-key :keymaps 'shell-mode-map "H-c" 'erase-buffer)
-  (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer))
+  (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer)
+  (general-define-key
+   :keymaps 'compilation-mode-map
+    "t" 'compilation-next-error
+    "s" 'compilation-previous-error
+    "r" 'compile-goto-error))
 
-;;; Global
+;; ---------- GLOBAL ------------------------------------------------------
+
 (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
 (global-set-key [remap kill-line] (bol-with-prefix kill-line))
 (global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
@@ -141,7 +152,7 @@
 (global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
 (global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
 
-;;; Which-key
+;; ---------- WHICH-KEY ---------------------------------------------------
 
 ;; key description for C-x
 (which-key-add-key-based-replacements
@@ -158,7 +169,7 @@
   "C-c &"   "yas"
   "C-c @"   "hide-show")
 
-;;; Global
+;; ---------- GLOBAL ------------------------------------------------------
 
 ;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
 (when (eq system-type 'darwin)
@@ -189,7 +200,7 @@
   (global-set-key [double-wheel-right] 'my-previous-buffer)
   (global-set-key [double-wheel-left] 'my-next-buffer))
 
-;;; Hydra
+;; ---------- HYDRA -------------------------------------------------------
 
 (defhydra hydra-buffer (:color blue :columns 3 :hint nil)
   "
@@ -200,9 +211,9 @@ _p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
   "
   ("n" next-buffer :color red)
   ("p" previous-buffer :color red)
-  ("b" ivy-switch-buffer )
-  ("M-b" ibuffer )
-  ("C-b" buffer-menu )
+  ("b" ivy-switch-buffer)
+  ("M-b" ibuffer)
+  ("C-b" buffer-menu)
   ("d" kill-this-buffer :color red)
   ;; don't come back to previous buffer after delete
   ("C-d" (progn (kill-this-buffer) (next-buffer)) :color red)
@@ -246,21 +257,23 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
   "
 ^^^NAV^ ^^   ^EDIT^                ^MARK^      ^ACTION^
-^ ^ _s_ ^ ^  _o_pen other window   _m_ark      _h_: show hidden
-_c_ ^ ^ _r_  _R_ename              _u_nmark
-^ ^ _t_ ^ ^  _S_ort                _d_elete
+^ ^ _s_ ^ ^  _o_pen other window   _m_ark        _h_: show hidden
+_c_ ^ ^ _r_  _R_ename              _u_nmark      _'_: eshell
+^ ^ _t_ ^ ^  _S_ort                _d_elete    _C-'_: shell
 "
   ("t" dired-next-line :color red)
   ("s" dired-previous-line :color red)
-  ("r" dired-find-file :color red)
+  ("r" dired-find-file :color blue)
   ("c" dired-up-directory :color red)
   ("o" dired-find-file-other-window :color blue)
-  ("R" dired-rename-file )
-  ("S" dired-sort-toggle-or-edit )
-  ("u" dired-unmark )
-  ("m" dired-mark )
+  ("R" dired-rename-file)
+  ("S" hydra-dired-sort/body :color blue)
+  ("u" dired-unmark)
+  ("m" dired-mark)
   ("d" hydra-dired-delete/body :color blue)
-  ("h" dired-omit-mode )
+  ("h" dired-omit-mode)
+  ("'" eshell-here :color blue)
+  ("C-'" shell :color blue)
   ("." nil "toggle hydra" :color blue)
   ("q" nil "quit" :color blue))
 
@@ -300,15 +313,48 @@ _C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
   ("F" (lambda () (interactive) (find-file "~/dotfile/emacs/functions.el")))
   ("t" sam--edit-todo))
 
-(defhydra hydra-font (:hint nil :exit t)
-  "
-^MONO^   ^PROPORTIONAL^  ^VARIABLE
-_g_: go  _i_: input      _r_: roboto
+(defun sam--set-font (font)
+  (interactive)
+  (set-frame-font font))
 
+(defun sam-chose-font ()
+  "Return HEX code from solarized color map."
+  (interactive)
+  (ivy-read
+   "Chose font :"
+   '(("Go" "Go Mono 12")
+     ("Hack" "Hack 12")
+     ("SCP light" "Source Code Pro Light 12")
+     ("Iosevka" "Iosevka Light 12")
+     ("Fira" "Fira Code 12")
+     ("Ubuntu" "Ubuntu Mono 12")
+     ("Roboto" "Roboto 13"))
+   :action '(1 ("o" (lambda (x)
+                      (with-ivy-window
+                        (sam--set-font (elt x 1))))))))
+
+(defhydra hydra-font (:hint nil :color red)
+  "
+^MONO^               ^VAR^         ^PROP^
+_g_o      _u_buntu   _r_oboto    _C-i_nput
+_h_ack    _i_osevka
+_s_cp     _f_ira
 "
-  ("g" (lambda () (interactive) (set-frame-font "Go Mono 12" t)))
-  ("i" (lambda () (interactive) (set-frame-font "Input Sans 12" t) (text-scale-increase 1 :1)))
-  ("r" (lambda () (interactive) (set-frame-font "Roboto 13"))))
+  ;; mono
+  ("g" (sam--set-font "Go Mono 12"))
+  ("h" (sam--set-font "Hack 12"))
+  ("s" (sam--set-font "Source Code Pro Light 12"))
+  ("i" (sam--set-font "Iosevka Light 12"))
+  ("f" (sam--set-font "Fira Code 12"))
+  ("u" (sam--set-font "Ubuntu Mono 12"))
+  ;; prop
+  ("C-i" (lambda () (interactive) (set-frame-font "Input Sans 12" t) (text-scale-increase 1)))
+  ;; variable
+  ("r" (sam--set-font "Roboto 13"))
+  ;; other
+  ("z" hydra-zoom/body "zoom" :color blue)
+  ("é" sam-chose-font "chose" :color blue)
+  ("q" (progn  (hydra-secondary/body) (message "Back to previous hydra")) "back" :color blue))
 
 (defhydra hydra-frame (:hint nil :columns 3 :color blue)
   "frames"
@@ -478,12 +524,12 @@ _t_witter
   ("d" dired)
   ("D" deer)
   ("r" ranger)
-  ("g" (browse-url "https://www.google.fr/") )
+  ("g" (browse-url "https://www.google.fr/"))
   ("R" (browse-url "http://www.reddit.com/r/emacs/"))
-  ("w" (browse-url "http://www.emacswiki.org/") )
-  ("t" (browse-url "https://twitter.com/?lang=fr") )
-  ("s" (sam--iterm-focus) )
-  ("S" (sam--iterm-goto-filedir-or-home) )
+  ("w" (browse-url "http://www.emacswiki.org/"))
+  ("t" (browse-url "https://twitter.com/?lang=fr"))
+  ("s" (sam--iterm-focus))
+  ("S" (sam--iterm-goto-filedir-or-home))
   ("q" nil "quit"))
 
 (defhydra hydra-make (:hint nil :columns 2)
@@ -559,8 +605,8 @@ _l_ight   li_n_um        ^ ^          _m_aximized
 ^^        _w_hitespace   ^ ^          ^ ^
 ^^        _p_ersp-mode   ^ ^          ^ ^
 "
-  ("d" solarized-switch-to-dark)
-  ("l" solarized-switch-to-light)
+  ("d" (lambda () (interactive) (solarized--dark-or-light 'dark)))
+  ("l" (lambda () (interactive) (solarized--dark-or-light 'light)))
   ("f" flycheck-mode)
   ("n" nlinum-mode)
   ("T" display-time-mode)
@@ -571,6 +617,43 @@ _l_ight   li_n_um        ^ ^          _m_aximized
   ("t" toggle-truncate-lines)
   ("q" nil "quit" :color blue))
 
+(defhydra hydra-transparency
+  (:columns 2
+   :body-pre
+   (let* ((alpha (frame-parameter (selected-frame) 'alpha)))
+     (cond ((not alpha) (sam--set-transparency -10))
+           ((eql alpha 100) (sam--set-transparency -10))
+           (t nil))))
+  "
+ALPHA : [ %(frame-parameter nil 'alpha) ]
+"
+  ("t" (lambda () (interactive) (sam--set-transparency +1)) "+ more")
+  ("s" (lambda () (interactive) (sam--set-transparency -1)) "- less")
+  ("T" (lambda () (interactive) (sam--set-transparency +10)) "++ more")
+  ("S" (lambda () (interactive) (sam--set-transparency -10)) "-- less")
+  ("=" (lambda (value) (interactive "nTransparency Value 0 - 100 opaque:")
+         (set-frame-parameter (selected-frame) 'alpha value)) "Set to ?" :color blue))
+
+(defhydra hydra-window-enlarge (:hint nil)
+  "
+^SIZE^ ^^^^
+^ ^ ^ ^ _S_ ^ ^
+^ ^ ^ ^ _s_ ^ ^
+_C_ _c_ ^ ^ _r_ _R_
+^ ^ ^ ^ _t_ ^ ^
+^ ^ ^ ^ _T_ ^ ^
+^ ^ ^ ^ ^ ^ ^ ^
+"
+  ("s" (lambda () (interactive) (enlarge-window -1)))
+  ("S" (lambda () (interactive) (enlarge-window -10)))
+  ("c" enlarge-window-horizontally)
+  ("C" (lambda () (interactive) (enlarge-window-horizontally 10)))
+  ("r" (lambda () (interactive) (enlarge-window-horizontally -1)))
+  ("R" (lambda () (interactive) (enlarge-window-horizontally -10)))
+  ("t" (lambda () (interactive) (enlarge-window 1)))
+  ("T" (lambda () (interactive) (enlarge-window 10)))
+  ("q" nil :color blue))
+
 (defhydra hydra-window
   (:hint nil
    :color amaranth
@@ -578,33 +661,30 @@ _l_ight   li_n_um        ^ ^          _m_aximized
    :pre (winner-mode 1)
    :post (balance-windows))
   "
-^MOVE^ ^^^^   ^SPLIT^          ^SIZE^ ^^^^   ^COMMAND^   ^WINDOW^
-^ ^ _s_ ^ ^   _-_ : split H    ^ ^ _p_ ^ ^   _d_elete    ^1^ ^2^ ^3^ ^4^
-_c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
-^ ^ _t_ ^ ^   _h_ : split H    ^ ^ _n_ ^ ^   _u_ndo      ^9^ ^0^
-^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^ ^ ^ ^ ^   _R_edo
+^MOVE^ ^^^^   ^SPLIT^          ^SIZE^   ^COMMAND^   ^WINDOW^
+^ ^ _s_ ^ ^   _-_ : split H    ^ ^     _d_elete    ^1^ ^2^ ^3^ ^4^
+_c_ _é_ _r_   _|_ : split V    _e_     _m_aximize  ^5^ ^6^ ^7^ ^8^
+^ ^ _t_ ^ ^   _h_ : split H    ^ ^     _u_ndo      ^9^ ^0^
+^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^     _R_edo
 "
   ("c" windmove-left :color blue)
   ("r" windmove-right :color blue)
-  ("t" windmove-down :color blue )
+  ("t" windmove-down :color blue)
   ("s" windmove-up :color blue)
 
   ;; splt
   ("-" split-window-vertically)
-  ("|" split-window-horizontally )
+  ("|" split-window-horizontally)
   ("v" split-window-horizontally :color blue)
   ("h" split-window-vertically :color blue)
 
   ;; size
-  ("p" (lambda () (interactive) (enlarge-window -1)))
-  ("b" enlarge-window-horizontally)
-  ("f" (lambda () (interactive) (enlarge-window-horizontally -1)))
-  ("n" (lambda () (interactive) (enlarge-window 1)))
+  ("e" hydra-window-enlarge/body :color blue)
 
   ("u" winner-undo)
   ("R" winner-redo)
-  ("m" delete-other-windows )
-  ("d" delete-window )
+  ("m" delete-other-windows)
+  ("d" delete-window)
 
   ;; change height and width
   ("0" select-window-0 :color blue)
@@ -618,7 +698,7 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("8" select-window-8 :color blue)
   ("9" select-window-9 :color blue)
 
-  ("=" balance-windows )
+  ("=" balance-windows)
   ("é" ace-window)
   ("." hydra-buffer/body "buffers" :color blue)
   ("'" hydra-tile/body "tile" :color blue)
@@ -630,18 +710,20 @@ _c_ _é_ _r_   _|_ : split V    _b_ ^=^ _f_   _m_aximize  ^5^ ^6^ ^7^ ^8^
 _t_: +     _T_: +     _0_: reset
 _s_: -     _S_: -     _q_: quit
 "
-  ("t" zoom-in )
-  ("s" zoom-out )
-  ("T" zoom-frm-in )
-  ("S" zoom-frm-out )
+  ("t" zoom-in)
+  ("s" zoom-out)
+  ("T" zoom-frm-in)
+  ("S" zoom-frm-out)
   ("0" zoom-frm-unzoom)
   ("q" nil :color blue))
 
-(defhydra hydra-main (:hint nil :color blue)
+;; ---------- MAIN HYDRA --------------------------------------------------
+
+(defhydra hydra-main (:hint nil :color teal)
   "
 _a_: applications  _f_: file      _o_: outline   _T_: term
 _b_: buffer        _i_: insert    _p_: project   _v_: git
-_B_: frames        _j_: journal   _q_: quit      _z_: zoom
+_B_: frames        _j_: journal   _Q_: quit      _z_: zoom
 _é_: window        _m_: make      _t_: toggle
 "
   ("a" hydra-launcher/body)
@@ -654,21 +736,23 @@ _é_: window        _m_: make      _t_: toggle
   ("m" hydra-make/body)
   ("o" hydra-outline/body)
   ("p" hydra-projectile-if-projectile-p)
-  ("q" hydra-quit/body)
+  ("Q" hydra-quit/body)
   ("t" hydra-toggle/body)
   ("T" hydra-term/body)
   ("v" hydra-git/body)
   ("z" hydra-zoom/body)
   ("s-<tab>" other-frame)
-  ("." nil "quit"))
+  ("<tab>" hydra-secondary/body "secondary")
+  ("q" (message "Quit Primary Hydra") "quit" :color blue))
 
-(defhydra hydra-secondary (:hint nil :color blue)
+(defhydra hydra-secondary (:hint nil :color teal)
   "
-[^s-.^] :
-_t_: todo
 _a_: agenda
 _f_: font
+_t_: todo
 "
-  ("t" (lambda () (interactive) (org-agenda 1 "t")))
   ("a" (lambda () (interactive) (org-agenda 1 "a")))
-  ("f" hydra-font/body))
+  ("f" hydra-font/body)
+  ("t" (lambda () (interactive) (org-agenda 1 "t")))
+  ("<tab>" hydra-main/body "primary")
+  ("q" (message "Abort") "abort" :color blue))
