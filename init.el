@@ -1674,6 +1674,17 @@ _s_ _p_rev   _r_: rename
     ("k" perspeen-delete-ws :color red)
     ("r" perspeen-rename-ws)
     ("q" (message "Abort"))))
+
+(use-package shell-pop :ensure t
+  :bind* (("s-'" . shell-pop))
+  :config
+  (setq shell-pop-default-directory nil
+        shell-pop-shell-type '("shell" "*shell-pop*" (lambda nil (shell shell-pop-term-shell)))
+        shell-pop-term-shell "/usr/local/bin/bash"
+        shell-pop-window-height 20
+        shell-pop-full-span t
+        shell-pop-window-position "bottom"))
+
 ;; TODO what is that ?
 
 (use-package pretty-mode :ensure t
