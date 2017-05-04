@@ -4,9 +4,13 @@
 #' date:
 #' output:
 #'   html_document:
+#'     df_print: paged
+#'     max.print: 40
+#'     rows.print: 10
+#'     cols.print: 10
 #'     highlight: tango
-#'     theme: flatly
-#'     code_folding: hide
+#'     theme: paper
+#'     code_folding: show
 #'     toc: true
 #'     toc_depth: 2
 #'     toc_float: true
