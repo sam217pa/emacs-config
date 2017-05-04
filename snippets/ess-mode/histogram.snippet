@@ -1,8 +1,5 @@
 # -*- mode: snippet -*-
-# name: histogram
-# key: hist
+# name: geom_histogram
+# key: gh
 # --
-ggplot() +
-  geom_histogram(aes(x = $1), fill = "gray") +
-  labs(x = "$2", y = "")
-$0
+geom_histogram(fill = "gray", bins = ${1:30})$0

@@ -1,0 +1,46 @@
+# -*- mode: snippet -*-
+# name: template
+# key: template
+# --
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=\$'\n\t'
+
+## USAGE:
+##
+##
+##
+## DESCRIPTION:
+##
+##
+##
+## EXAMPLES:
+##
+##
+##
+## OPTIONS:
+##
+##   --help: Display this help message
+##
+## AUTHOR:
+##
+##   Samuel Barreto, (`(format "%s" (format-time-string "%Y-%m-%d" (current-time)))`)
+##
+
+usage() { grep "^##" "\$0" | cut -c4- ; exit 0 ; }
+expr "\$*" : ".*--help" > /dev/null && usage
+# if [ \$# -eq 0 ]; then > /dev/null && usage; fi
+
+readonly LOG_FILE="/tmp/\$(basename "\$0").log"
+info()    { echo "[INFO]    \$@" | tee -a "\$LOG_FILE" >&2 ; }
+warn()    { echo "[WARN]    \$@" | tee -a "\$LOG_FILE" >&2 ; }
+error()   { echo "[ERROR]   \$@" | tee -a "\$LOG_FILE" >&2 ; }
+fatal()   { echo "[FATAL]   \$@" | tee -a "\$LOG_FILE" >&2 ; exit 1 ; }
+
+cleanup() { info "" ; }
+
+if [[ "\${BASH_SOURCE[0]}" = "\$0" ]]; then
+    trap cleanup EXIT
+
+   $0
+fi

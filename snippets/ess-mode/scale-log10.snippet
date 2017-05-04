@@ -1,8 +1,7 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: histo
-# key: ggh
+# name: scale-log-10
+# key: slog
 # condition: (string= "S" ess-language)
 # binding: direct-keybinding
 # --
-ggplot(aes(x = ${1:x})) +
-  geom_histogram(binwidth = $0)
+scale_${1:x}_log10()$0
