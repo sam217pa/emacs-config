@@ -48,7 +48,9 @@
 
    "C-x C-b" 'ibuffer
    "C-x C-r" 'ivy-switch-buffer
-   "C-x M-b" 'hydra-frame/body)
+   "C-x M-b" 'hydra-frame/body
+   "C-x M-i" 'sam--insert-timestamp
+   "C-x M-c" 'compile)
 
 ;;; M-
   (general-define-key
@@ -58,10 +60,10 @@
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
    "M-ê" 'hydra-error/body
-   "M-g" 'avy-goto-char-in-line
 
    "M-s-n" 'forward-paragraph
-   "M-s-p" 'backward-paragraph)
+   "M-s-p" 'backward-paragraph
+   "M-s-i" 'shell-command-on-buffer)
 
 ;;; s-
   (general-define-key
@@ -84,19 +86,19 @@
    "s-t" nil                            ; don't show font panel with s-t.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
-   "s-n" 'narrow-to-region
-   "s-N" 'widen
+   "s-n" 'narrow-or-widen-dwim
    "s-z" 'hydra-zoom/body
    "s-'" 'avy-goto-char-2
    "s-." 'hydra-secondary/body
    "s-\"" 'ffap
-   "s-(" 'hydra-sp/body)
+   "s-(" 'hydra-sp/body
+   "s-SPC" 'pop-global-mark)
 
 ;;; H-
   (general-define-key
    "H-<backspace>" 'ivy-switch-buffer-other-window
    "H-<tab>" 'hydra-outline/body
-   "H-'" 'sam--iterm-goto-filedir-or-home
+   ;; "H-'" 'sam--iterm-goto-filedir-or-home
    "H-F" 'toggle-frame-maximized
    "H-b" 'projectile-ibuffer
    "H-e" 'eshell-here
@@ -120,9 +122,12 @@
   (use-package key-chord :ensure t
     :defer 1
     :config
-    (setq key-chord-two-keys-delay 0.2))
+    (setq key-chord-two-keys-delay 0.2)
+    (use-package key-seq :ensure t))
 
   (general-define-key
+   (general-chord ",,") (lambda () (interactive) (insert ";"))
+   (general-chord "aa") (lambda () (interactive) (insert "@"))
    (general-chord "qq") #'avy-goto-word-or-subword-1
    (general-chord "qb") #'ivy-switch-buffer
    (general-chord "qd") #'kill-this-buffer
@@ -151,6 +156,12 @@
 (global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
 (global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
 (global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
+
+(global-set-key (kbd "<f5>") 'mu4e)
+(global-set-key (kbd "<f6>") 'elfeed)
+(global-set-key (kbd "<f7>") 'org-capture)
+(global-set-key (kbd "<f8>") 'org-agenda)
+(global-set-key (kbd "<f9>") 'bongo)
 
 ;; ---------- WHICH-KEY ---------------------------------------------------
 
@@ -254,6 +265,20 @@ _n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
   ("o" Buffer-menu-other-window "other-window" :color blue)
   ("q" quit-window "quit" :color blue))
 
+(defhydra hydra-bongo (:color red :columns 3 :hint nil)
+  "
+BONGO
+_s_tart     _n_ext
+_S_top      _p_revious
+^ ^    _SPC_: PLAY!!"
+  ("S" bongo-stop)
+  ("s" bongo-start)
+  ("n" bongo-next)
+  ("p" bongo-previous)
+  ("b" bongo  "bongo" :color blue)
+  ("SPC" bongo-play)
+  ("q" nil  "quit" :color blue ))
+
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
   "
 ^^^NAV^ ^^   ^EDIT^                ^MARK^      ^ACTION^
@@ -345,7 +370,7 @@ _s_cp     _f_ira
   ("h" (sam--set-font "Hack 12"))
   ("s" (sam--set-font "Source Code Pro Light 12"))
   ("i" (sam--set-font "Iosevka Light 12"))
-  ("f" (sam--set-font "Fira Code 12"))
+  ("f" (sam--set-font "Fira Code 14"))
   ("u" (sam--set-font "Ubuntu Mono 12"))
   ;; prop
   ("C-i" (lambda () (interactive) (set-frame-font "Input Sans 12" t) (text-scale-increase 1)))
@@ -605,8 +630,11 @@ _l_ight   li_n_um        ^ ^          _m_aximized
 ^^        _w_hitespace   ^ ^          ^ ^
 ^^        _p_ersp-mode   ^ ^          ^ ^
 "
-  ("d" (lambda () (interactive) (solarized--dark-or-light 'dark)))
-  ("l" (lambda () (interactive) (solarized--dark-or-light 'light)))
+  ;; ("d" (lambda () (interactive) (load-theme 'apropospriate-dark t)))
+
+  ("d" (lambda () (interactive) (load-theme 'misterioso t)))
+  ("l" (lambda () (interactive) (load-theme 'leuven t)))
+
   ("f" flycheck-mode)
   ("n" nlinum-mode)
   ("T" display-time-mode)
@@ -747,11 +775,12 @@ _é_: window        _m_: make      _t_: toggle
 
 (defhydra hydra-secondary (:hint nil :color teal)
   "
-_a_: agenda
+_a_: agenda  _b_: bongo
 _f_: font
 _t_: todo
 "
   ("a" (lambda () (interactive) (org-agenda 1 "a")))
+  ("b" hydra-bongo/body)
   ("f" hydra-font/body)
   ("t" (lambda () (interactive) (org-agenda 1 "t")))
   ("<tab>" hydra-main/body "primary")
