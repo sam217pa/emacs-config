@@ -15,6 +15,9 @@
   :config
 
   ;; ---------- Extension ---------------------------------------------------
+  (use-package org-timeline :ensure t
+    :disabled t)
+
   (use-package ox-tufte :ensure t :disabled t)
 
   (use-package org-bullets :ensure t
@@ -33,6 +36,7 @@
   ;; ---------- BABEL -------------------------------------------------------
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
+                                 (perl . t)
                                  (python . t)
                                  ;; (clojure . t)
                                  (shell . t)
@@ -56,12 +60,14 @@
 
   ;; ---------- default -----------------------------------------------------
   (require 'org-agenda)
+  (require 'org-mu4e)
 
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
   (setq org-agenda-files
         (list "~/Org/TODO"
               "~/these/meta/nb/TODO.org"))
 
+  (setq org-mu4e-link-query-in-headers-mode nil)
   (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
   (setq org-agenda-span 7)
   (setq org-agenda-tags-column -100)    ; take advantage of the screen width
@@ -71,6 +77,7 @@
   (setq org-agenda-show-log t)
   (setq org-agenda-skip-scheduled-if-done t)
   (setq org-agenda-skip-deadline-if-done t)
+  (setq org-deadline-warning-days 4)
   (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
   (setq org-agenda-time-grid
         '((daily today require-timed)
@@ -98,6 +105,7 @@
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
    '(("t" "these - todo" entry (file+headline "~/these/meta/nb/TODO.org" "Thèse") "** TODO %? %T")
+     ("l" "these - link" entry (file+headline "~/these/meta/nb/TODO.org" "Thèse") "** TODO %? %T\n%a")
      ("e" "enseignements" entry (file+headline "~/these/meta/nb/TODO.org" "Enseignements") "** TODO %? %T")
      ("r" "réunion" entry (file+headline "~/these/meta/nb/TODO.org" "Réunion") "** %? %T")
      ("T" "todo" entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")

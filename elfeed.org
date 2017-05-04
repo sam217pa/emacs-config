@@ -1,0 +1,33 @@
+* Blogs                                                                         :elfeed:
+** cs                                                                          :compsci:
+*** rstat                                                                     :rstat:
+**** [[https://rud.is/b/feed/][hrbrmstr]]
+*** pkg                                                                       :pkg:
+**** [[http://dirk.eddelbuettel.com/cranberries/index.rss][cranberries]]                                                             :rstat:
+**** [[https://pkgs.racket-lang.org/atom.xml][racket-pkg]]                                                              :scheme:racket:lisp:
+*** scheme                                                                    :scheme:lisp:
+**** guile                                                                   :guile:
+***** [[https://wingolog.org/feed/atom][andy wingo]]
+*** clojure                                                                   :clojure:
+**** [[https://anmonteiro.com/atom.xml][anmonteiro]]
+*** emacs                                                                     :emacs:
+**** [[http://www.wilfred.me.uk/rss.xml][wilfred hughes]]
+**** [[https://oremacs.com/archive/][oremacs]]
+**** [[http://nullprogram.com/feed/][nullprogram]]
+**** [[http://planet.emacsen.org/atom.xml][planet.emacsen]]
+**** [[http://cestlaz.github.io/rss.xml][cestlaz]]
+**** [[http://cachestocaches.com/feed/][cachestocaches]]
+*** perl                                                                      :perl:
+**** [[http://perltricks.com/index.xml][perltricks]]
+** bio                                                                         :bio:
+*** [[http://robertlanfear.com/blog/files/rob.lanfear.blog.xml][bob lanfear]]
+*** papers                                                                    :papers:
+**** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet]]
+**** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]
+**** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]
+**** [[http://biorxiv.org/alertsrss][biorxiv]]
+*** bioinfo                                                                   :bioinfo:
+**** [[http://bioinfo-fr.net/feed][bioinfo.fr]]
+*** biostat                                                                   :biostat:
+** news                                                                        :news:
+*** [[https://www.mediapart.fr/articles/feed][mediapart]]

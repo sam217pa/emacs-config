@@ -1,9 +1,4 @@
-(defun init-auctex ()
-  "Toggle loading of auctex. Use it when there is needs for
-auctex in the editing session. Otherwise emacs falls back to the
-integrated Tex-mode. "
-  (interactive)
-  (message "Auctex loaded"))
+
 
 (use-package company-auctex :ensure t
   :config
@@ -13,6 +8,10 @@ integrated Tex-mode. "
                     company-auctex-environments
                     company-auctex-macros
                     company-auctex-symbols)))
+
+(use-package auctex-latexmk :ensure t
+  :config
+  (auctex-latexmk-setup))
 
 (load "preview-latex.el" nil t t)
 
@@ -48,8 +47,15 @@ integrated Tex-mode. "
  TeX-auto-save t
  TeX-parse-self t
  TeX-syntactic-comment t
- TeX-source-correlate-start-server nil ; synctex support
- LaTeX-fill-break-at-separators nil ; Don't insert line-break at inline math
+ TeX-source-correlate-start-server nil  ; synctex support
+ LaTeX-fill-break-at-separators nil     ; Don't insert line-break at inline math
+ )
+
+(setq-default LaTeX-item-indent 0)
+
+(setq-default
+ TeX-engine 'default
+ TeX-PDF-mode t                         ; pdf output by default
  )
 
 ;; keybindings
@@ -69,11 +75,18 @@ integrated Tex-mode. "
 (defun latex/font-oblique () (interactive) (TeX-font nil ?\C-s))
 (defun latex/font-upright () (interactive) (TeX-font nil ?\C-u))
 
+(defun TeX-newline-and-indent-region ()
+  (interactive)
+  (TeX-newline)
+  (outline-indent-subtree)
+  (indent-according-to-mode))
+
+(global-set-key [remap TeX-newline] #'TeX-newline-and-indent-region)
+
 (general-define-key
- :states '(normal visual)
  :keymaps 'LaTeX-mode-map
-  "," 'hydra-latex/body
-  "M-q" 'hydra-latex-fill/body )
+  "C-," 'hydra-latex/body
+  "M-q" 'hydra-latex-fill/body)
 
 (defhydra hydra-latex (:color blue :hint nil :columns 3)
   "
@@ -114,7 +127,7 @@ _s_: section │
   ("a" TeX-command-run-all "all" )
   ("s" LaTeX-command-section "section"))
 
-(defhydra hydra-latex-fill (:color red :hint nil :columns 2)
+(defhydra hydra-latex-fill (:color blue :hint nil :columns 2)
   "Latex Fill"
   ("r" LaTeX-fill-region "region" )
   ("s" LaTeX-fill-section "section")

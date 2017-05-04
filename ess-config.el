@@ -46,16 +46,16 @@
 
 
 ;; ---------- function definition -----------------------------------------
-(defun lesspy-backward-slurp (arg)
+(defun lesspy-backward-slurp ()
   "slurp sexp backward if at an opening paren"
-  (interactive "p")
+  (interactive)
   (cond ((looking-back ess-closing-delim)
          (sp-backward-slurp-sexp))
         (t (self-insert-command arg))))
 
-(defun lesspy-forward-slurp (arg)
+(defun lesspy-forward-slurp ()
   "slurp sexp forward if at a closing paren"
-  (interactive "p")
+  (interactive)
   (cond ((looking-back ess-closing-delim)
          (sp-backward-down-sexp)
          (sp-slurp-hybrid-sexp)
