@@ -6,8 +6,10 @@
   (add-hook 'python-mode-hook 'anaconda-mode)
   (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
 
-  (bind-keys :map anaconda-mode-map
+  (bind-keys :map python-mode-map
+    ("C-M-i" . anaconda-mode-complete)
     ("M-." . anaconda-mode-find-definitions)
+    ("M-?" . anaconda-mode-show-doc)
     ("M-," . anaconda-mode-go-back)
     ("M-*" . anaconda-mode-find-assignments)
     ("M-SPC" . hydra-python/body))
@@ -26,8 +28,9 @@
   :init (add-hook 'python-mode-hook 'pyenv-mode))
 
 (use-package pyvenv :ensure t
-  :commands (pyvenv-workon
-             pyvenv-activate))
+  :config
+  (setenv "WORKON_HOME" "/Users/samuelbarreto/")
+  (pyvenv-workon "anaconda"))
 
 (use-package lpy
   :disabled t
@@ -49,8 +52,11 @@
 (setq python-indent-offset 4)
 (if (executable-find "ipython")
     (setq python-shell-interpreter "ipython"
-          python-shell-interpreter-args "--simple-prompt -i")
+          python-shell-interpreter-args "--simple-prompt -i --pprint")
   (setq python-shell-interpreter "python"))
+
+(add-hook 'python-mode-hook
+          (lambda () (setq-local outline-regexp "^## ----------")))
 
 
 ;; ---------- Function definitions ----------------------------------------
@@ -113,7 +119,6 @@ If not in a block, send the upper block.
 ;; ---------- Keybindings -------------------------------------------------
 (general-define-key
  :keymaps 'python-mode-map
- :states '(normal visual insert)
   "s-e" 'python-shell-send-defun
   "C-<return>" 'python-shell-send-line
   "«" 'python-indent-shift-left
@@ -125,13 +130,8 @@ If not in a block, send the upper block.
   (general-chord ",t") 'python-shell-send-defun
   (general-chord ";T") 'python-shell-send-defun-switch
   (general-chord ",r") 'python-shell-send-region
-  (general-chord ";R") 'python-shell-send-region-switch)
-
-(general-define-key
- :keymaps 'python-mode-map
- :states '(normal visual)
-  "," 'hydra-python/body
-  ";" 'hydra-python/body)
+  (general-chord ";R") 'python-shell-send-region-switch
+  (general-chord "xq") 'hydra-python/body)
 
 (defhydra hydra-python (:hint nil :color teal)
   "
@@ -153,8 +153,8 @@ _SR_: region → _SB_: buffer →      ^ ^
   ("SB" python-shell-send-buffer-switch)
   ;; code nav
   ("." anaconda-mode-find-definitions)
-  ("*" anaconda-mode-find-assignments :color red)
-  ("," anaconda-mode-go-back :color red)
+  ("," anaconda-mode-find-assignments :color red)
+  ("*" anaconda-mode-go-back :color red)
   ;; code editing
   ("<" python-indent-shift-left)
   (">" python-indent-shift-right)
