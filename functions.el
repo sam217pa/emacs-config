@@ -2,15 +2,6 @@
 ;;
 ;; By convention, I start them all with `sam--'
 
-(defun sam--view-clipboard ()
-  (interactive)
-  (delete-other-windows)
-  (switch-to-buffer "*Clipboard*")
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (clipboard-yank)
-    (goto-char (point-min))))
-
 (defun sam--revert-buffer-no-confirm ()
   "Revert buffer without confirmation."
   (interactive)
@@ -49,43 +40,6 @@
   "Switch to other buffer"
   (interactive)
   (switch-to-buffer (other-buffer)))
-
-(defun sam--edit-init-file ()
-  "Edit the emacs init file"
-  (interactive)
-  (find-file "~/dotfile/emacs/init.el"))
-
-(defun sam--edit-keybindings ()
-  (interactive)
-  (find-file "~/dotfile/emacs/keybindings.el"))
-
-(defun sam--edit-functions ()
-  (interactive)
-  (find-file "~/dotfile/emacs/functions.el"))
-
-(defun sam--edit-todo ()
-  (interactive)
-  (find-file "~/TODO"))
-
-(defun sam--chrome-plain-link ()
-  (interactive)
-  (insert (grab-mac-link 'chrome 'plain)))
-
-(defun sam--firefox-plain-link ()
-  (interactive)
-  (insert (grab-mac-link 'firefox 'plain)))
-
-(defun sam--chrome-org-link ()
-  (interactive)
-  (insert (concat " " (grab-mac-link 'chrome 'org))))
-
-(defun sam--chrome-md-link ()
-  (interactive)
-  (insert (concat " " (grab-mac-link 'chrome 'markdown))))
-
-(defun sam--finder-md-link ()
-  (interactive)
-  (insert (grab-mac-link 'finder 'markdown)))
 
 (defun sam--eval-current-form-sp (&optional arg)
   "Call `eval-last-sexp' after moving out of one level of
@@ -300,11 +254,6 @@ Lisp function does not specify a special indentation."
               (method
                (funcall method indent-point state))))))))
 
-(defun sam--edit-password ()
-  (interactive)
-  (find-file "~/Org/private.org")
-  )
-
 (defun sam--iterm-goto-filedir-or-home ()
   "Go to present working dir and focus iterm"
   (interactive)
@@ -325,32 +274,11 @@ Lisp function does not specify a special indentation."
   (do-applescript
    " do shell script \"open -a iTerm\"\n"))
 
-(defun sam--calendar-focus ()
-  (interactive)
-  (do-applescript
-   " do shell script \"open -a Calendar\"\n"
-   )
-  )
-
-(defun sam--finder-focus ()
-  (interactive)
-  (do-applescript
-   " do shell script \"open -a Finder\"\n"
-   )
-  )
-
-(defun sam--finder-goto-filedir-or-home ()
-  (interactive)
-  (do-applescript
-   (format " do shell script \"open -a Finder %s\"\n"
-           (replace-regexp-in-string "\\\\" "\\\\\\\\"
-                                     (shell-quote-argument (or default-directory "~"))))))
-
-(defun sam--new-empty-buffer ()
+(defun sam--scratch ()
   "Create a new buffer called untitled(<n>)"
   ;; from spacemacs/layers/+distribution/spacemacs-base/funcs.el
   (interactive)
-  (let ((newbuf (generate-new-buffer-name "untitled")))
+  (let ((newbuf (generate-new-buffer-name "*Untitled*")))
     (switch-to-buffer newbuf)))
 
 (defun use-package-jump ()
@@ -421,12 +349,6 @@ Lisp function does not specify a special indentation."
         (emacs-lisp-docstring-fill-column t))
     (fill-paragraph nil region)))
 
-(defun wtd ()
-  "opens a new buffer with a list of TODO items populated by
-  running ag 'TODO' in the current dir"
-  (interactive)
-  (counsel-ag "todo" default-directory))
-
 ;; this function is used to append multiple elements to the list 'ox-latex
 (defun append-to-list (list-var elements)
   "Append ELEMENTS to the end of LIST-VAR. The return value is the new value of LIST-VAR."
@@ -442,11 +364,6 @@ Lisp function does not specify a special indentation."
   (interactive)
   (counsel-find-file "~/zotero_bib/"))
 
-
-(defmacro if-looking-at-do-else (look-at does otherwise)
-  `(if (looking-at ,look-at)
-       (eval ,does)
-     (eval ,otherwise)))
 
 ;;; lab notebook
 (setq journal-base-dir "~/these/meta/journal/")
@@ -468,7 +385,6 @@ Lisp function does not specify a special indentation."
       (find-file path)
       (goto-char (point-min))
       (save-buffer))))
-
 
 (defun search-journal ()
   (interactive)
@@ -558,16 +474,6 @@ is already narrowed."
       (interactive)
       (ignore-errors
         (funcall fn)))))
-
-(defun next-line-end ()
-  (interactive)
-  (next-line)
-  (end-of-line))
-
-(defun prev-line-end ()
-  (interactive)
-  (previous-line)
-  (end-of-line))
 
 (defun kill-word-ap (arg)
   (interactive "P")
@@ -767,3 +673,14 @@ properly."
              (current-buffer))
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
+
+;; from https://www.emacswiki.org/emacs/ExecuteExternalCommand
+(defun shell-command-on-buffer ()
+  "Asks for a command and executes it in inferior shell with current buffer
+as input."
+  (interactive)
+  (shell-command-on-region
+   (point-min) (point-max)
+   (read-shell-command "Shell command on buffer: ")))
+
+(defalias 'kill-frame #'delete-frame)
