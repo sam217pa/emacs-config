@@ -632,8 +632,8 @@ _l_ight   li_n_um        ^ ^          _m_aximized
 "
   ;; ("d" (lambda () (interactive) (load-theme 'apropospriate-dark t)))
 
-  ("d" (lambda () (interactive) (load-theme 'misterioso t)))
-  ("l" (lambda () (interactive) (load-theme 'leuven t)))
+  ("d" sam-load-zenburn)
+  ("l" (lambda () (interactive) (disable-theme 'zenburn)))
 
   ("f" flycheck-mode)
   ("n" nlinum-mode)

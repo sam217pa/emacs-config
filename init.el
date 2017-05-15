@@ -316,9 +316,9 @@ When using Homebrew, install it using \"brew install trash\"."
    ("C-x C-f" . counsel-find-file)
    ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
-   ("C-c /"   . counsel-ag)
+   ("C-c /"   . counsel-rg)
    ("C-c o"   . counsel-find-file-extern)
-   ("C-S-s"   . counsel-ag)
+   ("C-S-s"   . counsel-rg)
    ("C-c l"   . counsel-locate))
   :config
   (setq counsel-find-file-at-point t)
@@ -628,14 +628,12 @@ _e_xtension"
   (setq ebib-preload-bib-files '("~/Dropbox/bibliography/references.bib")
         ebib-notes-use-single-file "~/dotfile/bibliographie/notes.org")
 
-  (defun my-ebib ()
-    (interactive)
-    (ebib)
-    (my-ebib-reload-all-databases))
-
-  (defun my-ebib-reload-all-databases ()
-    (interactive)
-    (shell-command "bash ~/Dropbox/bibliography/export-postprocess.bash")
+  (defun my-ebib-reload-all-databases (postprocess)
+    "Reload the bibtex database. run the postprocess awk script
+if necessary."
+    (interactive (list (y-or-n-p "Post process database [yN] ? ")))
+    (when postprocess
+      (shell-command "bash ~/Dropbox/bibliography/export-postprocess.bash"))
     (ebib-reload-all-databases))
 
   (defhydra hydra-ebib (:hint nil :color blue)
@@ -872,6 +870,7 @@ directory to make multiple eshell windows easier.
   :commands (build-ctags
              visit-project-tags)
   :config
+
   ;; from http://mattbriggs.net/blog/2012/03/18/awesome-emacs-plugins-ctags/
   (defun build-ctags ()
     (interactive)
@@ -2297,7 +2296,6 @@ _s_ _p_rev   _r_: rename
    ("python"  . python-mode))
   :init
   (add-hook 'python-mode-hook (lambda () (aggressive-indent-mode -1)))
-
   :config
   (load-file "~/dotfile/emacs/python-config.el"))
 
@@ -2805,9 +2803,9 @@ integrated Tex-mode. "
 
 ;; ---------- Z --------------------------------------------------
 (use-package zenburn-theme :ensure t
-  :disabled t
-  ;; :commands (sam-load-zenburn)
-  ;; :defines (sam-load-zenburn)
+  :defer t
+  :commands (sam-load-zenburn)
+  :defines (sam-load-zenburn)
   :config
   (defun sam-load-zenburn ()
     (interactive)
@@ -2822,8 +2820,6 @@ integrated Tex-mode. "
   (zerodark-setup-modeline-format)
   (load-theme 'zerodark t)
   (set-cursor-color "#d33682"))
-
-
 
 (use-package zoom-frm :ensure t
   :commands

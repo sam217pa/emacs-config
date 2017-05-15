@@ -257,6 +257,7 @@
 ;;;* Keybindings
   (general-define-key
    :keymaps 'org-mode-map
+    "C-c M-i" 'org-insert-link
     (general-chord ",c") 'org-shiftcontrolleft
     (general-chord ",t") 'org-shiftcontroldown
     (general-chord ",s") 'org-shiftcontrolup
