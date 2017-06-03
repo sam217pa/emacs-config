@@ -132,7 +132,6 @@
    (general-chord "qb") #'ivy-switch-buffer
    (general-chord "qd") #'kill-this-buffer
    (general-chord "qf") #'delete-frame
-   (general-chord "ql") (lambda () (interactive) (avy-goto-line 4))
    (general-chord "qs") #'save-buffer
    (general-chord "qw") #'delete-window
    (general-chord "VV") #'magit-status)
@@ -632,9 +631,10 @@ _l_ight   li_n_um        ^ ^          _m_aximized
 "
   ;; ("d" (lambda () (interactive) (load-theme 'apropospriate-dark t)))
 
-  ("d" sam-load-zenburn)
-  ("l" (lambda () (interactive) (disable-theme 'zenburn)))
-
+  ("d" (lambda () (interactive) (solarized--dark-or-light 'dark)
+         (set-face-attribute 'default nil :font my-font-for-dark)))
+  ("l" (lambda () (interactive) (solarized--dark-or-light 'light)
+             (set-face-attribute 'default nil :font my-font-for-light)))
   ("f" flycheck-mode)
   ("n" nlinum-mode)
   ("T" display-time-mode)
@@ -785,3 +785,14 @@ _t_: todo
   ("t" (lambda () (interactive) (org-agenda 1 "t")))
   ("<tab>" hydra-main/body "primary")
   ("q" (message "Abort") "abort" :color blue))
+
+(key-seq-define-global "xq" 'hydra-context/body)
+
+(defhydra hydra-context (:hint nil :color teal)
+  "
+^XQ^
+_s_: semantic
+"
+  ("s" counsel-semantic)
+  ("i" nil :color blue)
+  ("q" nil "quit" :color blue))

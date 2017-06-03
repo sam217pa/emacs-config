@@ -14,6 +14,8 @@
 
 ;; ---------- defaults ----------------------------------------------------
 (setq ess-completing-read 'ivy-completing-read)
+(setq ess-eval-visibly 'nowait)
+(setq ess-roxy-insert-prefix-on-newline t)
 
 (setq ess-R-font-lock-keywords
       '((ess-R-fl-keyword:modifiers . t)
@@ -75,13 +77,14 @@
 ;; ---------- font lock ---------------------------------------------------
 (font-lock-add-keywords
  'ess-mode
- '(("^##' #.+$" . font-lock-warning-face)))
+ '(("^#' #.+$" . font-lock-warning-face)))
 
 
 ;; ---------- keybindings -------------------------------------------------
 
 (general-define-key
  :keymaps 'ess-mode-map
+  "RET" 'ess-newline-and-indent
   "C-RET" 'ess-eval-region-or-line
   "M-RET" 'ess-eval-function-or-paragraph
   "M-p"   'sp-backward-up-sexp

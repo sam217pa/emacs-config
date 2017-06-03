@@ -96,8 +96,8 @@
   (add-to-list 'default-frame-alist '(height . 46))
   (add-to-list 'default-frame-alist '(width . 85))
   ;; change default font for current frame
-  (add-to-list 'default-frame-alist '(font . "Fira Code 14"))
-  (set-face-attribute 'default nil :font "Fira Code 14"))
+  (add-to-list 'default-frame-alist '(font . "Iosevka Light 14"))
+  (set-face-attribute 'default nil :font "Iosevka Light 14"))
 
 
 ;;; keybindings
@@ -205,21 +205,6 @@ When using Homebrew, install it using \"brew install trash\"."
   :bind (("M-Z" . avy-zap-to-char-dwim)
          ("M-z" . avy-zap-up-to-char-dwim)))
 
-(use-package aggressive-indent :ensure t
-  :diminish (aggressive-indent-mode . "")
-  :commands aggressive-indent-mode
-  :init
-  (add-hook 'prog-mode-hook 'aggressive-indent-mode)
-  :config
-  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
-  (add-to-list 'aggressive-indent-excluded-modes 'perl-mode)
-  (add-to-list 'aggressive-indent-excluded-modes 'ess-mode)
-  (add-to-list
-   'aggressive-indent-dont-indent-if    ; do not indent line if
-   '(and (derived-mode-p 'ess-mode)     ; in ess mode
-         (null (string-match "\\(^#\\+ .+ $\\)" ; and in a roxygen block
-                             (thing-at-point 'line))))))
-
 ;; ---------- B --------------------------------------------------
 (use-package beacon
   :diminish ""
@@ -237,6 +222,62 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq bongo-default-directory "~/Music/electro-swing/"))
 
 ;; ---------- C --------------------------------------------------
+(use-package cedet :ensure t
+  :disabled t
+  :config
+
+
+  (setq semantic-default-submodes
+        '(global-semanticdb-minor-mode
+          global-semantic-mru-bookmark-mode
+          global-semantic-highlight-func-mode
+          global-semantic-idle-local-symbol-highlight-mode
+          global-semantic-idle-completions-mode
+          global-semantic-decoration-mode))
+  (semantic-mode 1)
+
+  (when (cedet-gnu-global-version-check t)
+    (semanticdb-enable-gnu-global-databases 'c-mode t))
+
+  (require 'semantic/bovine/c)
+  (require 'semantic/bovine/gcc)
+
+  (global-ede-mode 1))
+
+
+(use-package cc-mode :ensure t
+  :defer t
+  :init
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (semantic-mode +1)
+              (setq-local company-backends
+                          (append '(company-c-headers)
+                                  (delete 'company-capf company-backends)))))
+  :config
+  (use-package company-c-headers :ensure t)
+
+  (use-package irony :ensure t
+    :disabled t
+    :commands (irony-mode)
+    :init
+    (add-hook 'c-mode-hook #'irony-mode)
+    :config
+    (use-package irony-eldoc :ensure t)
+    (use-package company-irony :ensure t
+      :config
+      (add-to-list 'company-backends '(company-irony))))
+
+  (use-package clang-format :ensure t
+    :bind* (:map c-mode-map
+            ("C-c f" . clang-format-buffer)))
+
+  (defun compile-file ()
+    "Runs the compilation of the current file.
+Assumes it has the same name, but without an extension"
+    (interactive)
+    (compile (file-name-sans-extension buffer-file-name))))
+
 (use-package command-log-mode :ensure t
   :commands (command-log-mode))
 
@@ -245,6 +286,18 @@ When using Homebrew, install it using \"brew install trash\"."
   :commands global-company-mode
   :init
   (add-hook 'after-init-hook #'global-company-mode)
+
+  (setq-default company-backends
+        '(company-bbdb
+          company-semantic
+          company-capf
+          company-files
+          (company-dabbrev-code
+           company-gtags
+           company-etags
+           company-keywords)
+          company-dabbrev))
+
   (setq
    company-idle-delay 0.2
    company-selection-wrap-around t
@@ -258,7 +311,9 @@ When using Homebrew, install it using \"brew install trash\"."
   (global-company-mode)
 
   (use-package company-statistics
-    :quelpa (company-statistics :fetcher github :repo "company-mode/company-statistics")
+    :quelpa (company-statistics
+             :fetcher github
+             :repo "company-mode/company-statistics")
     :config
     (company-statistics-mode))
 
@@ -270,18 +325,6 @@ When using Homebrew, install it using \"brew install trash\"."
     ("C-t" . company-select-next)
     ("C-s" . company-select-previous)
     ("TAB" . company-complete))
-
-  (setq company-backends
-        '((company-css
-           company-clang
-           company-capf
-           company-semantic
-           company-xcode
-           company-cmake
-           company-files
-           company-gtags
-           company-etags
-           company-keywords)))
 
   ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/auto-completion/packages.el
   (setq hippie-expand-try-functions-list
@@ -308,13 +351,10 @@ When using Homebrew, install it using \"brew install trash\"."
           ;; Try to complete word as an Emacs Lisp symbol.
           try-complete-lisp-symbol)))
 
-
-
 (use-package counsel :ensure t
   :bind*
   (("M-x"     . counsel-M-x)
    ("C-x C-f" . counsel-find-file)
-   ("C-c f"   . counsel-git)
    ("C-c s"   . counsel-git-grep)
    ("C-c /"   . counsel-rg)
    ("C-c o"   . counsel-find-file-extern)
@@ -600,11 +640,14 @@ _e_xtension"
         display-time-format))
 
 (use-package dumb-jump :ensure t
-  :bind (("M-g o" . dumb-jump-go-other-window)
+  :bind (("M-g q" . dumb-jump-quick-look)
+         ("M-g b" . dumb-jump-back)
+         ("M-g o" . dumb-jump-go-other-window)
          ("M-g g" . dumb-jump-go))
   :config
   (setq dumb-jump-selector 'ivy
-        dumb-jump-searcher "rg"))
+        dumb-jump-searcher "rg"
+        dumb-jump-prefer-searcher 'rg))
 
 ;; ---------- E --------------------------------------------------
 (use-package ebib
@@ -615,11 +658,11 @@ _e_xtension"
 
   (general-define-key
    :keymaps 'ebib-index-mode-map
-    "." 'hydra-ebib/body
-    "p" 'hydra-ebib/ebib-prev-entry
-    "n" 'hydra-ebib/ebib-next-entry
-    "C-p" 'hydra-ebib/ebib-push-bibtex-key-and-exit
-    "C-n" 'hydra-ebib/ebib-search-next)
+   "." 'hydra-ebib/body
+   "p" 'hydra-ebib/ebib-prev-entry
+   "n" 'hydra-ebib/ebib-next-entry
+   "C-p" 'hydra-ebib/ebib-push-bibtex-key-and-exit
+   "C-n" 'hydra-ebib/ebib-search-next)
 
   (setq ebib-file-associations '(("pdf"  . "open")
                                  ("ps"   . "open")
@@ -737,20 +780,22 @@ _s_: search   _f_: filter
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
               (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)
-              (setq-local outline-regexp ";; ----------\\|^;;;")))
+              (setq-local outline-regexp ";; ----------\\|^;;;")
+              (setq-local company-backends
+                          (append '(company-elisp) company-backends))))
 
   (general-define-key
    :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
-    "" '(:ignore t :which-key "Emacs Help")
-    "f" 'counsel-describe-function
-    "k" 'counsel-descbinds
-    "v" 'counsel-describe-variable
-    "e" 'eval-last-sexp
-    "b" 'eval-buffer
-    "c" '(sam--eval-current-form-sp :which-key "eval-current")
-    "u" 'use-package-jump
-    "t" '(lispy-goto :which-key "goto tag")))
+   "" '(:ignore t :which-key "Emacs Help")
+   "f" 'counsel-describe-function
+   "k" 'counsel-descbinds
+   "v" 'counsel-describe-variable
+   "e" 'eval-last-sexp
+   "b" 'eval-buffer
+   "c" '(sam--eval-current-form-sp :which-key "eval-current")
+   "u" 'use-package-jump
+   "t" '(lispy-goto :which-key "goto tag")))
 
 (use-package emacsc :ensure t)
 
@@ -841,20 +886,23 @@ directory to make multiple eshell windows easier.
   (add-hook 'ess-mode-hook (lambda () (run-hooks 'prog-mode-hook 'company-mode-hook)))
   (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
   (add-hook 'ess-mode-hook (lambda () (lesspy-mode 1)))
-  (add-hook 'ess-mode-hook (lambda () (aggressive-indent-mode -1)))
   (add-hook 'ess-mode-hook (lambda () (setq-local outline-regexp "### ----------\\|^##' #\\|^#' #")))
   (add-hook 'inferior-ess-mode-hook (lambda () (setq-local outline-regexp "^>")))
   (setq ess-offset-continued 2           ; offset after first statement
         ess-expression-offset 2          ; offset for expression
         ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
-        ess-default-style 'RStudio)      ; set default style for R source file
+        ess-default-style 'RStudio) ; set default style for R source file
 
   (setq ess-indent-with-fancy-comments nil)
   ;; do not truncate line in the R repl:
   (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
+  (add-hook 'ess-julia-mode-hook #'ess-roxy-mode)
+  (add-hook 'ess-julia-mode-hook #'latex-unicode-mode)
   :config
   ;; config for R
   (load-file "~/dotfile/emacs/ess-config.el")
+
+  (setq inferior-julia-program-name "/usr/local/bin/julia")
 
   (bind-keys :map julia-mode-map
     ("RET" . (lambda () (interactive) (ess-roxy-newline-and-indent)))))
@@ -960,10 +1008,30 @@ _R_: reset
 
 (use-package ggtags :ensure t
   :commands (ggtags-mode)
+  :init
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                (ggtags-mode 1)
+                (setq-local imenu-create-index-function #'ggtags-build-imenu-index))))
   :config
-  (general-define-key :keymaps 'ggtags-mode-map
-    "M-s-," 'ggtags-navigation-mode-abort
-    "M-s-." 'ggtags-find-tag-dwim))
+
+  (use-package counsel-gtags :ensure t
+    :init
+    (add-hook 'c-mode-hook 'counsel-gtags-mode)
+    (add-hook 'c++-mode-hook 'counsel-gtags-mode)
+    :config
+    (general-define-key
+     :keymap counsel-gtags-mode-map
+      "C-c g g" 'counsel-gtags-dwim
+      "C-c g s" 'counsel-gtags-find-symbol
+      "C-c g d" 'counsel-gtags-find-definition
+      "C-c g r" 'counsel-gtags-find-reference
+      "C-c g f" 'counsel-gtags-find-file
+      "C-c g c" 'counsel-gtags-create-tags
+      "C-c g u" 'counsel-gtags-update-tags
+      "M-." 'counsel-gtags-dwim
+      "M-," 'pop-tag-mark)))
 
 (use-package git-gutter :ensure t
   :disabled t
@@ -981,6 +1049,8 @@ _R_: reset
 (use-package google-this :ensure t
   :bind (("C-x g" . google-this-mode-submap)
          ("C-x G" . google-this)))
+
+(use-package gnuplot-mode :ensure t :defer t)
 
 (use-package go-mode
   :load-path "~/.emacs.d/private/go-mode.el/"
@@ -1154,6 +1224,13 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   :init
   (add-hook 'prog-mode-hook 'hs-minor-mode))
 
+(use-package highlight-indent-guides :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
+  :config
+  (setq highlight-indent-guides-method 'character))
+
+
 (use-package hjkl
   :load-path "~/.emacs.d/private/hjkl"
   :config
@@ -1252,9 +1329,11 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   (setq-default ibuffer-saved-filter-groups
                 `(("Default"
                    ("RStat" (mode . ess-mode))
+                   ("C / C++" (mode . c-mode))
                    ("Org" (mode . org-mode))
                    ("Markdown" (mode . markdown-mode))
                    ("Bash" (or (mode . shell-script-mode)))
+                   ("Make" (mode . makefile-mode))
                    ("Dired" (mode . dired-mode))
                    ("PDF" (mode . pdf-view-mode))
                    ("Mail" (or (mode . message-mode)
@@ -1536,6 +1615,17 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
 ;; ---------- K --------------------------------------------------
 
 ;; ---------- L --------------------------------------------------
+(use-package latex-unicode-math-mode :ensure t
+  :commands (latex-unicode-math-mode
+             latex-unicode-mode)
+  :config
+  (use-package company-math :ensure t
+    :init
+    (add-hook 'ess-julia-mode-hook
+              (lambda () (setq-local company-backends
+                                (append '((company-math-symbols-latex))
+                                        company-backends))))))
+
 (use-package lesspy
   :load-path "~/.emacs.d/private/lesspy"
   :diminish ""
@@ -1543,34 +1633,34 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
   :config
   (general-define-key
    :keymaps 'lesspy-mode-map
-    "a" 'lesspy-avy-jump
-    "p" 'lesspy-eval-function-or-paragraph
-    "h" 'lesspy-help
-    "l" 'lesspy-eval-line
-    "L" 'lesspy-eval-line-and-go
-    "e" 'lesspy-eval-sexp
-    "E" 'lesspy-avy-eval
-    "c" 'lesspy-left
-    "t" 'lesspy-down
-    "s" 'lesspy-up
-    "r" 'lesspy-right
-    "d" 'lesspy-different
-    "m" 'lesspy-mark
-    "x" 'lesspy-execute
-    "u" 'lesspy-undo
-    "z" 'lesspy-to-shell
-    "(" 'lesspy-paren
-    "»" 'lesspy-forward-slurp
-    "«" 'lesspy-backward-slurp
-    "#" 'lesspy-comment
-    "'" 'lesspy-roxigen
-    "C" 'lesspy-cleanup-pipeline
-    "C-d" 'lesspy-kill-forward
-    "C-(" 'lesspy-paren-wrap-next
-    "DEL" 'lesspy-kill-backward)
+   "a" 'lesspy-avy-jump
+   "p" 'lesspy-eval-function-or-paragraph
+   "h" 'lesspy-help
+   "l" 'lesspy-eval-line
+   "L" 'lesspy-eval-line-and-go
+   "e" 'lesspy-eval-sexp
+   "E" 'lesspy-avy-eval
+   "c" 'lesspy-left
+   "t" 'lesspy-down
+   "s" 'lesspy-up
+   "r" 'lesspy-right
+   "d" 'lesspy-different
+   "m" 'lesspy-mark
+   "x" 'lesspy-execute
+   "u" 'lesspy-undo
+   "z" 'lesspy-to-shell
+   "(" 'lesspy-paren
+   "»" 'lesspy-forward-slurp
+   "«" 'lesspy-backward-slurp
+   "#" 'lesspy-comment
+   "'" 'lesspy-roxigen
+   "C" 'lesspy-cleanup-pipeline
+   "C-d" 'lesspy-kill-forward
+   "C-(" 'lesspy-paren-wrap-next
+   "DEL" 'lesspy-kill-backward)
   (general-define-key
    :keymaps 'inferior-ess-mode-map
-    "C-(" 'lesspy-paren-wrap-next))
+   "C-(" 'lesspy-paren-wrap-next))
 
 (use-package lispy :ensure t
   ;; :disabled t
@@ -1658,11 +1748,9 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
 (use-package makefile-mode :defer t
   :init
   ;; (add-hook 'makefile-mode-hook 'makefile-gmake-mode)
-  (add-hook 'makefile-bsdmake-mode-hook 'makefile-gmake-mode)
-  (add-hook 'makefile-mode-hook (lambda () (aggressive-indent-mode 0)
-                                  (setq-local outline-regexp "^## ----------")))
-  :config
-  (add-to-list 'company-backends 'company-shell))
+  (add-hook 'makefile-bsdmake-mode-hook #'makefile-gmake-mode)
+  (add-hook 'makefile-mode-hook
+            (lambda () (setq-local outline-regexp "^## ----------"))))
 
 (use-package markdown-mode :ensure t
   :mode (("\\.md\\'" . markdown-mode)
@@ -1785,6 +1873,8 @@ undo               _u_: undo
   ;; (add-hook 'mu4e-compose-mode-hook (lambda () (openwith-mode -1)))
   (add-hook 'message-mode-hook 'turn-on-orgtbl)
   (add-hook 'message-mode-hook 'turn-on-orgstruct++)
+  (add-hook 'message-mode-hook
+            (lambda () (add-to-list 'company-backends 'company-capf)))
   :config
   (use-package smtpmail)
 
@@ -1864,11 +1954,11 @@ undo               _u_: undo
   ;; keybindings
   (bind-keys
    :map mu4e-main-mode-map
-    ("n" . next-line)
-    ("p" . previous-line)
-    :map mu4e-headers-mode-map
-    ("s-c" . mu4e-headers-query-prev)
-    ("s-r" . mu4e-headers-query-next))
+   ("n" . next-line)
+   ("p" . previous-line)
+   :map mu4e-headers-mode-map
+   ("s-c" . mu4e-headers-query-prev)
+   ("s-r" . mu4e-headers-query-next))
 
   (defhydra hydra-mu4e
     (:hint nil
@@ -2054,12 +2144,18 @@ _r_: show    _R_: show  ^   ^          _M-s_: move up
     (interactive)
     (shell-command "open -a Finder ./"))
 
+  (defun pdf-kill-this-buffer (really-kill)
+    (interactive (list (y-or-n-p "Really kill this buffer [yN] ? ")))
+    (when really-kill
+      (kill-this-buffer)))
+
   (bind-keys :map pdf-view-mode-map
     ("r" . pdf-view-next-page)
     ("c" . pdf-view-previous-page)
     ("O" . pdf-view-open-in-external-app)
     ("s" . pdf-view-previous-line-or-previous-page)
-    ("t" . pdf-view-next-line-or-next-page)))
+    ("t" . pdf-view-next-line-or-next-page)
+    ("d" . pdf-kill-this-buffer)))
 
 (use-package cperl
   :mode ("\\.pl\\'". cperl-mode)
@@ -2294,8 +2390,6 @@ _s_ _p_rev   _r_: rename
   :interpreter
   (("ipython" . python-mode)
    ("python"  . python-mode))
-  :init
-  (add-hook 'python-mode-hook (lambda () (aggressive-indent-mode -1)))
   :config
   (load-file "~/dotfile/emacs/python-config.el"))
 
@@ -2339,19 +2433,25 @@ _s_ _p_rev   _r_: rename
 (use-package rtf-mode
   :quelpa (rtf-mode :fetcher wiki))
 ;; ---------- S --------------------------------------------------
-
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
 (use-package selected
+  :diminish (selected-minor-mode . "")
   :ensure t
-  :commands selected-minor-mode
+  :commands (selected-minor-mode
+             selected-global-mode)
   :bind (:map selected-keymap
+         ("a" . align-regexp)
          ("q" . selected-off)
          ("u" . upcase-region)
          ("d" . downcase-region)
          ("w" . count-words-region)
-         ("m" . apply-macro-to-region-lines)))
+         ("m" . apply-macro-to-region-lines))
+  :init
+  (selected-global-mode)
+  :config
+  (selected-global-mode))
 
 (use-package shift-number :ensure t
   :bind (("s--" . shift-number-down)
@@ -2362,21 +2462,14 @@ _s_ _p_rev   _r_: rename
   (setq explicit-shell-file-name "/usr/local/bin/bash"))
 
 (use-package solarized-color-themes
-  :disabled t
   :quelpa (solarized-color-themes :fetcher github :repo "sellout/emacs-color-theme-solarized")
   :init
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/color-theme-solarized-20160626.743/")
-  (set-frame-parameter (selected-frame) 'background-mode 'dark)
+  (add-to-list 'custom-theme-load-path
+               "~/.emacs.d/elpa/color-theme-solarized-20160626.743/")
   (load-theme 'solarized t)
-
-  (setq-default cursor-type 'box)
-  (add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
-  (set-cursor-color "#d33682")
-
   (defun solarized--dark-or-light (bgd)
     (set-frame-parameter (selected-frame) 'background-mode bgd)
-    (enable-theme 'solarized)
-    (set-cursor-color "#d33682")))
+    (enable-theme 'solarized)))
 
 (use-package sh-script :defer t
   :mode
@@ -2388,11 +2481,15 @@ _s_ _p_rev   _r_: rename
     ("zshenv\\'" . sh-mode )
     ("zshrc\\'" . sh-mode))
   :config
+  (setq shell-file-name "/usr/local/bin/bash")
 
   (use-package company-shell
     :quelpa (company-shell :fetcher github :repo "Alexander-Miller/company-shell")
     :config
-    (add-to-list 'company-backends 'company-shell)))
+    (add-hook 'sh-mode-hook
+              (lambda ()
+                (setq-local company-backends (append '(company-shell) company-backends))
+                ))))
 
 (use-package slime
   :ensure t
@@ -2714,12 +2811,13 @@ integrated Tex-mode. "
    ("\\.ejs\\'"        . web-mode)
    ("\\.djhtml\\'"     . web-mode))
   :config
-  (use-package company-web :ensure t
-    :config
-    (add-to-list 'company-backends 'company-web-html))
-  (add-hook 'web-mode-hook (lambda ()
-                             (setq-local tab-width 2)
-                             (setq-local outline-regexp "<!--*"))))
+  (use-package company-web :ensure t)
+
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (setq-local company-backends (append '(company-web-html) company-backends))
+              (setq-local tab-width 2)
+              (setq-local outline-regexp "<!--*"))))
 
 (use-package wgrep :ensure t :defer t)
 
@@ -2803,7 +2901,6 @@ integrated Tex-mode. "
 
 ;; ---------- Z --------------------------------------------------
 (use-package zenburn-theme :ensure t
-  :defer t
   :commands (sam-load-zenburn)
   :defines (sam-load-zenburn)
   :config

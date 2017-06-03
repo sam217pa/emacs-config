@@ -1,5 +1,10 @@
 ;;; Personal Functions
 ;;
+
+(defvar my-font-for-light "Iosevka Medium 14")
+(defvar my-font-for-dark "Iosevka Light 14")
+
+
 ;; By convention, I start them all with `sam--'
 
 (defun sam--revert-buffer-no-confirm ()
@@ -684,3 +689,17 @@ as input."
    (read-shell-command "Shell command on buffer: ")))
 
 (defalias 'kill-frame #'delete-frame)
+
+(defun counsel-tldr ()
+  "Search https://github.com/tldr-pages/tldr."
+  (interactive)
+  (let* ((default-directory "~/src/github.com/tldr-pages/tldr")
+         (cands (split-string
+                 (shell-command-to-string
+                  "git ls-files --full-name -- pages/")
+                 nil t)))
+    (ivy-read "Topic: " cands
+              :action #'find-file
+              :caller 'counsel-tldr)))
+
+(custom-set-variables '(epg-gpg-program  "gpg2"))
