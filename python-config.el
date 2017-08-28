@@ -1,55 +1,80 @@
-;; ---------- Packages ----------------------------------------------------
-(use-package anaconda-mode
-  :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
+;;; * Licence
+
+;; Copyright (C) 2017 Samuel Barreto <samuel.barreto8@gmail.com>
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, write to the Free Software
+;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;;
+
+;;; * Code
+
+(use-package elpy
+  :ensure t
   :config
+  (elpy-enable))
 
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+;; (use-package anaconda-mode
+;;   :quelpa (anaconda-mode :fetcher github :repo "proofit404/anaconda-mode")
+;;   :config
 
-  (bind-keys :map python-mode-map
-    ("C-M-i" . anaconda-mode-complete)
-    ("M-." . anaconda-mode-find-definitions)
-    ("M-?" . anaconda-mode-show-doc)
-    ("M-," . anaconda-mode-go-back)
-    ("M-*" . anaconda-mode-find-assignments)
-    ("M-SPC" . hydra-python/body))
+;;   (add-hook 'python-mode-hook 'anaconda-mode)
+;;   (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
 
-  (use-package company-anaconda
-    :quelpa (company-anaconda :fetcher github :repo "proofit404/company-anaconda")
-    :config
-    (add-to-list 'company-backends '(company-anaconda :with company-capf))))
+;;   (bind-keys :map python-mode-map
+;;     ("C-M-i" . anaconda-mode-complete)
+;;     ("M-." . anaconda-mode-find-definitions)
+;;     ("M-?" . anaconda-mode-show-doc)
+;;     ("M-," . anaconda-mode-go-back)
+;;     ("M-*" . anaconda-mode-find-assignments)
+;;     ("M-SPC" . hydra-python/body))
 
-(use-package py-yapf
-  :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
-  :commands py-yapf-buffer)
+;;   (use-package company-anaconda
+;;     :quelpa (company-anaconda :fetcher github :repo "proofit404/company-anaconda")
+;;     :config
+;;     (add-to-list 'company-backends '(company-anaconda :with company-capf))))
 
-(use-package pyenv-mode :ensure t
-  :commands pyenv-mode
-  :init (add-hook 'python-mode-hook 'pyenv-mode))
+;; (use-package py-yapf
+;;   :quelpa (py-yapf :fetcher github :repo "paetzke/py-yapf.el")
+;;   :commands py-yapf-buffer)
 
-(use-package pyvenv :ensure t
-  :config
-  (setenv "WORKON_HOME" "/Users/samuelbarreto/")
-  (pyvenv-workon "anaconda"))
+;; (use-package pyenv-mode :ensure t
+;;   :commands pyenv-mode
+;;   :init (add-hook 'python-mode-hook 'pyenv-mode))
 
-(use-package lpy
-  :disabled t
-  :quelpa (lpy :fetcher github :repo "abo-abo/lpy")
-  :init
-  (use-package function-args
-    :quelpa (function-args :fetcher github :repo "abo-abo/function-args"))
-  (use-package soap
-    :quelpa (soap :fetcher github :repo "abo-abo/soap"))
-  :config
-  (add-hook 'python-mode-hook (lambda () (lpy-mode 1) (lispy-mode 1))))
+;; (use-package pyvenv :ensure t
+;;   :config
+;;   (setenv "WORKON_HOME" "/Users/samuelbarreto/")
+;;   (pyvenv-workon "anaconda"))
 
-(use-package py-isort :ensure t
-  :commands (py-isort-buffer
-             py-isort-region))
+;; (use-package lpy
+;;   :disabled t
+;;   :quelpa (lpy :fetcher github :repo "abo-abo/lpy")
+;;   :init
+;;   (use-package function-args
+;;     :quelpa (function-args :fetcher github :repo "abo-abo/function-args"))
+;;   (use-package soap
+;;     :quelpa (soap :fetcher github :repo "abo-abo/soap"))
+;;   :config
+;;   (add-hook 'python-mode-hook (lambda () (lpy-mode 1) (lispy-mode 1))))
+
+;; (use-package py-isort :ensure t
+;;   :commands (py-isort-buffer
+;;              py-isort-region))
 
 ;; ---------- defaults ----------------------------------------------------
 (setq-default indent-tabs-mode nil)
-(setq python-indent-offset 4)
+(setq-default python-indent-offset 4)
 (if (executable-find "ipython")
     (setq python-shell-interpreter "ipython"
           python-shell-interpreter-args "--simple-prompt -i --pprint")
