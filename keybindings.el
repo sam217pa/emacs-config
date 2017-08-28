@@ -34,44 +34,40 @@
   (general-define-key
    "C-S-c" 'sp-splice-sexp
    "C-S-z" 'undo-tree-redo
-   "C-S-s" 'counsel-ag
    "C-S-k" 'kill-whole-line
-   "C-S-n" 'next-line-end
-   "C-S-p" 'prev-line-end
 
    "C- " 'mark-line
    "C-é" 'hydra-window/body
-   "C-€" 'hydra-transparency/body
-   "C-l" (lambda () (interactive) (avy-goto-line 4))
-   "C-'" 'avy-goto-word-or-subword-1
-   "C-." 'hydra-main/body
    "C--" 'kill-word-ap)
 
-;;; C-M-
-  (general-define-key
-   "C-M-i" 'complete-symbol)
+  (bind-key* "C-'" #'avy-goto-word-1)
+  (bind-key* "C-." #'hydra-main/body)
+  (bind-key* "C-/" #'complete-symbol)
+  (bind-key* "C-¨" #'complete-symbol)   ; ctl-alt-i
 
-;;; C-c
+;;; * C-M-
+
+
+;;; * C-c
   (general-define-key
-   "C-c v" 'magit-status
-   "C-c T" 'hydra-transparency/body)
+   :prefix "C-c"
+   "v" 'magit-status
+   "T" 'hydra-transparency/body)
 
 ;;; C-x
   (general-define-key
-   "C-x SPC" 'hydra-rectangle/body
-   "C-x d" 'dired-other-window
-   "C-x l" 'sam--firefox-plain-link
-   "C-x n" 'narrow-or-widen-dwim
-   "C-x p" 'hydra-projectile/body
-   "C-x o" 'other-window
-   "C-x v" 'hydra-git/body
-   "C-x =" 'balance-windows
+   :prefix "C-x"
+   "SPC" 'hydra-rectangle/body
+   "d" 'dired-other-window
+   "n" 'narrow-or-widen-dwim
+   "p" 'hydra-projectile/body
+   "o" 'other-window
+   "=" 'balance-windows
 
-   "C-x C-b" 'ibuffer
-   "C-x C-r" 'ivy-switch-buffer
-   "C-x M-b" 'hydra-frame/body
-   "C-x M-i" 'sam--insert-timestamp
-   "C-x M-c" 'compile)
+   "C-b" 'ibuffer
+   "C-r" 'ivy-switch-buffer
+   "M-i" 'sam--insert-timestamp
+   "M-c" 'compile)
 
 ;;; M-
   (general-define-key
@@ -103,36 +99,30 @@
              (kill-visual-line -1)))    ; delete previous line
    "s-l" 'sam--comment-or-uncomment-region-or-line
    "s-o" 'sam--open-in-external-app
-   "s-q" nil                            ; don't close emacs with option q.
-   "s-t" nil                            ; don't show font panel with s-t.
+   "s-q" nil                          ; don't close emacs with option q.
+   "s-t" nil                          ; don't show font panel with s-t.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
    "s-n" 'narrow-or-widen-dwim
-   "s-z" 'hydra-zoom/body
-   "s-'" 'avy-goto-char-2
    "s-." 'hydra-secondary/body
-   "s-\"" 'ffap
-   "s-(" 'hydra-sp/body
-   "s-SPC" 'pop-global-mark)
+   "s-(" 'hydra-sp/body)
 
 ;;; H-
   (general-define-key
    "H-<backspace>" 'ivy-switch-buffer-other-window
    "H-<tab>" 'hydra-outline/body
    ;; "H-'" 'sam--iterm-goto-filedir-or-home
-   "H-F" 'toggle-frame-maximized
    "H-b" 'projectile-ibuffer
    "H-e" 'eshell-here
    "H-f" 'toggle-frame-fullscreen
    "H-i" 'sam/insert-filename
    "H-l" 'sam--duplicate-line
    "H-m" 'delete-other-frames
-   "H-n" 'buffer-to-new-frame
+   "H-n" 'make-frame
    "H-s" 'move-text-up
    "H-t" 'move-text-down
    "H-r" 'counsel-recentf
    "H-u" 'revert-buffer
-   "H-w" 'ace-delete-window
 
    ;; H-M-
    "H-M-p" 'scroll-up-command
@@ -141,21 +131,17 @@
 
 ;;; Key chords
   (use-package key-chord :ensure t
-    :defer 1
     :config
+    (key-chord-mode 1)
     (setq key-chord-two-keys-delay 0.2)
-    (use-package key-seq :ensure t))
-
-  (general-define-key
-   (general-chord ",,") (lambda () (interactive) (insert ";"))
-   (general-chord "aa") (lambda () (interactive) (insert "@"))
-   (general-chord "qq") #'avy-goto-word-or-subword-1
-   (general-chord "qb") #'ivy-switch-buffer
-   (general-chord "qd") #'kill-this-buffer
-   (general-chord "qf") #'delete-frame
-   (general-chord "qs") #'save-buffer
-   (general-chord "qw") #'delete-window
-   (general-chord "VV") #'magit-status)
+    (use-package key-seq :ensure t
+      :config
+      (key-seq-define-global "««" (lambda () (interactive) (insert "<")))
+      (key-seq-define-global "»»" (lambda () (interactive) (insert ">")))
+      (key-seq-define-global "xq" 'hydra-context/body)
+      (key-seq-define-global "qb" #'counsel-bookmark)
+      (key-seq-define-global "qd" #'kill-this-buffer)
+      (key-seq-define-global "ql" #'avy-goto-line)))
 
 ;;; Mode specific map
   (general-define-key :keymaps 'Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
@@ -164,26 +150,11 @@
   (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer)
   (general-define-key
    :keymaps 'compilation-mode-map
-    "t" 'compilation-next-error
-    "s" 'compilation-previous-error
-    "r" 'compile-goto-error))
+   "t" 'compilation-next-error
+   "s" 'compilation-previous-error
+   "r" 'compile-goto-error))
 
-;; ---------- GLOBAL ------------------------------------------------------
-
-(global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
-(global-set-key [remap kill-line] (bol-with-prefix kill-line))
-(global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
-(global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
-(global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
-(global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
-
-(global-set-key (kbd "<f5>") 'mu4e)
-(global-set-key (kbd "<f6>") 'elfeed)
-(global-set-key (kbd "<f7>") 'org-capture)
-(global-set-key (kbd "<f8>") 'org-agenda)
-(global-set-key (kbd "<f9>") 'bongo)
-
-;; ---------- WHICH-KEY ---------------------------------------------------
+;;; * Which-key
 
 ;; key description for C-x
 (which-key-add-key-based-replacements
@@ -200,104 +171,22 @@
   "C-c &"   "yas"
   "C-c @"   "hide-show")
 
-;; ---------- GLOBAL ------------------------------------------------------
+;;; * Global
 
-;; from http://kitchingroup.cheme.cmu.edu/blog/2014/08/31/Using-Mac-gestures-in-Emacs/
-(when (eq system-type 'darwin)
-  (defvar *my-previous-buffer* t
-    "can we switch?")
+(global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
+(global-set-key [remap kill-line] (bol-with-prefix kill-line))
+(global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
+(global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
+(global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
+(global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
 
-  (defun my-previous-buffer ()
-    (interactive)
-    (message "custom prev: *my-previous-buffer*=%s" *my-previous-buffer*)
-    (when *my-previous-buffer*
-      (previous-buffer)
-      (setq *my-previous-buffer* nil)
-      (run-at-time "1 sec" nil (lambda ()
-                                 (setq *my-previous-buffer* t)))))
+(global-set-key (kbd "<f5>") 'mu4e)
+(global-set-key (kbd "<f6>") 'elfeed)
+(global-set-key (kbd "<f7>") 'org-capture)
+(global-set-key (kbd "<f8>") 'org-agenda)
+(global-set-key (kbd "<f9>") 'bongo)
 
-  (defvar *my-next-buffer* t
-    "can we switch?")
-
-  (defun my-next-buffer ()
-    (interactive)
-    (message "custom prev: *my-next-buffer*=%s" *my-next-buffer*)
-    (when *my-next-buffer*
-      (next-buffer)
-      (setq *my-next-buffer* nil)
-      (run-at-time "1 sec" nil (lambda ()
-                                 (setq *my-next-buffer* t)))))
-
-  (global-set-key [double-wheel-right] 'my-previous-buffer)
-  (global-set-key [double-wheel-left] 'my-next-buffer))
-
-;; ---------- HYDRA -------------------------------------------------------
-
-(defhydra hydra-buffer (:color blue :columns 3 :hint nil)
-  "
-^NAV^     ^MENU^           ^DELETE^           ^ACTIONS^
-_n_ext      _b_: switch      _d_: del ←         ^ ^
-_p_rev    _M-b_: ibuffer   _C-d_: del →       _s_ave
-^ ^       _C-b_: menu      _M-d_: del + win   _._: window
-  "
-  ("n" next-buffer :color red)
-  ("p" previous-buffer :color red)
-  ("b" ivy-switch-buffer)
-  ("M-b" ibuffer)
-  ("C-b" buffer-menu)
-  ("d" kill-this-buffer :color red)
-  ;; don't come back to previous buffer after delete
-  ("C-d" (progn (kill-this-buffer) (next-buffer)) :color red)
-  ("M-d" (progn (kill-this-buffer) (delete-window)) :color red)
-  ("s" save-buffer :color red)
-  ("." hydra-window/body :color blue)
-  ("q" nil "quit" :color blue))
-
-(defhydra hydra-buffer-menu
-  (:color pink
-   :hint nil)
-  "
-^NAV^      ^MARK^         ^UNMARK^        ^ACTIONS^          ^SEARCH^
-_p_: prev  _m_: mark      _u_: unmark     _x_: execute       _R_: re-isearch
-_n_: next  _s_: save      _U_: unmark up  _b_: bury          _I_: isearch
-^ ^        _d_: delete    ^ ^             _g_: refresh       _O_: multi-occur
-^ ^        _D_: delete up ^ ^             _T_: files only: % -28`Buffer-menu-files-only
-^ ^        _~_: modified
-"
-  ("p" previous-line)
-  ("n" next-line)
-  ("m" Buffer-menu-mark)
-  ("u" Buffer-menu-unmark)
-  ("U" Buffer-menu-backup-unmark)
-  ("d" Buffer-menu-delete)
-  ("D" Buffer-menu-delete-backwards)
-  ("s" Buffer-menu-save)
-  ("~" Buffer-menu-not-modified)
-  ("x" Buffer-menu-execute)
-  ("b" Buffer-menu-bury)
-  ("g" revert-buffer)
-  ("T" Buffer-menu-toggle-files-only)
-  ("O" Buffer-menu-multi-occur :color blue)
-  ("I" Buffer-menu-isearch-buffers :color blue)
-  ("R" Buffer-menu-isearch-buffers-regexp :color blue)
-  ("c" nil "cancel")
-  ("v" Buffer-menu-select "select" :color blue)
-  ("o" Buffer-menu-other-window "other-window" :color blue)
-  ("q" quit-window "quit" :color blue))
-
-(defhydra hydra-bongo (:color red :columns 3 :hint nil)
-  "
-BONGO
-_s_tart     _n_ext
-_S_top      _p_revious
-^ ^    _SPC_: PLAY!!"
-  ("S" bongo-stop)
-  ("s" bongo-start)
-  ("n" bongo-next)
-  ("p" bongo-previous)
-  ("b" bongo  "bongo" :color blue)
-  ("SPC" bongo-play)
-  ("q" nil  "quit" :color blue ))
+;;; * HYDRA
 
 (defhydra hydra-dired-main (:color pink :hint nil :columns 4)
   "
@@ -358,92 +247,19 @@ _C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
   ("F" (lambda () (interactive) (find-file "~/dotfile/emacs/functions.el")))
   ("t" sam--edit-todo))
 
-(defun sam--set-font (font)
+(defun counsel-font ()
+  "Change font of current frame"
   (interactive)
-  (set-frame-font font))
-
-(defun sam-chose-font ()
-  "Return HEX code from solarized color map."
-  (interactive)
-  (ivy-read
-   "Chose font :"
-   '(("Go" "Go Mono 12")
-     ("Hack" "Hack 12")
-     ("SCP light" "Source Code Pro Light 12")
-     ("Iosevka" "Iosevka Light 12")
-     ("Fira" "Fira Code 12")
-     ("Ubuntu" "Ubuntu Mono 12")
-     ("Roboto" "Roboto 13"))
-   :action '(1 ("o" (lambda (x)
-                      (with-ivy-window
-                        (sam--set-font (elt x 1))))))))
-
-(defhydra hydra-font (:hint nil :color red)
-  "
-^MONO^               ^VAR^         ^PROP^
-_g_o      _u_buntu   _r_oboto    _C-i_nput
-_h_ack    _i_osevka
-_s_cp     _f_ira
-"
-  ;; mono
-  ("g" (sam--set-font "Go Mono 12"))
-  ("h" (sam--set-font "Hack 12"))
-  ("s" (sam--set-font "Source Code Pro Light 12"))
-  ("i" (sam--set-font "Iosevka Light 12"))
-  ("f" (sam--set-font "Fira Code 14"))
-  ("u" (sam--set-font "Ubuntu Mono 12"))
-  ;; prop
-  ("C-i" (lambda () (interactive) (set-frame-font "Input Sans 12" t) (text-scale-increase 1)))
-  ;; variable
-  ("r" (sam--set-font "Roboto 13"))
-  ;; other
-  ("z" hydra-zoom/body "zoom" :color blue)
-  ("é" sam-chose-font "chose" :color blue)
-  ("q" (progn  (hydra-secondary/body) (message "Back to previous hydra")) "back" :color blue))
+  (ivy-read "Chose font :"
+            (font-family-list)
+            :caller 'counsel-font
+            :action (lambda (x) (set-frame-font x))))
 
 (defhydra hydra-frame (:hint nil :columns 3 :color blue)
   "frames"
   ("d" delete-frame "delete")
   ("n" new-frame "new")
   ("D" delete-other-frames "delete other"))
-
-(defhydra hydra-git
-  (:body-pre (git-gutter-mode 1)
-   :post (progn (kill-diff-buffers)
-                (message "killed diff buffers"))
-   :hint nil)
-  "
-^NAV^               ^HUNK^            ^FILES^        ^ACTIONS^
-  _n_: next hunk    _s_tage hunk      _S_tage        _c_ommit
-  _p_: prev hunk    _r_evert hunk     _R_evert       _b_lame
-_C-P_: first hunk   _P_opup hunk      _d_iff         _C_heckout
-_C-N_: last hunk    _R_evision start  _t_imemachine
-"
-  ("n" git-gutter:next-hunk)
-  ("p" git-gutter:previous-hunk)
-  ("C-P" (progn (goto-char (point-min)) (git-gutter:next-hunk 1)))
-  ("C-N" (progn (goto-char (point-min)) (git-gutter:previous-hunk 1)))
-  ("s" git-gutter:stage-hunk)
-  ("r" git-gutter:revert-hunk)
-  ("P" git-gutter:popup-hunk)
-  ("R" git-gutter:set-start-revision)
-  ("S" magit-stage-file)
-  ("R" magit-revert)
-  ("d" magit-diff-unstaged :color blue)
-  ("t" git-timemachine :color blue)
-  ("c" magit-commit :color blue)
-  ("b" magit-blame)
-  ("C" magit-checkout)
-  ("v" magit-status "status" :color blue)
-  ("q" nil "quit" :color blue)
-  ("Q" (progn
-         (git-gutter-mode -1)
-         ;; git-gutter-fringe doesn't seem to
-         ;; clear the markup right away
-         (sit-for 0.1)
-         (git-gutter:clear))
-   "quit git-gutter"
-   :color blue))
 
 (defhydra hydra-ibuffer-main (:color pink :hint nil)
   ;; Ibuffer
@@ -758,12 +574,15 @@ _c_ _é_ _r_   _|_ : split V    _e_     _m_aximize  ^5^ ^6^ ^7^ ^8^
 ^BUFFER^   ^FRAME^    ^ACTION^
 _t_: +     _T_: +     _0_: reset
 _s_: -     _S_: -     _q_: quit
+ ^^[_-_] [_+_]
 "
   ("t" zoom-in)
   ("s" zoom-out)
   ("T" zoom-frm-in)
   ("S" zoom-frm-out)
   ("0" zoom-frm-unzoom)
+  ("-" zoom-out)
+  ("+" zoom-in)
   ("q" nil :color blue))
 
 ;; ---------- MAIN HYDRA --------------------------------------------------
@@ -807,7 +626,6 @@ _t_: todo
   ("<tab>" hydra-main/body "primary")
   ("q" (message "Abort") "abort" :color blue))
 
-(key-seq-define-global "xq" 'hydra-context/body)
 
 (defhydra hydra-context (:hint nil :color teal)
   "
@@ -817,3 +635,69 @@ _s_: semantic
   ("s" counsel-semantic)
   ("i" nil :color blue)
   ("q" nil "quit" :color blue))
+
+(defhydra hydra-yank-pop ()
+  "yank"
+  ("C-y" yank nil)
+  ("M-y" yank-pop nil)
+  ("y" (yank-pop 1) "next")
+  ("p" (yank-pop 1) "next")
+  ("n" (yank-pop -1) "prev")
+  ("l" counsel-yank-pop "list" :color blue))
+(bind-key* "C-y" #'hydra-yank-pop/yank)
+
+(defhydra hydra-goto (:pre (nlinum-mode 1)
+                      :post (nlinum-mode -1)
+                      :hint nil)
+  "
+^GOTO^      ^ERROR^     ^DUMB-JUMP^
+_c_: char   _p_: prev   _g_: go     _SPC_: quick look
+_l_: line   _n_: next   _G_: go OW  _b_: back
+"
+  ("c" goto-char)
+  ("n" next-error)
+  ("p" previous-error)
+  ("l" goto-line)
+  ("g" dumb-jump-go)
+  ("G" dumb-jump-go-other-window)
+  ("SPC" dumb-jump-quick-look)
+  ("b" dumb-jump-back)
+  ("q" nil "quit" :color blue))
+(bind-key* "M-g" #'hydra-goto/body)
+
+(defhydra hydra-mark (:exit t
+                      :columns 3
+                      :idle 1.0)
+  "Mark"
+  ("f" er/mark-defun "function")
+  ("w" er/mark-word "word")
+  ("u" er/mark-url "url")
+  ("e" mark-sexp "sexp")
+  ("E" er/mark-email "Email")
+  ("b" hydra-mark-buffer/body "Buffer")
+  ("l" mark-line "Line")
+  ("p" er/mark-text-paragraph "paragraph")
+  ("s" er/mark-symbol "symbol")
+  ("S" er/mark-symbol-with-prefix "Prefixed symbol")
+  ("q" er/mark-inside-quotes "Inside quotes")
+  ("Q" er/mark-outside-quotes "Outside quotes")
+  ("(" er/mark-inside-pairs "Inside pairs")
+  ("[" er/mark-inside-pairs "Inside pairs")
+  ("{" er/mark-inside-pairs "Inside pairs")
+  (")" er/mark-outside-pairs "Outside pairs")
+  ("]" er/mark-outside-pairs "Outside pairs")
+  ("}" er/mark-outside-pairs "Outside pairs")
+  ("t" er/mark-inner-tag "Inner tag")
+  ("T" er/mark-outer-tag "Outer tag")
+  ("c" er/mark-comment "Comment")
+  ("." er/expand-region "Expand region" :exit nil)
+  ("," er/contract-region "Contract region" :exit nil))
+(bind-key* "s-SPC" #'hydra-mark/body)
+
+(defhydra hydra-kbd-macro (:color blue :hint nil :columns 3)
+  "KBD MACRO"
+  ("." call-last-kbd-macro "redo last" :color red)
+  ("s" start-kbd-macro "start")
+  ("e" end-kbd-macro "end")
+  ("q" nil :color blue "quit"))
+(bind-key* "C-x q" #'hydra-kbd-macro/body)

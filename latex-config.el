@@ -104,8 +104,9 @@
 
 (general-define-key
  :keymaps 'LaTeX-mode-map
-  "C-," 'hydra-latex/body
-  "M-q" 'hydra-latex-fill/body)
+ "C-," 'hydra-latex/body
+ "M-q" 'fill-paragraph
+ "M-s-q" 'hydra-latex-fill/body)
 
 (defhydra hydra-latex (:color blue :hint nil :columns 3)
   "
