@@ -317,35 +317,53 @@ Lisp function does not specify a special indentation."
  'markdown-mode
  '(("src\\|{{< figure\\|caption\\|link\\|>}}" . font-lock-keyword-face)))
 
+(defvar counsel-colors--solarized-alist
+  '(("brblack"   . "#002b36")
+    ("black"     . "#073642")
+    ("brgreen"   . "#586e75")
+    ("bryellow"  . "#657b83")
+    ("brblue"    . "#839496")
+    ("brcyan"    . "#93a1a1")
+    ("white"     . "#eee8d5")
+    ("brwhite"   . "#fdf6e3")
+    ("yellow"    . "#b58900")
+    ("brred"     . "#cb4b16")
+    ("red"       . "#dc322f")
+    ("magenta"   . "#d33682")
+    ("brmagenta" . "#6c71c4")
+    ("blue"      . "#268bd2")
+    ("cyan"      . "#2aa198")
+    ("green"     . "#859900"))
+  "This a list of colors defined by the Solarized color
+  palette.")
 
-(defun sam--ivy-solarized ()
-  "Return HEX code from solarized color map."
+(defun counsel-colors-solarized ()
+  "Show a list of all solarized colors.
+
+You can insert or kill the name or the hexadecimal rgb value of the
+selected candidate."
   (interactive)
-  (ivy-read
-   "Select hex from solarized color: "
-   '(("brblack  " "#002b36")
-     ("black    " "#073642")
-     ("brgreen  " "#586e75")
-     ("bryellow " "#657b83")
-     ("brblue   " "#839496")
-     ("brcyan   " "#93a1a1")
-     ("white    " "#eee8d5")
-     ("brwhite  " "#fdf6e3")
-     ("yellow   " "#b58900")
-     ("brred    " "#cb4b16")
-     ("red      " "#dc322f")
-     ("magenta  " "#d33682")
-     ("brmagenta" "#6c71c4")
-     ("blue     " "#268bd2")
-     ("cyan     " "#2aa198")
-     ("green    " "#859900"))
-   :action '(1 ("o" (lambda (x)
-                      (with-ivy-window
-                        (insert (elt x 1))))))))
+  (let ((minibuffer-allow-text-properties t))
+    (ivy-read "%d Solarized color: "
+              (mapcar (lambda (x)
+                        (concat
+                         (propertize
+                          (format "%-25s" (car x)))
+                         (propertize
+                          (format "%8s  " (cdr x))
+                          'face (list :foreground (car x)))
+                         (propertize
+                          (format "%10s" " ")
+                          'face (list :background (cdr x)))))
+                      counsel-colors--solarized-alist)
+              :require-match t
+              :action #'counsel-colors-action-insert-hex
+              :update-fn (lambda ()
+                           (counsel-colors--update-highlight (ivy-state-current ivy-last)))
+              :caller 'counsel-colors-solarized
+              :sort t)))
 
-
-
-;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
+;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
 (defun unfill-paragraph (&optional region)
   "Takes a multi-line paragraph and makes it into a single line of text."
   (interactive (progn (barf-if-buffer-read-only) '(t)))
