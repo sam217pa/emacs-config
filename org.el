@@ -27,7 +27,8 @@
              org-store-link
              org-agenda)
   :mode (("\\.org\\'" . org-mode)
-         ("*Org Agenda*" . org-agenda-mode))
+         ("*Org Agenda*" . org-agenda-mode)
+         ("README\\'"   . org-mode))
 
   :bind*
   (:map dired-mode-map
@@ -75,9 +76,8 @@
 
   (general-define-key
    :keymaps 'org-mode-map
-    "s-e" 'org-babel-tangle-all-block-same-file
-    "s-l" 'org-latex-export-to-latex
-    )
+   "s-e" 'org-babel-tangle-all-block-same-file
+   "s-l" 'org-latex-export-to-latex)
 
   ;; ---------- default -----------------------------------------------------
   (require 'org-agenda)
@@ -86,12 +86,12 @@
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
   (setq org-agenda-files
         (list "~/Org/TODO"
-              "~/these/meta/nb/TODO.org"))
+              "~/these/meta/nb/These.org"))
 
   (setq org-mu4e-link-query-in-headers-mode nil)
   (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
   (setq org-agenda-span 7)
-  (setq org-agenda-tags-column -100)    ; take advantage of the screen width
+  (setq org-agenda-tags-column -100) ; take advantage of the screen width
   (setq org-agenda-sticky nil)
   (setq org-agenda-inhibit-startup t)
   (setq org-agenda-use-tag-inheritance t)
@@ -112,27 +112,25 @@
            ((agenda "")
             (alltodo "")))))
 
-  (org-add-link-type "ebib" 'ebib-open-org-link)
-
-;;;*** gtd with org
+;;; *** gtd with org
   (setq
    org-modules '(org-crypt)
-   org-tags-column 80                  ; aligne les tags très loin sur la droite
-   org-hide-block-startup t            ; cache les blocks par défaut.
-   org-refile-targets '(("~/Org/TODO" :level . 2)
-                        ("~/stage/TODO" :level . 1)
-                        ("~/Org/someday.org" :level . 1)
-                        ("~/Org/knowledge.org" :level . 2))
+   org-tags-column 80          ; aligne les tags très loin sur la droite
+   org-hide-block-startup t    ; cache les blocks par défaut.
+   org-refile-targets '(("~/these/meta/nb/These.org" :level . 2)
+                        ("~/Org/TODO" :level . 2)
+                        ("~/these/meta/nb/maybe.org" :level . 1)
+                        ("~/Org/maybe.org" :level . 1))
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
-   '(("t" "these - todo" entry (file+headline "~/these/meta/nb/TODO.org" "Thèse") "** TODO %? %T")
-     ("l" "these - link" entry (file+headline "~/these/meta/nb/TODO.org" "Thèse") "** TODO %? %T\n%a")
-     ("e" "enseignements" entry (file+headline "~/these/meta/nb/TODO.org" "Enseignements") "** TODO %? %T")
-     ("r" "réunion" entry (file+headline "~/these/meta/nb/TODO.org" "Réunion") "** %? %T")
-     ("T" "todo" entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")
-     ("n" "notes" entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?\n")
-     ("j" "lab-journal" entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?\n" )))
-
+   '(("t" "these - todo" entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
+     ("r" "tickler"      entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %? %T")
+     ("T" "todo"         entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")
+     ("n" "notes"        entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
+     ("j" "lab"          entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
+  (setq org-todo-keywords '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
+  ;; prevent an item to switch to completed if an item below it is not:
+  (setq org-enforce-todo-dependencies t)
   (defun hour-minute-timestamp ()
     (format-time-string "%H:%M" (current-time)))
 
@@ -275,25 +273,8 @@
   (bind-key (kbd "v") #'hydra-org-agenda-view/body org-agenda-mode-map)
 
 
-;;;* Keybindings
+;;; * Keybindings
+
   (general-define-key
    :keymaps 'org-mode-map
-    "C-c M-i" 'org-insert-link
-    (general-chord ",c") 'org-shiftcontrolleft
-    (general-chord ",t") 'org-shiftcontroldown
-    (general-chord ",s") 'org-shiftcontrolup
-    (general-chord ",r") 'org-shiftcontrolright
-    (general-chord ";C") 'org-metaleft
-    (general-chord ";T") 'org-metadown
-    (general-chord ";S") 'org-metaup
-    (general-chord ";R") 'org-metaright))
-
-;;;* Keybindings
-
-
-;; TODO j'ai eu l'idée d'un snippet qui permettrait de splitter les
-;; chunks en deux. au moment où je dois choisir le file to tangle in,
-;; la fonction parserai le script pour construire une liste de tous
-;; les :tangle file, de façon à pouvoir choisir le fichier dans lequel
-;; je veux que ça aille. par défault, il devrait choisir le file dans
-;; le chunk juste au dessus.
+   "C-c M-i" 'org-insert-link))
