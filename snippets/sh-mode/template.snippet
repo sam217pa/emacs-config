@@ -7,10 +7,12 @@ set -euo pipefail
 IFS=\$'\n\t'
 
 readonly LOG_FILE="/tmp/\$(basename "\$0").log"
-info()    { echo "INFO:  \$@" | tee -a "\$LOG_FILE" >&2 ; }
-warn()    { echo "WARN:  \$@" | tee -a "\$LOG_FILE" >&2 ; }
-error()   { echo "ERROR: \$@" | tee -a "\$LOG_FILE" >&2 ; }
-fatal()   { echo "FATAL: \$@" | tee -a "\$LOG_FILE" >&2 ; exit 1 ; }
+
+info()    { echo -e "INFO:  \$@" | tee -a "\$LOG_FILE" >&2 ; }
+warn()    { echo -e "WARN:  \$@" | tee -a "\$LOG_FILE" >&2 ; }
+error()   { echo -e "ERROR: \$@" | tee -a "\$LOG_FILE" >&2 ; }
+fatal()   { echo -e "FATAL: \$@" | tee -a "\$LOG_FILE" >&2 ; exit 1 ; }
+
 
 usage() {
     cat <<END_DOC
@@ -22,13 +24,9 @@ DESCRIPTION:
 
 
 
-EXAMPLES:
-
-
-
 OPTIONS:
 
-    -help: Display this help message
+    --help: Display this help message
 
 AUTHOR:
 
@@ -43,8 +41,8 @@ END_DOC
 expr "\$*" : ".*--help" > /dev/null && usage
 
 cleanup() {
-  # unset TEMPVAR
-  echo "" ;
+    # unset TEMPVAR
+    echo ""
 }
 
 if [[ "\${BASH_SOURCE[0]}" = "\$0" ]]; then

@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
-# name: header
-# key: header
+# name: template
+# key: template
 # --
 #' ---
 #' title: "${1:Title}"
@@ -32,7 +32,7 @@ opts_knit\$set(width=80)
 ## /*
 rmarkdown::render(
   input = "`(buffer-file-name)`",
-  output_file = "reports/`(file-name-sans-extension (buffer-file-name))`.html",
+  output_file = "`(format "%s%s%s.html" (file-name-directory (buffer-file-name)) "reports/" (file-name-base (buffer-file-name)))`",
   encoding = "UTF-8"
 )
 ## */
