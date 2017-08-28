@@ -26,6 +26,7 @@
 **** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]
 **** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]
 **** [[http://biorxiv.org/alertsrss][biorxiv]]
+**** [[http://onlinelibrary.wiley.com/rss/journal/10.1111/(ISSN)1365-2958][molecular microbiology]]
 *** bioinfo                                                                   :bioinfo:
 **** [[http://bioinfo-fr.net/feed][bioinfo.fr]]
 *** biostat                                                                   :biostat:
