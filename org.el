@@ -113,6 +113,7 @@
             (alltodo "")))))
 
 ;;; *** gtd with org
+
   (setq
    org-modules '(org-crypt)
    org-tags-column 80          ; aligne les tags très loin sur la droite
@@ -136,60 +137,51 @@
 
   (add-to-list 'org-modules 'org-mac-iCal)
   (setq org-agenda-include-diary nil)
+
 ;;;*** src block and babel
+
   (setq
    org-src-preserve-indentation t
+
 ;;;*** footnotes
+
    org-footnote-auto-adjust t
    org-footnote-define-inline nil
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
-;;;*** export
+
+;;;; *** export
+
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
    org-export-backends '(ascii html icalendar latex md koma-letter)
-;;;*** latex
+
+;;;; latex
+
    ;; moyen d'export latex
    org-latex-pdf-process
-   (list "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-         "bibtex %f"
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+   (list "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+         "biber %f"
+         "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f")
    org-latex-image-default-width "1\\linewidth"
    org-highlight-latex-and-related '(latex entities) ; colore les macro LaTeX
    ;; tufte-handout class by default.
-   org-latex-default-class "tufte-handout"
+   org-latex-default-class "tant"
    ;; default package list with sensible options
-   org-latex-default-packages-alist
-   (quote (("AUTO" "inputenc" t) ("T1" "fontenc" t) ("" "graphicx" t) ("" "longtable" t) ("" "float" nil)
-           ("" "hyperref" nil) ("" "wrapfig" nil) ("" "rotating" nil) ("normalem" "ulem" t)
-           ("" "amsmath" t) ("" "textcomp" t) ("" "marvosym" t) ("" "wasysym" t)
-           ("" "amssymb" t) ("scaled=0.9" "zi4" t) ("x11names, dvipsnames" "xcolor" t)
-           ("protrusion=true, expansion=alltext, tracking=true, kerning=true" "microtype" t)
-           ("" "siunitx" t) ("french" "babel" t)))
+   org-latex-default-packages-alist nil
+   ;; '(("AUTO" "inputenc" t) ("T1" "fontenc" t) ("" "graphicx" t) ("" "longtable" t) ("" "float" nil)
+   ;;   ("" "hyperref" nil) ("" "wrapfig" nil) ("" "rotating" nil) ("normalem" "ulem" t)
+   ;;   ("" "amsmath" t) ("" "textcomp" t) ("" "marvosym" t) ("" "wasysym" t)
+   ;;   ("" "amssymb" t) ("scaled=0.9" "zi4" t) ("x11names, dvipsnames" "xcolor" t)
+   ;;   ("protrusion=true, expansion=alltext, tracking=true, kerning=true" "microtype" t)
+   ;;   ("" "siunitx" t) ("french" "babel" t))
    ;; extensions that listings packages in latex recognize.
-   org-latex-listings-langs '((emacs-lisp "Lisp")
-                              (lisp "Lisp")
-                              (clojure "Lisp")
-                              (c "C")
-                              (cc "C++")
-                              (fortran "fortran")
-                              (perl "Perl")
-                              (cperl "Perl")
-                              (python "Python")
-                              (ruby "Ruby")
-                              (html "HTML")
-                              (xml "XML")
-                              (tex "TeX")
-                              (latex "[LaTeX]TeX")
-                              (shell-script "bash")
-                              (gnuplot "Gnuplot")
-                              (ocaml "Caml")
-                              (caml "Caml")
-                              (sql "SQL")
-                              (sqlite "sql")
-                              (makefile "make")
-                              (R "r"))
+   org-latex-listings-langs
+   '((emacs-lisp "Lisp") (lisp "Lisp") (clojure "Lisp") (c "C") (cc "C++") (fortran "fortran")
+     (perl "Perl") (cperl "Perl") (python "Python") (ruby "Ruby") (html "HTML")
+     (xml "XML") (tex "TeX") (latex "[LaTeX]TeX") (shell-script "bash") (gnuplot "Gnuplot")
+     (ocaml "Caml") (caml "Caml") (sql "SQL") (sqlite "sql") (makefile "make")
+     (R "r"))
    ;; files extensions that org considers as latex byproducts.
    org-latex-logfiles-extensions '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
                                    "log" "nav" "out" "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "bbl")
@@ -210,7 +202,15 @@
   (with-eval-after-load 'ox-latex
     (append-to-list
      'org-latex-classes
-     '(("tufte-book"
+     '(("tant"
+        "\\documentclass[twoside,a4paper,10pt]{tant}
+\\addbibresource{reference.bib}
+"
+        ("\\part{%s}" . "\\part*{%s}")
+        ("\\chapter{%s}" . "\\chapter*{%s}")
+        ("\\section{%s}" . "\\section*{%s}")
+        ("\\subsection{%s}" . "\\subsection*{%s}"))
+       ("tufte-book"
         "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
        \\input{/Users/samuelbarreto/.templates/tufte-book.tex}"
         ("\\part{%s}" . "\\part*{%s}")
@@ -238,40 +238,6 @@
         ("\\subsection{%s}" . "\\subsection*{%s}")
         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
         ("\\paragraph{%s}" . "\\paragraph*{%s}")))))
-
-  (defun org-insert-heading-with-date-after-current ()
-    "Insert a new heading with current date same level as current,
-     after current subtree."
-    (interactive)
-    (org-back-to-heading)
-    (org-insert-heading)
-    (insert-timestamp)
-    (org-move-subtree-down)
-    (end-of-line 1))
-
-  (defun org-agenda-cts ()
-    (let ((args (get-text-property
-                 (min (1- (point-max)) (point))
-                 'org-last-args)))
-      (nth 2 args)))
-
-  (defhydra hydra-org-agenda-view (:hint nil :columns 1)
-    "VIEW"
-    ("SPC" org-agenda-reset-view)
-    ("d" org-agenda-day-view
-     (format "%s - day" (if (eq 'day (org-agenda-cts)) "[x]" "[ ]")))
-    ("w" org-agenda-week-view
-     (format "%s - week" (if (eq 'week (org-agenda-cts)) "[x]" "[ ]")))
-    ("t" org-agenda-fortnight-view
-     (format "%s - fortnight" (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]")))
-    ("m" org-agenda-month-view
-     (format "%s - month" (if (eq 'month (org-agenda-cts)) "[x]" "[ ]")))
-    ("y" org-agenda-year-view
-     (format "%s - year" (if (eq 'year (org-agenda-cts)) "[x]" "[ ]")))
-    ("q" (message "Abort") :exit t))
-
-  (bind-key (kbd "v") #'hydra-org-agenda-view/body org-agenda-mode-map)
-
 
 ;;; * Keybindings
 
