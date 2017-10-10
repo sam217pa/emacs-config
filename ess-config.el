@@ -33,6 +33,8 @@
 
 (use-package ctable :ensure t)
 
+(setq ess-swv-plug-into-AUCTeX-p t)
+
 ;; ---------- defaults ----------------------------------------------------
 (setq ess-completing-read 'ivy-completing-read)
 (setq ess-eval-visibly 'nowait)

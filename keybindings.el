@@ -23,8 +23,8 @@
   :config
 
 ;;; Shift
-  (general-define-key
-   "S-<return>" 'projectile-find-file-dwim)
+
+  
 
 ;;; Alt-
   (general-define-key
@@ -35,10 +35,7 @@
    "C-S-c" 'sp-splice-sexp
    "C-S-z" 'undo-tree-redo
    "C-S-k" 'kill-whole-line
-
-   "C- " 'mark-line
-   "C-é" 'hydra-window/body
-   "C--" 'kill-word-ap)
+   "C-é" 'hydra-window/body)
 
   (bind-key* "C-'" #'avy-goto-word-1)
   (bind-key* "C-." #'hydra-main/body)
@@ -47,14 +44,17 @@
 
 ;;; * C-M-
 
+  
 
 ;;; * C-c
+
   (general-define-key
    :prefix "C-c"
    "v" 'magit-status
    "T" 'hydra-transparency/body)
 
-;;; C-x
+;;; * C-x
+
   (general-define-key
    :prefix "C-x"
    "SPC" 'hydra-rectangle/body
@@ -85,7 +85,6 @@
 ;;; s-
   (general-define-key
    "s-<backspace>" 'ivy-switch-buffer
-   "s-S-<backspace>" 'projectile-switch-to-buffer
    "s-<tab>" 'sam--switch-to-other-buffer
    "s-c" 'windmove-left
    "s-r" 'windmove-right
@@ -111,13 +110,10 @@
   (general-define-key
    "H-<backspace>" 'ivy-switch-buffer-other-window
    "H-<tab>" 'hydra-outline/body
-   ;; "H-'" 'sam--iterm-goto-filedir-or-home
-   "H-b" 'projectile-ibuffer
    "H-e" 'eshell-here
    "H-f" 'toggle-frame-fullscreen
    "H-i" 'sam/insert-filename
    "H-l" 'sam--duplicate-line
-   "H-m" 'delete-other-frames
    "H-n" 'make-frame
    "H-s" 'move-text-up
    "H-t" 'move-text-down
