@@ -16,16 +16,19 @@
 *** clojure                                                                   :clojure:
 **** [[https://anmonteiro.com/atom.xml][anmonteiro]]
 *** emacs                                                                     :emacs:
+**** [[https://emacs-doctor.com/feed.xml][bastien guerry]]
 **** [[http://www.wilfred.me.uk/rss.xml][wilfred hughes]]
 **** [[https://oremacs.com/archive/][oremacs]]
 **** [[http://nullprogram.com/feed/][nullprogram]]
 **** [[http://planet.emacsen.org/atom.xml][planet.emacsen]]
 **** [[http://cestlaz.github.io/rss.xml][cestlaz]]
 **** [[http://cachestocaches.com/feed/][cachestocaches]]
+*** [[https://fedoramagazine.org/feed/][fedora]]                                                                      :fedora:
 *** perl                                                                      :perl:
 **** [[http://perltricks.com/index.xml][perltricks]]
 ** bio                                                                         :bio:
 *** [[http://robertlanfear.com/blog/files/rob.lanfear.blog.xml][bob lanfear]]
+*** [[https://c2-d2.github.io/hanage-lab/feed.xml][bill hanage lab]]
 *** papers                                                                    :papers:
 **** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet]]
 **** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]
@@ -74,3 +77,5 @@
 *** [[http://www.questionsdeclasses.org/reac/spip.php?page=backend][questions de classes]]
 ** communisme                                                                  :communisme:
 *** [[http://www.reseau-salariat.info/f5f5e7055e793213f853ccaf95e95e8c.rss][livres réseau salariat]]
+** prof                                                                        :prof:
+*** [[http://adelb.univ-lyon1.fr/direct/index.jsp?projectId=1&ShowPianoWeeks=true&Cas=samuel.barreto&resources=48540&displayConfName=_DirectPlanning&days=0&weeks=&from=edt&ticket=ST-3484471-EPLv2bRVErGP274QGeNY-cas.univ-lyon1.fr][l2 tp rstat]]

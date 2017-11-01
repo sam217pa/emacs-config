@@ -65,7 +65,6 @@
    "=" 'balance-windows
 
    "C-b" 'ibuffer
-   "C-r" 'ivy-switch-buffer
    "M-i" 'sam--insert-timestamp
    "M-c" 'compile)
 
@@ -84,7 +83,6 @@
 
 ;;; s-
   (general-define-key
-   "s-<backspace>" 'ivy-switch-buffer
    "s-<tab>" 'sam--switch-to-other-buffer
    "s-c" 'windmove-left
    "s-r" 'windmove-right
@@ -108,16 +106,14 @@
 
 ;;; H-
   (general-define-key
-   "H-<backspace>" 'ivy-switch-buffer-other-window
    "H-<tab>" 'hydra-outline/body
    "H-e" 'eshell-here
-   "H-f" 'toggle-frame-fullscreen
+   "H-w" 'toggle-frame-fullscreen
    "H-i" 'sam/insert-filename
    "H-l" 'sam--duplicate-line
    "H-n" 'make-frame
    "H-s" 'move-text-up
    "H-t" 'move-text-down
-   "H-r" 'counsel-recentf
    "H-u" 'revert-buffer
 
    ;; H-M-
@@ -126,6 +122,7 @@
    "H-M-s" 'mark-sexp)
 
 ;;; Key chords
+
   (use-package key-chord :ensure t
     :config
     (key-chord-mode 1)
@@ -135,7 +132,7 @@
       (key-seq-define-global "««" (lambda () (interactive) (insert "<")))
       (key-seq-define-global "»»" (lambda () (interactive) (insert ">")))
       (key-seq-define-global "xq" 'hydra-context/body)
-      (key-seq-define-global "qb" #'counsel-bookmark)
+      (key-seq-define-global "qb" #'helm-bookmarks)
       (key-seq-define-global "qd" #'kill-this-buffer)
       (key-seq-define-global "ql" #'avy-goto-line)))
 
@@ -165,7 +162,10 @@
   "C-x r"   "rectangle"
   "C-x v"   "version control"
   "C-c &"   "yas"
-  "C-c @"   "hide-show")
+  "C-c @"   "hide-show"
+  "M-SPC h" "info"
+  "M-SPC g" "grep"
+  "M-SPC M-s" "occur")
 
 ;;; * Global
 
@@ -180,7 +180,7 @@
 (global-set-key (kbd "<f6>") 'elfeed)
 (global-set-key (kbd "<f7>") 'org-capture)
 (global-set-key (kbd "<f8>") 'org-agenda)
-(global-set-key (kbd "<f9>") 'bongo)
+
 
 ;;; * HYDRA
 
@@ -218,30 +218,6 @@ _c_ ^ ^ _r_  _R_ename              _u_nmark      _'_: eshell
   ("n" next-error "next")
   ("s" previous-error "previous")
   ("p" previous-error "previous"))
-
-(defhydra hydra-file (:hint nil :exit t)
-  "
-  ^FIND^           ^RECENT^      ^COMMAND^      ^BOOKMARKS^
-  _f_: file        _r_: recent   _s_: save      _i_: init
-_C-f_: other wdw _C-r_: fasd     _R_: rename    _k_: keybindings
-  _p_: project      ^^           _d_: delete    _O_: org
-  _o_: open         ^^            ^^            _F_: functions
-   ^^               ^^            ^^            _t_: todo
-"
-  ("p" counsel-git)
-  ("f" counsel-find-file)
-  ("C-f" find-file-other-window)
-  ("o" sam--open-in-external-app)
-  ("r" ivy-switch-buffer)
-  ("C-r" fasd-find-file)
-  ("s" save-buffer)
-  ("R" rename-file)
-  ("d" sam--delete-current-buffer-file)
-  ("k" (lambda () (interactive) (find-file "~/dotfile/emacs/keybindings.el")))
-  ("i" (lambda () (interactive) (find-file "~/dotfile/emacs/init.el")))
-  ("O" (lambda () (interactive) (find-file "~/dotfile/emacs/org.el")))
-  ("F" (lambda () (interactive) (find-file "~/dotfile/emacs/functions.el")))
-  ("t" sam--edit-todo))
 
 (defun counsel-font ()
   "Change font of current frame"
@@ -366,46 +342,6 @@ _p_: paragraph
   ("q" nil "quit")
   ("." hydra-main/body "back"))
 
-(defhydra hydra-launcher (:color blue :hint nil)
-  "
-^WEB^       ^BLOG^         ^EXPLORER^     ^APPS^
-_g_oogle    _bn_ew post    _d_ired        _s_hell
-_r_eddit    _bp_ublish     _D_eer         _S_hell gotodir
-_w_iki      _bs_server     _r_anger       _a_pps
-_t_witter
-"
-  ("a" counsel-osx-apps)
-  ("bn" (hugo-new-post))
-  ("bp" (hugo-publish))
-  ("bs" (hugo-server))
-  ("d" dired)
-  ("D" deer)
-  ("r" ranger)
-  ("g" (browse-url "https://www.google.fr/"))
-  ("R" (browse-url "http://www.reddit.com/r/emacs/"))
-  ("w" (browse-url "http://www.emacswiki.org/"))
-  ("t" (browse-url "https://twitter.com/?lang=fr"))
-  ("s" (sam--iterm-focus))
-  ("S" (sam--iterm-goto-filedir-or-home))
-  ("q" nil "quit"))
-
-(defhydra hydra-make (:hint nil :columns 2)
-  "
-[_c_]: compile
-"
-  ("c" compile :color blue)
-  ("q" nil "quit" :color blue))
-
-(defhydra hydra-quit (:hint nil :color blue)
-  "
-^QUIT^
-_q_: emacs
-_r_: restart
-"
-  ("q" save-buffers-kill-terminal)
-  ("r" restart-emacs)
-  ("." hydra-main/body "back"))
-
 (defhydra hydra-rectangle (:body-pre (rectangle-mark-mode 1)
                            :hint nil
                            :color pink
@@ -433,26 +369,6 @@ _c_   _r_   _q_uit        _y_ank
   ("k" kill-rectangle)
   ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
   ("q" nil))
-
-(defhydra hydra-term (:hint nil :exit t)
-  "
-^TERM^           ^MULTITERM^
-_t_: term     |  _m_: multi  _c_: close
-_e_: eshell   |  _n_: next   _o_: open
-_s_: shell    |  _p_: prev   _S_: select
-^ ^           |  ^ ^         _T_: toggle
-"
-  ("t" (lambda () (interactive) (term "/usr/local/bin/bash")))
-  ("e" eshell)
-  ("s" shell)
-  ("m" multi-term)
-  ("n" multi-term-next)
-  ("p" multi-term-prev)
-  ("o" multi-term-dedicated-open)
-  ("c" multi-term-dedicated-close)
-  ("S" multi-term-dedicated-select)
-  ("T" multi-term-dedicated-toggle)
-  ("q" nil :color blue))
 
 (defhydra hydra-toggle (:hint nil :color blue)
   "
@@ -581,29 +497,18 @@ _s_: -     _S_: -     _q_: quit
   ("+" zoom-in)
   ("q" nil :color blue))
 
-;; ---------- MAIN HYDRA --------------------------------------------------
+;;; ** MAIN HYDRA
 
-(defhydra hydra-main (:hint nil :color teal)
-  "
-_a_: applications  _f_: file      _o_: outline   _T_: term
-_b_: buffer        _i_: insert    _p_: project   _v_: git
-_B_: frames        _j_: journal   _Q_: quit      _z_: zoom
-_é_: window        _m_: make      _t_: toggle
-"
-  ("a" hydra-launcher/body)
-  ("b" hydra-buffer/body)
-  ("B" hydra-frame/body)
-  ("é" hydra-window/body)
-  ("f" hydra-file/body)
-  ("i" hydra-insert/body)
-  ("j" org-capture)
-  ("m" hydra-make/body)
-  ("o" hydra-outline/body)
+(defhydra hydra-main (:hint nil :color teal :columns 3)
+  "MAIN"
+  ("b" hydra-buffer/body "buffer")
+  ("B" hydra-frame/body "frame")
+  ("é" hydra-window/body "window")
+  ("i" hydra-insert/body "insert")
+  ("j" org-capture "capture")
+  ("o" hydra-outline/body "outline")
   ("p" hydra-projectile-if-projectile-p)
-  ("Q" hydra-quit/body)
   ("t" hydra-toggle/body)
-  ("T" hydra-term/body)
-  ("v" hydra-git/body)
   ("z" hydra-zoom/body)
   ("s-<tab>" other-frame)
   ("<tab>" hydra-secondary/body "secondary")
@@ -611,26 +516,16 @@ _é_: window        _m_: make      _t_: toggle
 
 (defhydra hydra-secondary (:hint nil :color teal)
   "
-_a_: agenda  _b_: bongo
+_a_: agenda
 _f_: font
 _t_: todo
 "
   ("a" (lambda () (interactive) (org-agenda 1 "a")))
-  ("b" hydra-bongo/body)
-  ("f" hydra-font/body)
   ("t" (lambda () (interactive) (org-agenda 1 "t")))
+  ("f" counsel-font)
   ("<tab>" hydra-main/body "primary")
   ("q" (message "Abort") "abort" :color blue))
 
-
-(defhydra hydra-context (:hint nil :color teal)
-  "
-^XQ^
-_s_: semantic
-"
-  ("s" counsel-semantic)
-  ("i" nil :color blue)
-  ("q" nil "quit" :color blue))
 
 (defhydra hydra-yank-pop ()
   "yank"
@@ -639,27 +534,8 @@ _s_: semantic
   ("y" (yank-pop 1) "next")
   ("p" (yank-pop 1) "next")
   ("n" (yank-pop -1) "prev")
-  ("l" counsel-yank-pop "list" :color blue))
+  ("l" helm-show-kill-ring "list" :color blue))
 (bind-key* "C-y" #'hydra-yank-pop/yank)
-
-(defhydra hydra-goto (:pre (nlinum-mode 1)
-                      :post (nlinum-mode -1)
-                      :hint nil)
-  "
-^GOTO^      ^ERROR^     ^DUMB-JUMP^
-_c_: char   _p_: prev   _g_: go     _SPC_: quick look
-_l_: line   _n_: next   _G_: go OW  _b_: back
-"
-  ("c" goto-char)
-  ("n" next-error)
-  ("p" previous-error)
-  ("l" goto-line)
-  ("g" dumb-jump-go)
-  ("G" dumb-jump-go-other-window)
-  ("SPC" dumb-jump-quick-look)
-  ("b" dumb-jump-back)
-  ("q" nil "quit" :color blue))
-(bind-key* "M-g" #'hydra-goto/body)
 
 (defhydra hydra-mark (:exit t
                       :columns 3
@@ -689,11 +565,3 @@ _l_: line   _n_: next   _G_: go OW  _b_: back
   ("." er/expand-region "Expand region" :exit nil)
   ("," er/contract-region "Contract region" :exit nil))
 (bind-key* "s-SPC" #'hydra-mark/body)
-
-(defhydra hydra-kbd-macro (:color blue :hint nil :columns 3)
-  "KBD MACRO"
-  ("." call-last-kbd-macro "redo last" :color red)
-  ("s" start-kbd-macro "start")
-  ("e" end-kbd-macro "end")
-  ("q" nil :color blue "quit"))
-(bind-key* "C-x q" #'hydra-kbd-macro/body)

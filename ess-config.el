@@ -36,9 +36,11 @@
 (setq ess-swv-plug-into-AUCTeX-p t)
 
 ;; ---------- defaults ----------------------------------------------------
-(setq ess-completing-read 'ivy-completing-read)
 (setq ess-eval-visibly 'nowait)
 (setq ess-roxy-insert-prefix-on-newline t)
+(setq ess-eldoc-show-on-symbol t)
+;; ess should use default completing-read, either ivy or helm.
+(setq ess-use-ido nil)
 
 (setq ess-R-font-lock-keywords
       '((ess-R-fl-keyword:modifiers . t)
@@ -116,7 +118,7 @@
   " " 'ess-insert-S-assign               ; shift space
   (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
   (general-chord ",,") 'hydra-ess/body
-  (general-chord ",l") 'ess-eval-line
+  (general-chord ",l") 'lesspy-eval-line
   (general-chord ",r") 'ess-eval-region-or-line-and-step
   (general-chord ",t") 'ess-eval-function-or-paragraph)
 

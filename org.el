@@ -127,8 +127,8 @@
    '(("t" "these - todo" entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
      ("r" "tickler"      entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %? %T")
      ("T" "todo"         entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")
-     ("n" "notes"        entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
-     ("j" "lab"          entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
+     ("n" "notes"        entry (file+olp+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
+     ("j" "lab"          entry (file+olp+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
   (setq org-todo-keywords '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
   ;; prevent an item to switch to completed if an item below it is not:
   (setq org-enforce-todo-dependencies t)
