@@ -124,25 +124,21 @@
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
   (set-face-attribute 'default nil :font my-font-for-light)
 
-  ;; customize modeline
-  ;; from http://www.holgerschurig.de/en/emacs-tayloring-the-built-in-mode-line/
-  (setq mode-line-position '((line-number-mode ("%l" (column-number-mode ":%c")))))
-  (setq-default mode-line-format
-                '("%e"
-                  mode-line-front-space
-                  ;; mode-line-mule-info
-                  mode-line-modified
-                  "  "
-                  mode-line-buffer-identification
-                  "    "
-                  mode-line-position
-                  mode-line-end-spaces
-                  "    "
-                  mode-line-misc-info))
+  (defun simple-mode-line-render (left right)
+    "Return a string of `window-width' length containing LEFT, and RIGHT
+ aligned respectively."
+    (let* ((available-width (- (window-width) (length left) 2)))
+      (format (format " %%s %%%ds " available-width) left right)))
 
-  (setq-default display-time-24hr-format t
-                display-time-day-and-date t
-                display-time-format "%Y-%m-%d  %H:%M  "))
+  ;; use the function in conjunction with :eval and format-mode-line in
+  ;; your mode-line-format
+  (setq-default mode-line-format
+                '((:eval (simple-mode-line-render
+                          ;; left
+                          (format-mode-line "%*%* %b       [%m]")
+                          ;; right
+                          (format-mode-line "%l"))))))
+
 
 ;;; keybindings
 
@@ -233,6 +229,15 @@ When using Homebrew, install it using \"brew install trash\"."
           (avy-goto-word-1 . pre))))
 
 ;;;; B
+
+(use-package bash-completion :ensure t
+  :config
+  (autoload 'bash-completion-dynamic-complete
+    "bash-completion"
+    "BASH completion hook")
+  (add-hook 'shell-dynamic-complete-functions
+            'bash-completion-dynamic-complete))
+
 
 (use-package base16-theme :ensure t
   :demand)
@@ -336,81 +341,6 @@ Assumes it has the same name, but without an extension"
           try-expand-line
           try-complete-lisp-symbol-partially
           try-complete-lisp-symbol)))
-
-(use-package counsel :ensure t
-  :commands (counsel-bookmark)
-  :bind*
-  (("M-x"     . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-c /"   . counsel-rg)
-   ("C-c o"   . counsel-find-file-extern)
-   ("C-c l"   . counsel-locate))
-  :config
-  (setq counsel-find-file-at-point t)
-  (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind)
-  (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
-
-  ;; from http://blog.binchen.org/posts/use-ivy-mode-to-search-bash-history.html
-  (defun counsel-yank-bash-history ()
-    "Yank the bash history"
-    (interactive)
-    (let (hist-cmd collection val)
-      (shell-command "history -r")      ; reload history
-      (setq collection
-            (nreverse
-             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.bash_history"))
-                                             (buffer-string))
-                           "\n"
-                           t)))
-      (when (and collection (> (length collection) 0)
-                 (setq val (if (= 1 (length collection)) (car collection)
-                             (ivy-read (format "Bash history:") collection))))
-        (insert val)
-        (message "%s => kill-ring" val))))
-
-  ;; TODO make the function respects reverse order of file
-  (defun counsel-yank-zsh-history ()
-    "Yank the zsh history"
-    (interactive)
-    (let (hist-cmd collection val)
-      (shell-command "history -r")      ; reload history
-      (setq collection
-            (nreverse
-             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.zsh_history"))
-                                             (buffer-string))
-                           "\n"
-                           t)))
-      (setq collection (mapcar (lambda (it) (replace-regexp-in-string ".*;" "" it)) collection))
-      (when (and collection (> (length collection) 0)
-                 (setq val (if (= 1 (length collection)) (car collection)
-                             (ivy-read (format "Zsh history:") collection :re-builder #'ivy--regex-ignore-order))))
-        (kill-new val)
-        (insert val)
-        (message "%s => kill-ring" val))))
-
-  (defun counsel-package-install ()
-    (interactive)
-    (ivy-read "Install package: "
-              (delq nil
-                    (mapcar (lambda (elt)
-                              (unless (package-installed-p (car elt))
-                                (symbol-name (car elt))))
-                            package-archive-contents))
-              :action (lambda (x)
-                        (package-install (intern x)))
-              :caller 'counsel-package-install))
-  (ivy-set-actions
-   'counsel-find-file
-   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern"))))
-
-(use-package counsel-projectile :ensure t
-  :bind* (("H-P" . counsel-projectile-switch-to-buffer)
-          ("H-p" . counsel-projectile))
-  :config
-  (counsel-projectile-on))
-
-(use-package counsel-gtags :ensure t
-  :defer t)
 
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
@@ -611,12 +541,6 @@ _e_xtension"
     ("C-'" . shell)
     ("q"   . (lambda () (interactive) (quit-window 4)))))
 
-
-(use-package display-time
-  :init
-
-  )
-
 ;;;; E
 
 (use-package ediff
@@ -731,7 +655,7 @@ _s_: search
     ("N" elfeed-next-tag "next tag" :color red)
     ("q" (message "Abort.") "Quit" :color blue))
 
-  (setq-default elfeed-search-filter "@6-months-ago +unread"))
+(setq-default elfeed-search-filter "@6-months-ago +unread"))
 
 (use-package emacs-lisp-mode
   :mode
@@ -797,14 +721,14 @@ directory to make multiple eshell windows easier.
     (eshell-send-input))
 
   ;; should bind after eshell starts because eshell-mode-map is lazily
-  ;; defined.
-  ;; see https://emacs.stackexchange.com/questions/27849
+  ;; defined. see https://emacs.stackexchange.com/questions/27849
   (add-hook 'eshell-mode-hook
             (lambda ()
-              ;; init plan-9 like shell
               (eshell-smart-initialize)
-              (define-key eshell-mode-map (kbd "<tab>")
-                (lambda () (interactive) (pcomplete-std-complete))))))
+              (eshell-cmpl-initialize)
+              ;; init plan-9 like shell
+              (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+              (define-key eshell-mode-map (kbd "M-r") 'helm-eshell-history))))
 
 (use-package ess-site
   :ensure ess
@@ -939,26 +863,33 @@ _R_: reset
 
 (use-package eyebrowse          ; Easy workspaces creation and switching
   :ensure t
-  :bind (("C-c C-w 2" . eyebrowse-switch-to-window-config-2)
-         ("C-c C-w 1" . eyebrowse-switch-to-window-config-1)
-         ("C-c C-w c" . eyebrowse-create-window-config))
+  :defines hydra-eyebrowse/body
+  :bind* (("C-c w" . hydra-eyebrowse/body)
+          ("C-c C-w" . hydra-eyebrowse/body))
   :config
-  (defun sam-eyebrowse-init ()
-    (interactive)
-    (eyebrowse-init)
-    (eyebrowse-switch-to-window-config-1)
-    (eyebrowse-switch-to-window-config-2)
-    (eyebrowse-switch-to-window-config-3)
-    (eyebrowse-rename-window-config 1 "analyse")
-    (eyebrowse-rename-window-config 2 "write")
-    (eyebrowse-rename-window-config 3 "git"))
+  (defhydra hydra-eyebrowse (:color blue :hint nil)
+    "
+Workspace: _1_ _2_ _3_ _4_ _5_ _6_ _7_ _8_ _9_ _0_
+Navigate : _n_ext _p_rev _c_lose _l_ast
+"
+    ("1" eyebrowse-switch-to-window-config-1)
+    ("2" eyebrowse-switch-to-window-config-2)
+    ("3" eyebrowse-switch-to-window-config-3)
+    ("4" eyebrowse-switch-to-window-config-4)
+    ("5" eyebrowse-switch-to-window-config-5)
+    ("6" eyebrowse-switch-to-window-config-6)
+    ("7" eyebrowse-switch-to-window-config-7)
+    ("8" eyebrowse-switch-to-window-config-8)
+    ("9" eyebrowse-switch-to-window-config-9)
+    ("0" eyebrowse-switch-to-window-config-0)
+    ("n" eyebrowse-next-window-config :color red)
+    ("p" eyebrowse-prev-window-config :color red)
+    ("c" eyebrowse-close-window-config :color red)
+    ("l" eyebrowse-last-window-config))
 
   (setq eyebrowse-mode-line-separator " "
         eyebrowse-new-workspace t)
   (eyebrowse-mode t))
-
-
-
 
 ;;;; F
 (use-package fastx
@@ -1158,22 +1089,93 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
 
 ;;;; H
 
-(use-package helm-config
-  :bind* (("M-x" . helm-M-x))
+(use-package helm-bibtex :ensure t
+  :bind ("C-x M-b" . helm-bibtex)
   :config
-  (helm-mode +1))
+  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (setq bibtex-completion-library-path '("~/zotero_bib/"))
+  (setq bibtex-completion-pdf-field "file")
+  (setq bibtex-completion-pdf-symbol "⌘")
+  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
+  (setq bibtex-completion-format-citation-functions
+        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default))))
+
+(use-package helm-config
+  :diminish (helm-mode . "")
+  :bind* (("M-x" . helm-M-x)
+          ("C-x C-f" . helm-find-files)
+          ("s-<backspace>" . helm-mini)
+          ("s-<return>" . helm-buffers-list)
+          ("C-c /" . helm-do-grep-ag)
+          ("C-c i" . helm-imenu))
+  :config
+  (helm-mode +1)
+  (bind-key* "M-SPC" helm-command-prefix)
+
+  (bind-keys
+   :map helm-map
+   ("C-i" . helm-execute-persistent-action)
+   ("<tab>" . helm-execute-persistent-action)
+   ("M-i" . helm-select-action))
+
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+
+  (setq
+   ;; open helm buffer inside current window
+   helm-split-window-in-side-p t
+   ;; move to end or beginning of source when reaching top or bottom
+   helm-move-to-line-cycle-in-source t
+   ;; search for library in `require' and `declare-function' sexp.
+   helm-ff-search-library-in-sexp t
+   ;; scroll 8 lines other window using M-<next>/M-<prior>
+   helm-scroll-amount 8
+   helm-ff-file-name-history-use-recentf t
+   helm-echo-input-in-header-line t
+   ;; helm use rg
+   helm-grep-ag-command "rg --smart-case --no-heading --line-number %s %s %s")
+
+  (setq helm-autoresize-max-height 40)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1))
+
+(use-package helm-descbinds :ensure t
+  :bind* ("C-h k" . helm-descbinds)
+  :config
+  (helm-descbinds-mode +1))
 
 (use-package helm-make
   :bind* (("C-c C" . helm-make)
           ("C-c p c" . helm-make-projectile))
   :config
-  (setq helm-make-completion-method 'ivy))
+  (setq helm-make-completion-method 'helm))
 
 (use-package helm-google :ensure t
   :commands (helm-google))
 
 (use-package helm-gitignore :ensure t
   :commands helm-gitignore)
+
+(use-package swiper-helm :ensure t
+  :bind* ("M-s" . swiper-helm))
+
+(use-package helm-projectile :ensure t
+    :commands (helm-projectile)
+    :config
+    (setq tramp-default-method "ssh")
+    (require 'helm-projectile)
+    (helm-projectile-on))
+
+(use-package helm-smex :ensure t
+  :bind* ("M-x" . helm-smex)
+  :config
+  (global-set-key [remap execute-extended-command] #'helm-smex))
+
+(use-package helm-themes :ensure t
+  :commands (helm-themes))
 
 (use-package highlight-indent-guides :ensure t
   :init
@@ -1382,8 +1384,6 @@ Info-mode:
     ("p" Info-search-backward "prev")))
 
 (use-package "isearch"
-  :bind* (("C-s" . isearch-forward)
-          ("C-r" . isearch-backward))
   :config
   (defun symbol-name-at-point ()
     (let ((symbol (symbol-at-point)))
@@ -1452,40 +1452,9 @@ abort completely with `C-g'."
         (user-error "No typo at or before point")))))
 
 (use-package ivy
-  :disabled t
-  :ensure t
-  :diminish (ivy-mode . "")
-  :commands (ivy-mode
-             ivy-switch-buffer
-             ivy-switch-buffer-other-window)
-  :config
-  (ivy-mode -1)
+  :ensure t :defer t)
 
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-height 10)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-initial-inputs-alist nil)
-  ;; from https://github.com/company-mode/company-statistics
-  ;; ignore buffers in the ignore buffer list.
-  (setq ivy-ignore-buffers
-        '("company-statistics-cache.el"
-          "company-statistics-autoload.el"))
-  ;; if ivy-flip is t, presents results on top of query.
-  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
 
-(use-package ivy-bibtex :ensure t
-  :bind ("C-x M-b" . ivy-bibtex)
-  :config
-  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
-  (setq bibtex-completion-library-path '("~/zotero_bib/"))
-  (setq bibtex-completion-pdf-field "file")
-  (setq bibtex-completion-pdf-symbol "⌘")
-  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
-  (setq bibtex-completion-format-citation-functions
-        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
-          (latex-mode    . bibtex-completion-format-citation-cite)
-          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-          (default       . bibtex-completion-format-citation-default))))
 
 ;;;; L
 
@@ -1529,6 +1498,8 @@ abort completely with `C-g'."
    "#" 'lesspy-comment
    "'" 'lesspy-roxigen
    "C" 'lesspy-cleanup-pipeline
+   "C-<return>" 'lesspy-send-line
+   "M-RET" 'lesspy-send-function-or-paragraph
    "C-d" 'lesspy-kill-forward
    "C-(" 'lesspy-paren-wrap-next
    "DEL" 'lesspy-kill-backward)
@@ -1615,7 +1586,7 @@ abort completely with `C-g'."
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
-  (setq magit-completing-read-function 'ivy-completing-read))
+  (setq magit-completing-read-function 'helm--completing-read-default))
 
 (use-package makefile-mode :defer t
   :init
@@ -1869,7 +1840,7 @@ undo               _u_: undo
 
 (use-package openwith :ensure t
   :config
-  (openwith-mode 1)
+  (openwith-mode -1)
   (setq openwith-associations
         '(("\\.xlsx\\'" "open -a Microsoft\\ Excel" (file))
           ("\\.xls\\'" "open -a Microsoft\\ Excel" (file))
@@ -2112,29 +2083,9 @@ _d_: delete buffer _O_: open extern"
   (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
-  :defines hydra-projectile/body
-  :diminish (projectile-mode . "")
-  :bind* (("C-c p p" . projectile-switch-project))
-  :commands (projectile-ag
-             projectile-switch-to-buffer
-             projectile-invalidate-cache
-             projectile-find-dir
-             projectile-find-file
-             projectile-find-file-dwim
-             projectile-find-file-in-directory
-             projectile-ibuffer
-             projectile-kill-buffers
-             projectile-multi-occur
-             projectile-switch-project
-             projectile-recentf
-             projectile-remove-known-project
-             projectile-cleanup-known-projects
-             projectile-cache-current-file
-             projectile-project-root
-             projectile-mode
-             projectile-project-p)
-  :bind (("s-p" . hydra-projectile/body)
-         ("s-b" . projectile-switch-to-buffer))
+  :diminish (projectile-mode . "Ⓟ")
+  :bind* ("s-p" . projectile-switch-project)
+  :commands (projectile-mode)
   :config
   (projectile-global-mode 1)
 
@@ -2146,51 +2097,8 @@ _d_: delete buffer _O_: open extern"
     (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
 
   (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-completion-system 'ivy)
-  (add-to-list 'projectile-globally-ignored-files ".DS_Store")
-  (defun hydra-projectile-if-projectile-p ()
-    (interactive)
-    (if (projectile-project-p)
-        (hydra-projectile/body)
-      (counsel-projectile)))
-
-  (defhydra hydra-projectile
-    (:color teal :hint nil
-     :pre (projectile-mode))
-    "
-     PROJECTILE: %(projectile-project-root)
-
-    ^FIND FILE^        ^SEARCH/TAGS^        ^BUFFERS^       ^CACHE^                    ^PROJECT^
-    _f_: file          _a_: ag              _i_: Ibuffer    _c_: cache clear           _p_: switch proj
-    _F_: file dwim     _g_: update gtags    _b_: switch to  _x_: remove known project
-  _C-f_: file pwd      _o_: multi-occur   _s-k_: Kill all   _X_: cleanup non-existing
-    _r_: recent file   ^ ^                  ^ ^             _z_: cache current
-    _d_: dir
-
-   ^SHELL^
-   _e_: eshell
-"
-    ("e"   projectile-run-eshell)
-    ("a"   projectile-ag)
-    ("b"   projectile-switch-to-buffer)
-    ("c"   projectile-invalidate-cache)
-    ("d"   projectile-find-dir)
-    ("f"   projectile-find-file)
-    ("F"   projectile-find-file-dwim)
-    ("C-f" projectile-find-file-in-directory)
-    ("g"   ggtags-update-tags)
-    ("s-g" ggtags-update-tags)
-    ("i"   projectile-ibuffer)
-    ("K"   projectile-kill-buffers)
-    ("s-k" projectile-kill-buffers)
-    ("m"   projectile-multi-occur)
-    ("o"   projectile-multi-occur)
-    ("p"   projectile-switch-project)
-    ("r"   projectile-recentf)
-    ("x"   projectile-remove-known-project)
-    ("X"   projectile-cleanup-known-projects)
-    ("z"   projectile-cache-current-file)
-    ("q"   nil "cancel" :color blue)))
+  (setq projectile-completion-system 'helm)
+  (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
 
 (use-package python
   :ensure python-mode
@@ -2446,13 +2354,6 @@ _d_: delete buffer _O_: open extern"
   :init
   (add-hook 'prog-mode-hook (lambda () (subword-mode 1))))
 
-(use-package swiper :ensure t
-  :bind* (("M-s" . swiper)
-          ("M-S" . swiper-all)
-          :map swiper-map
-          ("C-s" . ivy-previous-history-element)
-          ("C-t" . ivy-yank-word)))
-
 ;;;; T
 
 (use-package terminal-here :ensure t
@@ -2548,12 +2449,12 @@ integrated Tex-mode. "
   :diminish which-key-mode
   :config
   (which-key-mode)
-  (which-key-setup-side-window-bottom)
-  ;; simple then alphabetic order.
+  (which-key-setup-side-window-right-bottom)
+;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-prefix-then-key-order)
   (setq which-key-popup-type 'side-window
         which-key-side-window-max-height 0.5
-        which-key-side-window-max-width 0.33
+        which-key-side-window-max-width 0.5
         which-key-idle-delay 0.5
         which-key-min-display-lines 7))
 
@@ -2613,7 +2514,12 @@ integrated Tex-mode. "
   :config
   (setq zoom-frame/buffer 'buffer))
 
-
+(use-package spaceline :ensure t
+  :config
+  (setq powerline-default-separator 'arrow)
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme)
+  (spaceline-helm-mode))
 
 ;;; personal functions
 
@@ -2623,7 +2529,7 @@ integrated Tex-mode. "
 
 (load-file "~/dotfile/emacs/org.el")
 
-;;; global keybindings
+;;; bind-key* "C-x x"  keybindings
 
 (load-file "~/dotfile/emacs/keybindings.el")
 
