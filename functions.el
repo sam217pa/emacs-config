@@ -303,21 +303,24 @@ Lisp function does not specify a special indentation."
   (let ((newbuf (generate-new-buffer-name "*Untitled*")))
     (switch-to-buffer newbuf)))
 
-(defun use-package-jump ()
-  "Jump to an outer-level `use-package' definition in current buffer."
-  (interactive)
-  (let ((packages))
-    (save-excursion
-      (goto-char (point-max))
-      (while (beginning-of-defun)
-        (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
-          (when (string-match "^(use-package \\([^[:space:]\n]+\\)"
-                              line)
-            (push (cons (match-string-no-properties 1 line)
-                        (point))
-                  packages)))))
-    (goto-char (cdr (assoc (ivy-completing-read "Package: " packages)
-                           packages)))))
+
+;; (defun use-package-jump ()
+;;   "Jump to an outer-level `use-package' definition in current buffer."
+;;   (interactive)
+;;   (let ((packages))
+;;     (save-excursion
+;;       (goto-char (point-max))
+;;       (while (beginning-of-defun)
+;;         (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
+;;           (when (string-match "^(use-package \\([^[:space:]\n]+\\)"
+;;                               line)
+;;             (push (cons (match-string-no-properties 1 line)
+;;                         (point))
+;;                   packages)))))
+;;     packages
+;;     ;; (goto-char (cdr (assoc (helm :sources packages)
+;;     ;;                        packages)))
+;;     ))
 
 ;; adapted from
 ;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers

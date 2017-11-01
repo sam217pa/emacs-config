@@ -125,22 +125,27 @@
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
   (set-face-attribute 'default nil :font my-font-for-light)
 
+<<<<<<< variant A
   ;; customize modeline
   ;; from http://www.holgerschurig.de/en/emacs-tayloring-the-built-in-mode-line/
   (setq mode-line-position '((line-number-mode ("%l" (column-number-mode ":%c")))))
+>>>>>>> variant B
+  (defun simple-mode-line-render (left right)
+    "Return a string of `window-width' length containing LEFT, and RIGHT
+ aligned respectively."
+    (let* ((available-width (- (window-width) (length left) 2)))
+      (format (format " %%s %%%ds " available-width) left right)))
+======= end
 
+  ;; use the function in conjunction with :eval and format-mode-line in
+  ;; your mode-line-format
   (setq-default mode-line-format
-                '("%e"
-                  mode-line-front-space
-                  ;; mode-line-mule-info
-                  mode-line-modified
-                  "  "
-                  mode-line-buffer-identification
-                  "    "
-                  mode-line-position
-                  mode-line-end-spaces
-                  "    "
-                  mode-line-misc-info)))
+                '((:eval (simple-mode-line-render
+                          ;; left
+                          (format-mode-line "%*%* %b       [%m]")
+                          ;; right
+                          (format-mode-line "%l"))))))
+
 
 ;;; keybindings
 
@@ -263,6 +268,15 @@ When using Homebrew, install it using \"brew install trash\"."
   :quelpa (beacon :fetcher github :repo "Malabarba/beacon")
   :config
   (beacon-mode 1))
+
+(use-package bash-completion :ensure t
+  :config
+  (autoload 'bash-completion-dynamic-complete
+    "bash-completion"
+    "BASH completion hook")
+  (add-hook 'shell-dynamic-complete-functions
+            'bash-completion-dynamic-complete))
+
 
 (use-package base16-theme :ensure t
   :demand)
@@ -701,25 +715,6 @@ _e_xtension"
     ("C-'" . shell)
     ("q"   . (lambda () (interactive) (quit-window 4)))))
 
-
-(use-package display-time
-  :init
-  (setq-default display-time-24hr-format t
-                display-time-day-and-date t
-                display-time-format "%Y-%m-%d  %H:%M  ")
-  (display-time-mode))
-
-(use-package dumb-jump :ensure t
-  :bind (("M-g q" . dumb-jump-quick-look)
-         ("M-g b" . dumb-jump-back)
-         ("M-g o" . dumb-jump-go-other-window)
-         ("M-g g" . dumb-jump-go))
-  :config
-  (setq dumb-jump-selector 'ivy
-        dumb-jump-searcher "rg"
-        dumb-jump-prefer-searcher 'rg))
-
-
 ;;;; E
 (use-package edebug
   :defer t
@@ -995,6 +990,35 @@ _R_: reset
     ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
+(use-package eyebrowse          ; Easy workspaces creation and switching
+  :ensure t
+  :defines hydra-eyebrowse/body
+  :bind* (("C-c w" . hydra-eyebrowse/body)
+          ("C-c C-w" . hydra-eyebrowse/body))
+  :config
+  (defhydra hydra-eyebrowse (:color blue :hint nil)
+    "
+Workspace: _1_ _2_ _3_ _4_ _5_ _6_ _7_ _8_ _9_ _0_
+Navigate : _n_ext _p_rev _c_lose _l_ast
+"
+    ("1" eyebrowse-switch-to-window-config-1)
+    ("2" eyebrowse-switch-to-window-config-2)
+    ("3" eyebrowse-switch-to-window-config-3)
+    ("4" eyebrowse-switch-to-window-config-4)
+    ("5" eyebrowse-switch-to-window-config-5)
+    ("6" eyebrowse-switch-to-window-config-6)
+    ("7" eyebrowse-switch-to-window-config-7)
+    ("8" eyebrowse-switch-to-window-config-8)
+    ("9" eyebrowse-switch-to-window-config-9)
+    ("0" eyebrowse-switch-to-window-config-0)
+    ("n" eyebrowse-next-window-config :color red)
+    ("p" eyebrowse-prev-window-config :color red)
+    ("c" eyebrowse-close-window-config :color red)
+    ("l" eyebrowse-last-window-config))
+
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-new-workspace t)
+  (eyebrowse-mode t))
 
 ;;;; F
 (use-package fastx
@@ -1227,6 +1251,20 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
     :commands (intero-mode)
     :diminish " λ"))
 
+(use-package helm-bibtex :ensure t
+  :bind ("C-x M-b" . helm-bibtex)
+  :config
+  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (setq bibtex-completion-library-path '("~/zotero_bib/"))
+  (setq bibtex-completion-pdf-field "file")
+  (setq bibtex-completion-pdf-symbol "⌘")
+  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
+  (setq bibtex-completion-format-citation-functions
+        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default))))
+
 (use-package helm-config
   :ensure helm
   ;; disabled for now, but I've copy and pasted here the advice from
@@ -1259,7 +1297,7 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   :bind* (("C-c C" . helm-make)
           ("C-c p c" . helm-make-projectile))
   :config
-  (setq helm-make-completion-method 'ivy))
+  (setq helm-make-completion-method 'helm))
 
 (use-package helm-google :ensure t
   :commands (helm-google))
@@ -1503,8 +1541,6 @@ Info-mode:
     ("p" Info-search-backward "prev")))
 
 (use-package "isearch"
-  :bind* (("C-s" . isearch-forward)
-          ("C-r" . isearch-backward))
   :config
   (defun symbol-name-at-point ()
     (let ((symbol (symbol-at-point)))
@@ -1724,6 +1760,8 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
    "#" 'lesspy-comment
    "'" 'lesspy-roxigen
    "C" 'lesspy-cleanup-pipeline
+   "C-<return>" 'lesspy-send-line
+   "M-RET" 'lesspy-send-function-or-paragraph
    "C-d" 'lesspy-kill-forward
    "C-(" 'lesspy-paren-wrap-next
    "DEL" 'lesspy-kill-backward)
@@ -1813,7 +1851,7 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
-  (setq magit-completing-read-function 'ivy-completing-read))
+  (setq magit-completing-read-function 'helm--completing-read-default))
 
 (use-package makefile-mode :defer t
   :init
@@ -2093,7 +2131,7 @@ undo               _u_: undo
 
 (use-package openwith :ensure t
   :config
-  (openwith-mode 1)
+  (openwith-mode -1)
   (setq openwith-associations
         '(("\\.xlsx\\'" "open -a Microsoft\\ Excel" (file))
           ("\\.xls\\'" "open -a Microsoft\\ Excel" (file))
@@ -2401,29 +2439,9 @@ _s_ _p_rev   _r_: rename
   (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
-  :defines hydra-projectile/body
-  :diminish (projectile-mode . "")
-  :bind* (("C-c p p" . projectile-switch-project))
-  :commands (projectile-ag
-             projectile-switch-to-buffer
-             projectile-invalidate-cache
-             projectile-find-dir
-             projectile-find-file
-             projectile-find-file-dwim
-             projectile-find-file-in-directory
-             projectile-ibuffer
-             projectile-kill-buffers
-             projectile-multi-occur
-             projectile-switch-project
-             projectile-recentf
-             projectile-remove-known-project
-             projectile-cleanup-known-projects
-             projectile-cache-current-file
-             projectile-project-root
-             projectile-mode
-             projectile-project-p)
-  :bind (("s-p" . hydra-projectile/body)
-         ("s-b" . projectile-switch-to-buffer))
+  :diminish (projectile-mode . "Ⓟ")
+  :bind* ("s-p" . projectile-switch-project)
+  :commands (projectile-mode)
   :config
   (projectile-global-mode 1)
 
@@ -2435,51 +2453,8 @@ _s_ _p_rev   _r_: rename
     (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
 
   (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-completion-system 'ivy)
-  (add-to-list 'projectile-globally-ignored-files ".DS_Store")
-  (defun hydra-projectile-if-projectile-p ()
-    (interactive)
-    (if (projectile-project-p)
-        (hydra-projectile/body)
-      (counsel-projectile)))
-
-  (defhydra hydra-projectile
-    (:color teal :hint nil
-     :pre (projectile-mode))
-    "
-     PROJECTILE: %(projectile-project-root)
-
-    ^FIND FILE^        ^SEARCH/TAGS^        ^BUFFERS^       ^CACHE^                    ^PROJECT^
-    _f_: file          _a_: ag              _i_: Ibuffer    _c_: cache clear           _p_: switch proj
-    _F_: file dwim     _g_: update gtags    _b_: switch to  _x_: remove known project
-  _C-f_: file pwd      _o_: multi-occur   _s-k_: Kill all   _X_: cleanup non-existing
-    _r_: recent file   ^ ^                  ^ ^             _z_: cache current
-    _d_: dir
-
-   ^SHELL^
-   _e_: eshell
-"
-    ("e"   projectile-run-eshell)
-    ("a"   projectile-ag)
-    ("b"   projectile-switch-to-buffer)
-    ("c"   projectile-invalidate-cache)
-    ("d"   projectile-find-dir)
-    ("f"   projectile-find-file)
-    ("F"   projectile-find-file-dwim)
-    ("C-f" projectile-find-file-in-directory)
-    ("g"   ggtags-update-tags)
-    ("s-g" ggtags-update-tags)
-    ("i"   projectile-ibuffer)
-    ("K"   projectile-kill-buffers)
-    ("s-k" projectile-kill-buffers)
-    ("m"   projectile-multi-occur)
-    ("o"   projectile-multi-occur)
-    ("p"   projectile-switch-project)
-    ("r"   projectile-recentf)
-    ("x"   projectile-remove-known-project)
-    ("X"   projectile-cleanup-known-projects)
-    ("z"   projectile-cache-current-file)
-    ("q"   nil "cancel" :color blue)))
+  (setq projectile-completion-system 'helm)
+  (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
 
 (use-package python
   :ensure python-mode
@@ -2788,13 +2763,6 @@ _s_ _p_rev   _r_: rename
   (add-hook 'prog-mode-hook (lambda () (subword-mode 1)))
   :diminish "")
 
-(use-package swiper :ensure t
-  :bind* (("M-s" . swiper)
-          ("M-S" . swiper-all)
-          :map swiper-map
-          ("C-s" . ivy-previous-history-element)
-          ("C-t" . ivy-yank-word)))
-
 ;;;; T
 
 (use-package term
@@ -2974,12 +2942,12 @@ integrated Tex-mode. "
   :diminish which-key-mode
   :config
   (which-key-mode)
-  (which-key-setup-side-window-bottom)
-  ;; simple then alphabetic order.
+  (which-key-setup-side-window-right-bottom)
+;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-prefix-then-key-order)
   (setq which-key-popup-type 'side-window
         which-key-side-window-max-height 0.5
-        which-key-side-window-max-width 0.33
+        which-key-side-window-max-width 0.5
         which-key-idle-delay 0.5
         which-key-min-display-lines 7))
 
@@ -3080,7 +3048,12 @@ integrated Tex-mode. "
   :config
   (setq zoom-frame/buffer 'buffer))
 
-
+(use-package spaceline :ensure t
+  :config
+  (setq powerline-default-separator 'arrow)
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme)
+  (spaceline-helm-mode))
 
 ;;; personal functions
 (load-file "~/dotfile/emacs/functions.el")
