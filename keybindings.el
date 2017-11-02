@@ -114,7 +114,7 @@
    ;; "H-'" 'sam--iterm-goto-filedir-or-home
    "H-b" 'projectile-ibuffer
    "H-e" 'eshell-here
-   "H-f" 'toggle-frame-fullscreen
+   "H-w" 'toggle-frame-fullscreen
    "H-i" 'sam/insert-filename
    "H-l" 'sam--duplicate-line
    "H-m" 'delete-other-frames

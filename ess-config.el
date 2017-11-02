@@ -19,17 +19,10 @@
 
 ;;; * Code
 
-(use-package polymode :ensure t
-  :mode
-  (("\\.Rmd\\'" . poly-markdown+r-mode)))
-
-(projectile-mode)
-
 (use-package ess-R-data-view :ensure t
   :bind* (:map ess-mode-map
           ("C-c d" . ess-R-dv-ctable)
-          ("C-c v" . ess-R-dv-pprint))
-  )
+          ("C-c v" . ess-R-dv-pprint)))
 
 (use-package ctable :ensure t)
 

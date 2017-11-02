@@ -20,6 +20,7 @@
 ;;; * Code
 
 (use-package org
+  :defer t
   :load-path ("~/.emacs.d/private/org-mode")
   :commands (org-mode
              org-agenda-list
@@ -248,30 +249,6 @@
     (insert-timestamp)
     (org-move-subtree-down)
     (end-of-line 1))
-
-  (defun org-agenda-cts ()
-    (let ((args (get-text-property
-                 (min (1- (point-max)) (point))
-                 'org-last-args)))
-      (nth 2 args)))
-
-  (defhydra hydra-org-agenda-view (:hint nil :columns 1)
-    "VIEW"
-    ("SPC" org-agenda-reset-view)
-    ("d" org-agenda-day-view
-     (format "%s - day" (if (eq 'day (org-agenda-cts)) "[x]" "[ ]")))
-    ("w" org-agenda-week-view
-     (format "%s - week" (if (eq 'week (org-agenda-cts)) "[x]" "[ ]")))
-    ("t" org-agenda-fortnight-view
-     (format "%s - fortnight" (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]")))
-    ("m" org-agenda-month-view
-     (format "%s - month" (if (eq 'month (org-agenda-cts)) "[x]" "[ ]")))
-    ("y" org-agenda-year-view
-     (format "%s - year" (if (eq 'year (org-agenda-cts)) "[x]" "[ ]")))
-    ("q" (message "Abort") :exit t))
-
-  (bind-key (kbd "v") #'hydra-org-agenda-view/body org-agenda-mode-map)
-
 
 ;;; * Keybindings
 

@@ -123,28 +123,7 @@
 
   ;; change default font for current frame
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
-  (set-face-attribute 'default nil :font my-font-for-light)
-
-<<<<<<< variant A
-  ;; customize modeline
-  ;; from http://www.holgerschurig.de/en/emacs-tayloring-the-built-in-mode-line/
-  (setq mode-line-position '((line-number-mode ("%l" (column-number-mode ":%c")))))
->>>>>>> variant B
-  (defun simple-mode-line-render (left right)
-    "Return a string of `window-width' length containing LEFT, and RIGHT
- aligned respectively."
-    (let* ((available-width (- (window-width) (length left) 2)))
-      (format (format " %%s %%%ds " available-width) left right)))
-======= end
-
-  ;; use the function in conjunction with :eval and format-mode-line in
-  ;; your mode-line-format
-  (setq-default mode-line-format
-                '((:eval (simple-mode-line-render
-                          ;; left
-                          (format-mode-line "%*%* %b       [%m]")
-                          ;; right
-                          (format-mode-line "%l"))))))
+  (set-face-attribute 'default nil :font my-font-for-light))
 
 
 ;;; keybindings
@@ -177,6 +156,7 @@ When using Homebrew, install it using \"brew install trash\"."
 
 
 ;;;; A
+
 (use-package abbrev :defer t
   :diminish ""
   :init
@@ -195,14 +175,6 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq aw-background t)
   (setq aw-ignore-current t))
 
-(use-package ag :ensure t
-  :commands (ag)
-  :config
-  (progn
-    (setq ag-highlight-search t)
-    (setq ag-reuse-buffers t)
-    (add-to-list 'ag-arguments "--word-regexp")))
-
 (use-package anzu :ensure t
   :diminish ""
   :commands (global-anzu-mode)
@@ -214,16 +186,6 @@ When using Homebrew, install it using \"brew install trash\"."
   :config
   (global-set-key [remap query-replace] 'anzu-query-replace)
   (global-set-key [remap query-replace-regexp] 'anzu-query-replace-regexp))
-
-(use-package apropospriate-theme :ensure t
-  :commands (load-apropospriate-theme)
-  :defines (load-apropospriate-theme)
-  :config
-  (defun load-apropospriate-theme (&optional dark)
-    (interactive)
-    (if dark
-        (load-theme 'apropospriate-dark t)
-      (load-theme 'apropospriate-light t))))
 
 (use-package auto-fill-mode
   :diminish auto-fill-function
@@ -257,17 +219,7 @@ When using Homebrew, install it using \"brew install trash\"."
           (avy-goto-word-or-subword-1 . post)
           (avy-goto-word-1 . pre))))
 
-(use-package avy-zap :ensure t
-  :bind (("M-Z" . avy-zap-to-char-dwim)
-         ("M-z" . avy-zap-up-to-char-dwim)))
-
-
 ;;;; B
-(use-package beacon
-  :diminish ""
-  :quelpa (beacon :fetcher github :repo "Malabarba/beacon")
-  :config
-  (beacon-mode 1))
 
 (use-package bash-completion :ensure t
   :config
@@ -284,15 +236,11 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
-(use-package bongo :ensure t
-  :commands (bongo)
-  :config
-  (define-key bongo-playlist-mode-map (kbd "g") #'bongo-redisplay)
-  (setq bongo-default-directory "~/Music/electro-swing/"))
-
-
 ;;;; C
-(use-package cedet :ensure t
+
+(use-package cedet
+  :ensure t
+  :defer t
   :config
   (setq semantic-default-submodes
         '(global-semanticdb-minor-mode
@@ -303,19 +251,7 @@ When using Homebrew, install it using \"brew install trash\"."
           global-semantic-idle-completions-mode
           global-semantic-decoration-mode))
   (setq semantic-idle-scheduler-idle-time 0.2)
-  (semantic-mode 1)
-
-  (setq semanticdb-persistent-path '(project))
-  ;; (semantic-add-system-include "/usr/local/include" 'c-mode)
-  ;; (semantic-add-system-include "/usr/local/Cellar/guile/2.2.0/include" 'c-mode)
-  ;; (semantic-add-system-include "/usr/local/include" 'c-mode)
-  (semantic-add-system-include "/usr/local/Cellar/guile/2.2.2/include/guile/2.2/libguile.h" 'cc-mode)
-
-  ;; (when (cedet-gnu-global-version-check t)
-  ;;   (semanticdb-enable-gnu-global-databases 'c-mode t))
-
-  (global-ede-mode 1))
-
+  (setq semanticdb-persistent-path '(project)))
 
 (use-package cc-mode :ensure t
   :defer t
@@ -447,70 +383,13 @@ Assumes it has the same name, but without an extension"
   (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind)
   (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
 
-  ;; from http://blog.binchen.org/posts/use-ivy-mode-to-search-bash-history.html
-  (defun counsel-yank-bash-history ()
-    "Yank the bash history"
-    (interactive)
-    (let (hist-cmd collection val)
-      (shell-command "history -r")      ; reload history
-      (setq collection
-            (nreverse
-             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.bash_history"))
-                                             (buffer-string))
-                           "\n"
-                           t)))
-      (when (and collection (> (length collection) 0)
-                 (setq val (if (= 1 (length collection)) (car collection)
-                             (ivy-read (format "Bash history:") collection))))
-        (insert val)
-        (message "%s => kill-ring" val))))
-
-  ;; TODO make the function respects reverse order of file
-  (defun counsel-yank-zsh-history ()
-    "Yank the zsh history"
-    (interactive)
-    (let (hist-cmd collection val)
-      (shell-command "history -r")      ; reload history
-      (setq collection
-            (nreverse
-             (split-string (with-temp-buffer (insert-file-contents (file-truename "~/.zsh_history"))
-                                             (buffer-string))
-                           "\n"
-                           t)))
-      (setq collection (mapcar (lambda (it) (replace-regexp-in-string ".*;" "" it)) collection))
-      (when (and collection (> (length collection) 0)
-                 (setq val (if (= 1 (length collection)) (car collection)
-                             (ivy-read (format "Zsh history:") collection :re-builder #'ivy--regex-ignore-order))))
-        (kill-new val)
-        (insert val)
-        (message "%s => kill-ring" val))))
-
-  (defun counsel-package-install ()
-    (interactive)
-    (ivy-read "Install package: "
-              (delq nil
-                    (mapcar (lambda (elt)
-                              (unless (package-installed-p (car elt))
-                                (symbol-name (car elt))))
-                            package-archive-contents))
-              :action (lambda (x)
-                        (package-install (intern x)))
-              :caller 'counsel-package-install))
   (ivy-set-actions
    'counsel-find-file
    '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern"))))
 
-(use-package counsel-osx-app :ensure t
-  :commands counsel-osx-app
-  :bind*
-  ("C-c a" . counsel-osx-app)
-  :config
-  (setq counsel-osx-app-location
-        '("/Applications/" "~/Applications/" "~/sam_app/")))
-
 (use-package counsel-projectile :ensure t
-  :bind* (("H-P" . counsel-projectile-switch-to-buffer)
-          ("H-p" . counsel-projectile))
+  :bind* (("s-p" . counsel-projectile-switch-project)
+          ("s-f" . counsel-projectile-find-file))
   :config
   (counsel-projectile-on))
 
@@ -828,6 +707,19 @@ _s_: search   _f_: filter
         eshell-list-files-after-cd t
         eshell-ls-initial-args "-alh")
 
+  ;; TODO: pimp to base16
+  (setq eshell-prompt-function
+        (lambda ()
+          (concat
+           (propertize "┌─[" 'face `(:foreground "green"))
+           (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+           (propertize "]──[" 'face `(:foreground "green"))
+           (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+           (propertize "]\n" 'face `(:foreground "green"))
+           (propertize "└─>" 'face `(:foreground "green"))
+           (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
+           )))
+
   (setq eshell-directory-name "~/dotfile/emacs/eshell/")
 
   ;; from http://www.howardism.org/Technical/Emacs/eshell-fun.html
@@ -857,8 +749,8 @@ directory to make multiple eshell windows easier.
 
   (general-define-key
    :keymaps 'eshell-mode-map
-    "<tab>" (lambda () (interactive) (pcomplete-std-complete))
-    "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
+   "<tab>" (lambda () (interactive) (pcomplete-std-complete))
+   "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
 
 (use-package ess-site
   :ensure ess
@@ -1034,10 +926,6 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
          ("s" . fastx-prev-sequence)
          ("r" . fastx-show-sequence)))
 
-
-(use-package fish-mode :ensure t
-  :mode (("\\.fish$" . fish-mode)))
-
 (use-package flx :ensure t)
 
 (use-package flycheck :ensure t
@@ -1048,6 +936,7 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
 
 
 ;;;; G
+
 (use-package geiser
   :defer t
   :mode (("\\.scm\\'" . geiser-mode)
@@ -1092,29 +981,9 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
    "M-." 'counsel-gtags-dwim
    "M-," 'pop-tag-mark))
 
-(use-package git-gutter :ensure t
-  :disabled t
-  :diminish ""
-  :commands (global-git-gutter-mode)
-  :init
-  (global-git-gutter-mode +1)
-  (setq git-gutter:modified-sign "|")
-  (setq git-gutter:added-sign "|")
-  (setq git-gutter:deleted-sign "|")
-  :config
-  (setq git-gutter:update-interval 20)
-  (git-gutter:linum-setup))
-
-(use-package google-this :ensure t
-  :bind (("C-x g" . google-this-mode-submap)
-         ("C-x G" . google-this)))
-
-(use-package gnuplot-mode :ensure t
-  :mode (("\\.gp$" . gnuplot-mode)))
-
-(use-package gnu-apl
-  :commands (gnu-apl
-             gnu-apl-mode))
+(use-package git-timemachine
+  :ensure t
+  :commands (git-timemachine))
 
 (use-package go-mode
   :load-path "~/.emacs.d/private/go-mode.el/"
@@ -1251,53 +1120,11 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
     :commands (intero-mode)
     :diminish " λ"))
 
-(use-package helm-bibtex :ensure t
-  :bind ("C-x M-b" . helm-bibtex)
-  :config
-  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
-  (setq bibtex-completion-library-path '("~/zotero_bib/"))
-  (setq bibtex-completion-pdf-field "file")
-  (setq bibtex-completion-pdf-symbol "⌘")
-  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
-  (setq bibtex-completion-format-citation-functions
-        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
-          (latex-mode    . bibtex-completion-format-citation-cite)
-          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-          (default       . bibtex-completion-format-citation-default))))
-
-(use-package helm-config
-  :ensure helm
-  ;; disabled for now, but I've copy and pasted here the advice from
-  ;; tuhdo about helm.
-  :disabled t
-  :config
-  (setq
-   ;; open helm buffer inside current window, not occupy whole other window
-   helm-split-window-in-side-p t
-   ;; input close to where I type
-   helm-echo-input-in-header-line t)
-
-  (defun helm-hide-minibuffer-maybe ()
-    "Hide minibuffer in Helm session if we use the header line as input field."
-    (when (with-helm-buffer helm-echo-input-in-header-line)
-      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-        (overlay-put ov 'window (selected-window))
-        (overlay-put ov 'face
-                     (let ((bg-color (face-background 'default nil)))
-                       `(:background ,bg-color :foreground ,bg-color)))
-        (setq-local cursor-type nil))))
-
-  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-
-  (setq helm-autoresize-max-height 0)
-  (setq helm-autoresize-min-height 20)
-  (helm-autoresize-mode 1))
-
 (use-package helm-make
   :bind* (("C-c C" . helm-make)
           ("C-c p c" . helm-make-projectile))
   :config
-  (setq helm-make-completion-method 'helm))
+  (setq helm-make-completion-method 'ivy))
 
 (use-package helm-google :ensure t
   :commands (helm-google))
@@ -1317,66 +1144,8 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   :config
   (setq highlight-indent-guides-method 'character))
 
-
-(use-package hjkl
-  :load-path "~/.emacs.d/private/hjkl"
-  :config
-
-  (setq hjkl-up    (kbd "s"))
-  (setq hjkl-down  (kbd "t"))
-  (setq hjkl-left  (kbd "c"))
-  (setq hjkl-right (kbd "r"))
-  (setq hjkl-other (kbd "d"))
-  (setq hjkl-eval  (kbd "e"))
-  (setq hjkl-jump  (kbd "a"))
-  (setq hjkl-mark  (kbd "m"))
-
-  (setq
-   hjkl-bindings
-   '(;; (:keymap emacs-lisp-mode-map
-     ;;  :bind (:up ((")" (lambda () (backward-list 2) (forward-list 1)) t)
-     ;;              ("(" #'backward-list)
-     ;;              (outline-regexp #'outline-previous-heading nil))
-     ;;         :down ((")" (lambda () (forward-list)) t)
-     ;;                ("(" (lambda () (forward-list 2) (backward-list)))
-     ;;                (outline-regexp #'outline-next-heading nil))
-     ;;         :left ((")" #'sp-backward-down-sexp t)
-     ;;                ("(" #'sp-backward-up-sexp)
-     ;;                (outline-regexp #'outline-hide-entry))
-     ;;         :right ((")" #'sp-up-sexp t)
-     ;;                 ("(" #'sp-down-sexp)
-     ;;                 (outline-regexp #'outline-show-subtree))
-     ;;         :other (("(\\|{\\|\\[" #'forward-list)
-     ;;                 (")\\|}\\|]" #'backward-list t))
-     ;;         :eval ((")" (lambda () (eval-last-sexp nil)) t)
-     ;;                ("(" (lambda () (save-excursion
-     ;;                             (forward-list)
-     ;;                             (eval-last-sexp nil)))))
-     ;;         :mark ((")"
-     ;;                 (lambda ()
-     ;;                   (backward-list)
-     ;;                   (mark-sexp)
-     ;;                   (exchange-point-and-mark))
-     ;;                 t)
-     ;;                ("(" #'mark-sexp))))
-
-     ;; (:keymap text-mode-map
-     ;;  :bind (:up (("\\.\\|?\\|!" (lambda () (backward-sentence) (backward-char)) t)
-     ;;              (outline-regexp #'outline-previous-heading))
-     ;;         :down (("\\.\\|?\\|!" #'forward-sentence t)
-     ;;                (outline-regexp #'outline-next-heading))
-     ;;         :left ((outline-regexp #'outline-hide-leaves))
-     ;;         :right ((outline-regexp #'outline-show-subtree))))
-
-     ))
-  (hjkl-update-keys))
-
-(use-package hl-line
-  ;; souligne la ligne du curseur
-  :init
-  (global-hl-line-mode -1))
-
-(use-package htmlize :ensure t
+(use-package htmlize
+  :ensure t
   :defer t)
 
 (use-package hungry-delete :ensure t
@@ -1388,13 +1157,8 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   :config
   (setq hydra-is-helpful t))
 
-(use-package hy-mode :ensure t
-  :mode (("\\.hy\\'" . hy-mode))
-  :init
-  (add-hook 'hy-mode-hook (lambda () (lispy-mode 1))))
-
-
 ;;;; I
+
 (use-package ibuffer :ensure t
   :commands ibuffer
   :init
@@ -1407,13 +1171,13 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   (define-key ibuffer-mode-map "." 'hydra-ibuffer-main/body)
   (general-define-key
    :keymaps 'ibuffer-mode-map
-    "." 'hydra-ibuffer-main/body
-    "t" 'next-line
-    "s" 'previous-line
-    "r" 'ibuffer-visit-buffer
-    "c" 'ibuffer-backward-filter-group
-    "p" 'ibuffer-backward-filter-group
-    "n" 'ibuffer-forward-filter-group)
+   "." 'hydra-ibuffer-main/body
+   "t" 'next-line
+   "s" 'previous-line
+   "r" 'ibuffer-visit-buffer
+   "c" 'ibuffer-backward-filter-group
+   "p" 'ibuffer-backward-filter-group
+   "n" 'ibuffer-forward-filter-group)
   (setq-default ibuffer-saved-filter-groups
                 `(("Default"
                    ("RStat" (mode . ess-mode))
@@ -1437,13 +1201,6 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
                    ("Temp" (name . "\*.*\*")))))
   (setq ibuffer-show-empty-filter-groups nil)
   (setq ibuffer-display-summary t))
-
-(use-package ido
-  :defer t
-  :config
-  (general-define-key :keymaps 'ido-completion-map
-    "C-n" 'ido-next-match
-    "C-p" 'ido-prev-match))
 
 (use-package iedit :ensure t
   :defines hydra-iedit/body
@@ -1608,14 +1365,8 @@ abort completely with `C-g'."
                      bef aft (if p "loc" "glob")))
         (user-error "No typo at or before point")))))
 
-(use-package isend-mode :ensure t
-  :commands (isend-associate
-             isend-send
-             isend-send-buffer
-             isend-send-defun
-             isend-display-buffer)
-  :bind (:map sh-mode-map
-         ("C-<return>" . isend-send)))
+(use-package swiper
+  :bind* ("s-s" . swiper))
 
 (use-package ivy
   :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
@@ -1636,70 +1387,7 @@ abort completely with `C-g'."
   ;; if ivy-flip is t, presents results on top of query.
   (setq ivy-flip t)
   (setq ivy-overlay-at nil)
-  (setq ivy-re-builders-alist '((t      . ivy--regex-ignore-order)))
-
-  (defun ivy--matcher-desc ()
-    (if (eq ivy--regex-function
-            'ivy--regex-fuzzy)
-        "fuzzy"
-      "ivy"))
-
-  (defhydra hydra-ivy (:hint nil
-                       :color pink)
-    "
-^ ^ ^ ^ ^ ^ | ^Call^      ^ ^  | ^Cancel^ | ^Options^ | Action _b_/_é_/_p_: %-14s(ivy-action-name)
-^-^-^-^-^-^-+-^-^---------^-^--+-^-^------+-^-^-------+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------------------------
-^ ^ _s_ ^ ^ | _f_ollow occ_u_r | _i_nsert | _C_: calling %-5s(if ivy-calling \"on\" \"off\") _C-c_ase-fold: %-10`ivy-case-fold-search
-_c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)^^^^^^^^^^^^ _T_runcate: %-11`truncate-lines
-^ ^ _t_ ^ ^ | _g_o        ^ ^  | ^ ^      | _<_/_>_: shrink/grow^^^^^^^^^^^^^^^^^^^^^^^^^^^^ _D_efinition of this menu
-"
-    ;; arrows
-    ("c" ivy-beginning-of-buffer)
-    ("t" ivy-next-line)
-    ("s" ivy-previous-line)
-    ("r" ivy-end-of-buffer)
-    ;; actions
-    ("o" keyboard-escape-quit :exit t)
-    ("C-g" keyboard-escape-quit :exit t)
-    ("i" nil)
-    ("C-o" nil)
-    ("f" ivy-alt-done :exit nil)
-    ("C-j" ivy-alt-done :exit nil)
-    ("d" ivy-done :exit t)
-    ("g" ivy-call)
-    ("C-m" ivy-done :exit t)
-    ("C" ivy-toggle-calling)
-    ("m" ivy-toggle-fuzzy)
-    (">" ivy-minibuffer-grow)
-    ("<" ivy-minibuffer-shrink)
-    ("b" ivy-prev-action)
-    ("é" ivy-next-action)
-    ("p" ivy-read-action)
-    ("T" (setq truncate-lines (not truncate-lines)))
-    ("C-c" ivy-toggle-case-fold)
-    ("u" ivy-occur :exit t)
-    ("D" (ivy-exit-with-action
-          (lambda (_) (find-function 'hydra-ivy/body)))
-     :exit t))
-
-  (defun ivy-switch-project ()
-    (interactive)
-    (ivy-read
-     "Switch to project: "
-     (if (projectile-project-p)
-         (cons (abbreviate-file-name (projectile-project-root))
-               (projectile-relevant-known-projects))
-       projectile-known-projects)
-     :action #'projectile-switch-project-by-name))
-
-  (global-set-key (kbd "C-c m") 'ivy-switch-project)
-
-  (ivy-set-actions
-   'ivy-switch-project
-   '(("d" dired "Open Dired in project's directory")
-     ("v" counsel-projectile "Open project root in vc-dir or magit")
-     ("c" projectile-compile-project "Compile project")
-     ("r" projectile-remove-known-project "Remove project(s)"))))
+  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
 
 (use-package ivy-bibtex :ensure t
   :bind ("C-x M-b" . ivy-bibtex)
@@ -1714,9 +1402,6 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
           (latex-mode    . bibtex-completion-format-citation-cite)
           (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
           (default       . bibtex-completion-format-citation-default))))
-
-(use-package interleave :ensure t
-  :commands (interleave-mode))
 
 ;;;; L
 
@@ -1851,7 +1536,7 @@ _c_ ^+^ _r_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
-  (setq magit-completing-read-function 'helm--completing-read-default))
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package makefile-mode :defer t
   :init
@@ -1925,9 +1610,6 @@ undo               _u_: undo
     "C-c C-s" "text"
     "C-c C-t" "header"
     "C-c C-x" "move"))
-
-(use-package matlab-mode :ensure t
-  :mode (("\\.m\\'" . matlab-mode)))
 
 (use-package move-text :ensure t
   :commands
@@ -2075,36 +1757,9 @@ undo               _u_: undo
     ("u" mu4e-update-mail-and-index "update" :color red)
     ("s" mu4e-headers-search "search")))
 
-(use-package multi-line :ensure t
-  :bind* (("C-c d" . multi-line))
-  :config
-  ;; TODO définir une bonne expression pour multi-liner les longues
-  ;; lignes dans un script R
-  ;;
-  ;; (multi-line-defhook ess
-  ;;   (make-instance
-  ;;    multi-line-strategy
-  ;;    :find (make-instance
-  ;;           multi-line-forward-sexp-find-strategy
-  ;;           :split-regex "[[:space:]\n]+"
-  ;;           :done-regex "[[:space:]]*)]}"
-  ;;           :split-advance-fn 'multi-line-lisp-advance-fn )
-  ;;    :respace multi-line-lisp-respacer))
-  )
-
-(use-package multi-term :ensure t
-  :commands (multi-term
-             multi-term-next
-             multi-term-prev
-             multi-term-dedicated-open
-             multi-term-dedicated-close
-             multi-term-dedicated-select
-             multi-term-dedicated-toggle)
-  :init
-  (setq multi-term-program "/usr/local/bin/bash"))
-
 
 ;;;; N
+
 (use-package nlinum :ensure t
   :commands (global-nlinum-mode
              nlinum-mode)
@@ -2129,14 +1784,17 @@ undo               _u_: undo
   :config
   (osx-clipboard-mode +1))
 
-(use-package openwith :ensure t
-  :config
-  (openwith-mode -1)
-  (setq openwith-associations
-        '(("\\.xlsx\\'" "open -a Microsoft\\ Excel" (file))
-          ("\\.xls\\'" "open -a Microsoft\\ Excel" (file))
-          ("\\.doc\\'" "open -a Microsoft\\ Word" (file))
-          ("\\.docx\\'" "open -a Microsoft\\ Word" (file)))))
+(use-package navi-mode
+  :ensure t
+  :commands (navi-mode))
+
+(use-package outorg
+  :ensure t
+  :defer t)
+
+(use-package outshine
+  :ensure t
+  :commands (outshine-hook-function))
 
 (use-package outline
   :bind (("H-<tab>" . hydra-outline/body))
@@ -2150,9 +1808,7 @@ undo               _u_: undo
              (outline-mode . ""))
   :init
   (setq-default outline-minor-mode-prefix (kbd "s-*"))
-  (use-package navi-mode :ensure t)
-  (use-package outorg :ensure t)
-  (use-package outshine :ensure t)
+
   (add-hook 'prog-mode-hook #'outline-minor-mode)
   (add-hook 'outline-minor-mode-hook #'outshine-hook-function)
   :config
@@ -2216,6 +1872,7 @@ _r_: show    _R_: show  ^   ^          _M-s_: move up
 
 
 ;;;; P
+
 (use-package paradox :ensure t
   :commands (paradox-list-packages
              package-list-packages))
@@ -2389,41 +2046,15 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
  (bind-key* "H-P" 'persp-prev)
  (bind-key* "H-N" 'persp-next))
 
-(use-package perspeen
-  :defines (hydra-perspeen/body)
-  :bind* ("s-<return>" . hydra-perspeen/body)
-  :ensure t
-  :init
-  (setq perspeen-use-tab nil)
-  :config
-  (perspeen-mode)
-  (defhydra hydra-perspeen
-    (:hint nil
-     :color blue)
-    "
-_t_ _n_ext   _k_: delete   _c_reate
-_s_ _p_rev   _r_: rename
-"
-    ("c" perspeen-create-ws)
-    ("n" perspeen-next-ws :color red)
-    ("t" perspeen-next-ws :color red)
-    ("s" perspeen-previous-ws :color red)
-    ("p" perspeen-previous-ws :color red)
-    ("k" perspeen-delete-ws :color red)
-    ("r" perspeen-rename-ws)
-    ("q" (message "Abort"))))
-
 (use-package shell-pop :ensure t
   :bind* (("s-'" . shell-pop))
   :config
   (setq shell-pop-default-directory nil
-        shell-pop-shell-type '("shell" "*shell-pop*" (lambda nil (shell shell-pop-term-shell)))
+        shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))
         shell-pop-term-shell "/usr/local/bin/bash"
         shell-pop-window-height 20
         shell-pop-full-span t
         shell-pop-window-position "bottom"))
-
-;; TODO what is that ?
 
 (use-package pretty-mode :ensure t
   :disabled t
@@ -2440,21 +2071,23 @@ _s_ _p_rev   _r_: rename
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "Ⓟ")
-  :bind* ("s-p" . projectile-switch-project)
   :commands (projectile-mode)
   :config
   (projectile-global-mode 1)
 
-  (use-package org-projectile :ensure t
+  (use-package org-projectile
+    :ensure t
     :config
-    (org-projectile:per-repo)
-    (setq org-projectile:per-repo-filename "RoadMap.org")
-    (setq org-agenda-files (append org-agenda-files (org-projectile:todo-files)))
-    (add-to-list 'org-capture-templates (org-projectile:project-todo-entry "p")))
+    (org-projectile-per-project)
+    (setq org-projectile-per-project-filepath "RoadMap.org")
+    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+    (push (org-projectile-project-todo-entry) org-capture-templates))
 
   (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-completion-system 'helm)
+  (setq projectile-completion-system 'ivy)
   (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
+
+
 
 (use-package python
   :ensure python-mode
@@ -2479,22 +2112,6 @@ _s_ _p_rev   _r_: rename
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-(use-package ranger :ensure t
-  :commands
-  (ranger
-   deer)
-  :general
-  (:keymaps 'ranger-mode-map
-   "t" 'ranger-next-file		; j
-   "s" 'ranger-prev-file		; k
-   "r" 'ranger-find-file		; l
-   "c" 'ranger-up-directory		; c
-   "j" 'ranger-toggle-mark		; t
-   )
-
-  :config
-  (setq ranger-cleanup-eagerly t))
-
 (use-package recentf
   :commands (recentf-mode
              counsel-recentf)
@@ -2514,59 +2131,9 @@ _s_ _p_rev   _r_: rename
 (use-package scss-mode :ensure t
   :mode ("\\.scss\\'" . scss-mode))
 
-(use-package selected
-  :diminish (selected-minor-mode . "")
-  :ensure t
-  :commands (selected-minor-mode
-             selected-global-mode)
-  :bind (:map selected-keymap
-         ("a" . align-regexp)
-         ("q" . selected-off)
-         ("s" . sort-lines)
-         ("u" . upcase-region)
-         ("d" . downcase-region)
-         ("w" . count-words-region)
-         ("m" . apply-macro-to-region-lines))
-  :init
-  (selected-global-mode)
-  :config
-  (selected-global-mode))
-
-(use-package shift-number :ensure t
-  :bind (("s--" . shift-number-down)
-         ("s-+" . shift-number-up)))
-
 (use-package shell
   :config
   (setq explicit-shell-file-name "/usr/local/bin/bash"))
-
-(use-package solarized-theme :ensure t
-  :init
-
-  (setq solarized-emphasize-indicators nil
-        solarized-high-contrast-mode-line t
-        solarized-scale-org-headlines t
-        solarized-use-less-bold nil
-        solarized-use-variable-pitch nil
-        solarized-distinct-fringe-background t)
-
-  (defun solarized--dark-or-light (bgd)
-    (set-frame-parameter (selected-frame) 'background-mode bgd)
-    (enable-theme 'solarized)
-    (set-face-attribute 'mode-line-inactive nil
-                        :background "#fdf6e3"
-                        :foreground "#657b83"
-                        :box '(:line-width 1 :color "#002b36")
-                        :overline nil
-                        :underline nil
-                        :font "Input Sans 10")
-    (set-face-attribute 'mode-line nil
-                        :background "#fdf6e3"
-                        :foreground "#073642"
-                        :box '(:line-width 1 :color "#657b83")
-                        :overline nil
-                        :underline nil
-                        :font "Input Sans 10")))
 
 (use-package sh-script :defer t
   :mode
@@ -2740,7 +2307,6 @@ _s_ _p_rev   _r_: rename
   :bind ("C-x M-s" . hydra-string-inflection/body)
   :config
 
-
   (defhydra hydra-string-inflection
     (:color pink
      :columns 3
@@ -2790,9 +2356,6 @@ _s_ _p_rev   _r_: rename
 (use-package terminal-here :ensure t
   :bind (("H-'" . terminal-here-launch)))
 
-(use-package tetris
-  :commands (tetris))
-
 (use-package tex
   :ensure auctex
   :commands init-auctex
@@ -2838,46 +2401,8 @@ integrated Tex-mode. "
     "v" 'textpy-git
     "/" 'textpy-search))
 
-(use-package tile :ensure t
-  :defines (hydra-tile/body)
-  :bind* (("C-c t" . hydra-tile/body)
-          ("s-t" . tile))
-  :config
-  (defhydra hydra-tile (:hint nil :color red :columns 4
-                        :body-pre (winner-mode 1))
-    "tile "
-    ("a" (tile :strategy tile-tall-3) "tall 3")
-    ("u" (tile :strategy (tile-split-n-tall 4)) "tall 4")
-    ("i" (tile :strategy (tile-split-n-wide 2)) "wide 2")
-    ("e" (tile :strategy (tile-split-n-wide 3)) "wide 3")
-    ("c" (tile :strategy tile-master-left-3) "left 3")
-    ("t" (tile :strategy tile-master-bottom-3) "bottom 3")
-    ("s" (tile :strategy tile-master-top-3) "top 3")
-    ("r" (tile :strategy tile-master-right-3) "right 3")
-
-    ("m" tile-select "chose")
-    ("w" (tile :strategy tile-one) "one")
-    ("n" tile "tile")
-    ("C-u" winner-undo "undo")
-    ("M-u" winner-redo "redo")
-    ("é" hydra-window/body "windows" :color blue)
-
-    ("q" nil :color blue "quit"))
-
-  (setq tile-cycler
-        (tile-strategies :strategies
-          (list tile-tall-3
-                tile-master-left-3
-                tile-master-top-3
-                tile-one))))
-
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
-
-(use-package treemacs
-  :quelpa (treemacs :fetcher github :repo "Alexander-Miller/treemacs")
-  :commands (treemacs-toggle))
-
 
 ;;;; U
 
@@ -2951,24 +2476,6 @@ integrated Tex-mode. "
         which-key-idle-delay 0.5
         which-key-min-display-lines 7))
 
-(use-package window-numbering :ensure t
-  :commands
-  (window-numbering-mode
-   select-window-0
-   select-window-1
-   select-window-2
-   select-window-3
-   select-window-4
-   select-window-5
-   select-window-6
-   select-window-7
-   select-window-8
-   select-window-9)
-  :config
-  (defun window-numbering-install-mode-line (&optional position)
-    "Do nothing, the display is handled by the powerline.")
-  (window-numbering-install-mode-line))
-
 (use-package wrap-region :ensure t
   :diminish ""
   :config
@@ -2983,12 +2490,6 @@ integrated Tex-mode. "
      ("`" "`" nil (markdown-mode ruby-mode))
      ("*" "*" nil (markdown-mode org-mode))
      ("_" "_" nil (markdown-mode)))))
-
-(use-package writegood-mode
-  :load-path "~/.emacs.d/private/writegood-mode"
-  :bind (("C-c w" . writegood-mode))
-  :commands (writegood-reading-ease
-             writegood-grade-level))
 
 ;;;; X
 
@@ -3020,23 +2521,6 @@ integrated Tex-mode. "
 
 
 ;;;; Z
-(use-package zenburn-theme :ensure t
-  :commands (sam-load-zenburn)
-  :defines (sam-load-zenburn)
-  :config
-  (defun sam-load-zenburn ()
-    (interactive)
-    (load-theme 'zenburn t)))
-
-(use-package zerodark-theme :ensure t
-  :disabled t
-  :init
-  (setq-default cursor-type 'hbar)
-  (add-to-list 'default-frame-alist '(cursor-color . "#d33682"))
-  :config
-  (zerodark-setup-modeline-format)
-  (load-theme 'zerodark t)
-  (set-cursor-color "#d33682"))
 
 (use-package zoom-frm :ensure t
   :commands
