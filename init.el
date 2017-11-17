@@ -2359,28 +2359,12 @@ _d_: delete buffer _O_: open extern"
 (use-package terminal-here :ensure t
   :bind (("H-'" . terminal-here-launch)))
 
-(use-package tex
+(use-package tex-site
   :ensure auctex
-  :commands init-auctex
-  :defines init-auctex
-  :mode (("\\.tex\\'" . LaTeX-mode))
-  :init
-  (add-hook 'LaTeX-mode-hook #'outline-minor-mode)
-  (add-hook 'LaTeX-mode-hook #'init-auctex)
-  (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
-  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-  (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+  :commands (TeX-tex-mode)
+  :mode (("\\.tex\\'" . TeX-tex-mode))
   :config
-  (defun init-auctex ()
-    "Toggle loading of auctex. Use it when there is needs for
-auctex in the editing session. Otherwise emacs falls back to the
-integrated Tex-mode. "
-    (interactive)
-    (require 'latex)
-    (require 'tex)
-    (load-file "~/dotfile/emacs/latex-config.el")
-    (message "Auctex loaded")))
+  (load-file "~/dotfile/emacs/latex-config.el"))
 
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
