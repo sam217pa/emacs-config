@@ -80,10 +80,6 @@
           python-shell-interpreter-args "--simple-prompt -i --pprint")
   (setq python-shell-interpreter "python"))
 
-(add-hook 'python-mode-hook
-          (lambda () (setq-local outline-regexp "^## ----------")))
-
-
 ;; ---------- Function definitions ----------------------------------------
 (defun python-shell-send-line (&optional vis)
   "send the current line to the inferior python process"

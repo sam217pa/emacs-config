@@ -17,7 +17,7 @@
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;;
 
-;;; * Code
+;;; Code
 
 (use-package org
   :defer t
@@ -32,31 +32,24 @@
          ("README\\'"   . org-mode))
 
   :bind*
-  (:map dired-mode-map
+  (("C-c C-w" . org-refile)
+   ("C-c C-l" . org-store-link)
+   ("C-c ." . org-time-stamp)
+   :map dired-mode-map
    ("C-c C-l" . org-store-link))
 
   :config
-
-  ;; ---------- Extension ---------------------------------------------------
-  (use-package org-timeline :ensure t
-    :disabled t)
-
   (use-package ox-tufte :ensure t :disabled t)
 
   (use-package org-bullets :ensure t
     :init
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-
     :config
     (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪")))
 
   (use-package org-indent :diminish "")
 
-  (use-package orgit :ensure t :disabled t)
-
-  (use-package ox-gfm :ensure t :disabled t)
-
-  ;; ---------- BABEL -------------------------------------------------------
+;;;; BABEL
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((R . t)
                                  (perl . t)
@@ -93,42 +86,43 @@
   (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
   (setq org-agenda-span 7)
   (setq org-agenda-tags-column -100) ; take advantage of the screen width
-  (setq org-agenda-sticky nil)
-  (setq org-agenda-inhibit-startup t)
-  (setq org-agenda-use-tag-inheritance t)
-  (setq org-agenda-show-log t)
   (setq org-agenda-skip-scheduled-if-done t)
   (setq org-agenda-skip-deadline-if-done t)
   (setq org-deadline-warning-days 4)
   (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
-  (setq org-agenda-time-grid
-        '((daily today require-timed)
-          "----------------"
-          (800 1000 1200 1400 1600 1800)))
   ;; agenda start on mondays
   (setq org-agenda-start-on-weekday 1)
 
   (setq org-agenda-custom-commands
         '(("c" "Simple agenda view"
            ((agenda "")
-            (alltodo "")))))
+            (alltodo "")))
+          ("l" "Lab" tags-todo "@these"
+           ((org-agenda-files '("~/these/meta/nb/These.org"))
+            (org-agenda-sorting-strategy '(timestamp-up priority-up)))
+           ("~/these/meta/nb/These.html"))
+          ("p" "perso" tags "@perso"
+           ((org-agenda-sorting-strategy '(ts-up priority-up))))))
+  (bind-key* "C-c a" #'org-agenda)
 
-;;; *** gtd with org
+;;;;  gtd with org
+
   (setq
    org-modules '(org-crypt)
    org-tags-column 80          ; aligne les tags très loin sur la droite
    org-hide-block-startup t    ; cache les blocks par défaut.
    org-refile-targets '(("~/these/meta/nb/These.org" :level . 2)
                         ("~/Org/TODO" :level . 2)
+                        ("~/Org/TODO" :level . 1)
                         ("~/these/meta/nb/maybe.org" :level . 1)
                         ("~/Org/maybe.org" :level . 1))
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
    '(("t" "these - todo" entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
      ("r" "tickler"      entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %? %T")
-     ("T" "todo"         entry (file+headline "~/Org/TODO" "Collecte") "** TODO %? %T")
-     ("n" "notes"        entry (file+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
-     ("j" "lab"          entry (file+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
+     ("p" "perso"        entry (file+headline "~/Org/TODO" "Collecte") "** %? %T :@perso:")
+     ("n" "notes"        entry (file+olp+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
+     ("j" "lab"          entry (file+olp+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
   (setq org-todo-keywords '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
   ;; prevent an item to switch to completed if an item below it is not:
   (setq org-enforce-todo-dependencies t)
@@ -137,63 +131,60 @@
 
   (add-to-list 'org-modules 'org-mac-iCal)
   (setq org-agenda-include-diary nil)
-;;;*** src block and babel
+
+;;;; src block and babel
+
   (setq
    org-src-preserve-indentation t
-;;;*** footnotes
+
+;;;; footnotes
+
    org-footnote-auto-adjust t
    org-footnote-define-inline nil
    org-footnote-fill-after-inline-note-extraction t
    org-footnote-section nil
-;;;*** export
+
+;;;; export
+
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
-   org-export-backends '(ascii html icalendar latex md koma-letter)
-;;;*** latex
+   org-export-backends '(ascii html icalendar latex md koma-letter))
+
+  (use-package ox-twbs
+    :ensure t
+    :after org
+    :commands (org-twbs-publish-to-html)
+    :config
+    (setq org-publish-project-alist
+          '(("pop-acineto"
+             :base-directory "~/these/data/2018-01-08-pop-acineto/inst"
+             :publishing-directory "~/these/data/2018-01-08-pop-acineto/inst/analysis/reports"
+             :publishing-function org-twbs-publish-to-html
+             :with-sub-superscript nil))))
+
+;;;; latex
+  (setq
    ;; moyen d'export latex
    org-latex-pdf-process
-   (list "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-         "bibtex %f"
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+   (list "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+         "biber %f"
+         "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f")
    org-latex-image-default-width "1\\linewidth"
    org-highlight-latex-and-related '(latex entities) ; colore les macro LaTeX
    ;; tufte-handout class by default.
-   org-latex-default-class "tufte-handout"
+   org-latex-default-class "tant"
    ;; default package list with sensible options
-   org-latex-default-packages-alist
-   (quote (("AUTO" "inputenc" t) ("T1" "fontenc" t) ("" "graphicx" t) ("" "longtable" t) ("" "float" nil)
-           ("" "hyperref" nil) ("" "wrapfig" nil) ("" "rotating" nil) ("normalem" "ulem" t)
-           ("" "amsmath" t) ("" "textcomp" t) ("" "marvosym" t) ("" "wasysym" t)
-           ("" "amssymb" t) ("scaled=0.9" "zi4" t) ("x11names, dvipsnames" "xcolor" t)
-           ("protrusion=true, expansion=alltext, tracking=true, kerning=true" "microtype" t)
-           ("" "siunitx" t) ("french" "babel" t)))
-   ;; extensions that listings packages in latex recognize.
-   org-latex-listings-langs '((emacs-lisp "Lisp")
-                              (lisp "Lisp")
-                              (clojure "Lisp")
-                              (c "C")
-                              (cc "C++")
-                              (fortran "fortran")
-                              (perl "Perl")
-                              (cperl "Perl")
-                              (python "Python")
-                              (ruby "Ruby")
-                              (html "HTML")
-                              (xml "XML")
-                              (tex "TeX")
-                              (latex "[LaTeX]TeX")
-                              (shell-script "bash")
-                              (gnuplot "Gnuplot")
-                              (ocaml "Caml")
-                              (caml "Caml")
-                              (sql "SQL")
-                              (sqlite "sql")
-                              (makefile "make")
-                              (R "r"))
+   org-latex-default-packages-alist nil
+   org-latex-listings-langs
+   '((emacs-lisp "Lisp") (lisp "Lisp") (clojure "Lisp") (c "C") (cc "C++") (fortran "fortran")
+     (perl "Perl") (cperl "Perl") (python "Python") (ruby "Ruby") (html "HTML")
+     (xml "XML") (tex "TeX") (latex "[LaTeX]TeX") (shell-script "bash") (gnuplot "Gnuplot")
+     (ocaml "Caml") (caml "Caml") (sql "SQL") (sqlite "sql") (makefile "make")
+     (R "r"))
    ;; files extensions that org considers as latex byproducts.
-   org-latex-logfiles-extensions '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
-                                   "log" "nav" "out" "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "bbl")
+   org-latex-logfiles-extensions
+   '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx"
+     "log" "nav" "out" "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "bbl")
    org-latex-minted-langs '((emacs-lisp "common-lisp")
                             (cc "c++")
                             (cperl "perl")
@@ -211,7 +202,15 @@
   (with-eval-after-load 'ox-latex
     (append-to-list
      'org-latex-classes
-     '(("tufte-book"
+     '(("tant"
+        "\\documentclass[twoside,a4paper,10pt]{tant}
+% \\addbibresource{reference.bib}
+"
+        ;; ("\\part{%s}" . "\\part*{%s}")
+        ;; ("\\chapter{%s}" . "\\chapter*{%s}")
+        ("\\section{%s}" . "\\section*{%s}")
+        ("\\subsection{%s}" . "\\subsection*{%s}"))
+       ("tufte-book"
         "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
        \\input{/Users/samuelbarreto/.templates/tufte-book.tex}"
         ("\\part{%s}" . "\\part*{%s}")
@@ -239,16 +238,6 @@
         ("\\subsection{%s}" . "\\subsection*{%s}")
         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
         ("\\paragraph{%s}" . "\\paragraph*{%s}")))))
-
-  (defun org-insert-heading-with-date-after-current ()
-    "Insert a new heading with current date same level as current,
-     after current subtree."
-    (interactive)
-    (org-back-to-heading)
-    (org-insert-heading)
-    (insert-timestamp)
-    (org-move-subtree-down)
-    (end-of-line 1))
 
 ;;; * Keybindings
 

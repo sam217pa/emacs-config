@@ -2,33 +2,95 @@
 ** cs                                                                          :compsci:
 *** rstat                                                                     :rstat:
 **** [[https://rud.is/b/feed/][hrbrmstr]]
+**** [[http://blog.jalsalam.com/index.xml][jameel alsalam]]
 *** pkg                                                                       :pkg:
 **** [[http://dirk.eddelbuettel.com/cranberries/index.rss][cranberries]]                                                             :rstat:
 **** [[https://pkgs.racket-lang.org/atom.xml][racket-pkg]]                                                              :scheme:racket:lisp:
+**** [[http://planet.lisp.org/github.atom][new common lisp repo ]]                                                   :cl:lisp:
 *** scheme                                                                    :scheme:lisp:
 **** guile                                                                   :guile:
 ***** [[https://wingolog.org/feed/atom][andy wingo]]
+***** [[https://guix-hpc.bordeaux.inria.fr/blog/feed.xml][guix]]
+*** common lisp                                                               :cl:lisp:
+**** [[http://lispblog.xach.com/rss][zach beane]]
+**** [[http://lispmethods.com/feed.xml][lisp methods]]
 *** clojure                                                                   :clojure:
 **** [[https://anmonteiro.com/atom.xml][anmonteiro]]
 *** emacs                                                                     :emacs:
+**** [[https://emacs-doctor.com/feed.xml][bastien guerry]]
 **** [[http://www.wilfred.me.uk/rss.xml][wilfred hughes]]
 **** [[https://oremacs.com/archive/][oremacs]]
 **** [[http://nullprogram.com/feed/][nullprogram]]
 **** [[http://planet.emacsen.org/atom.xml][planet.emacsen]]
 **** [[http://cestlaz.github.io/rss.xml][cestlaz]]
 **** [[http://cachestocaches.com/feed/][cachestocaches]]
+*** [[https://fedoramagazine.org/feed/][fedora]]                                                                      :fedora:
 *** perl                                                                      :perl:
 **** [[http://perltricks.com/index.xml][perltricks]]
 ** bio                                                                         :bio:
 *** [[http://robertlanfear.com/blog/files/rob.lanfear.blog.xml][bob lanfear]]
+*** [[https://c2-d2.github.io/hanage-lab/feed.xml][bill hanage lab]]
+*** [[https://armchairecology.blog/feed/atom.xml][thimothée poisot]]
 *** papers                                                                    :papers:
 **** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet]]
 **** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]
 **** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]
 **** [[http://biorxiv.org/alertsrss][biorxiv]]
 **** [[http://onlinelibrary.wiley.com/rss/journal/10.1111/(ISSN)1365-2958][molecular microbiology]]
+**** [[http://feeds.feedburner.com/pnas/SMZM][PNAS current issue]]
+**** [[http://feeds.feedburner.com/pnas/uSDM][PNAS podcasts]]
+**** [[http://feeds.feedburner.com/ProceedingsOfTheNationalAcademyOfSciencesEvolution?format=xml][PNAS Evolution]]
 *** bioinfo                                                                   :bioinfo:
 **** [[http://bioinfo-fr.net/feed][bioinfo.fr]]
 *** biostat                                                                   :biostat:
 ** news                                                                        :news:
 *** [[https://www.mediapart.fr/articles/feed][mediapart]]
+*** [[https://theconversation.com/fr/articles.atom][the conversation]]
+*** [[https://indymedia.org/global.1-0.rss][indymedia]]
+*** [[http://www.acrimed.org/spip.php?page=backend][acrimed ]]                                                                  :media:
+*** [[https://www.amnesty.org/fr/rss/][amnesty international]]
+*** [[https://www.hrw.org/fr/rss/news][human rights watch]]
+*** [[https://knoema.fr/tags/Viz%2520of%2520the%2520Day/rss][knomea viz of the day]]
+** éditions                                                                    :éditions:
+*** [[http://editionslibertalia.com/spip.php?page=backend][libertalia]]
+*** [[TODO ][éditions cnt-rp]]
+*** [[http://lafabrique.fr/feed/][la fabrique]]
+** contestations                                                               :contestations:
+*** [[https://france.attac.org/spip.php?page=backend][attac]]
+*** [[http://www.kedistan.net/feed/][kedistan]]
+*** [[https://www.laquadrature.net/fr/rss.xml][quadrature du net]]
+** libertaire                                                                  :anar:
+*** [[http://almtoile.free.fr/data/fr-news.xml][amicale laïque de la montagne]]
+*** [[https://robertgraham.wordpress.com/feed/][robert graham]]
+*** [[http://www.monde-libertaire.fr/flux_rss.rss][le monde libertaire]]
+*** [[https://chomsky.info/feed/][noam chomsky]]
+*** [[http://www.zones-subversives.com/rss][zones subversives]]
+*** [[https://rebellyon.info/spip.php?page=backend][rebellyon]]
+*** [[http://www.desobeir.net/feed/][les désobéissants]]
+*** [[http://www.alterjt.tv/feed/][alterjt]]
+*** [[http://www.contretemps.eu/feed/][contretemps]]
+*** [[http://www.alternativelibertaire.org/spip.php?page=backend&][alternatives libertaires]]
+*** [[http://www.lesmutins.org/spip.php?page=backend][les mutins de pangée]]
+*** [[http://nbaillargeon.blogspot.com/feeds/posts/default][normand baillargeon]]
+*** [[http://cqfd-journal.org/spip.php?page=backend][ce qu'il faut détruire]]
+*** [[http://www.autrefutur.net/spip.php?page=backend][autre futur]]
+*** [[http://www.hugueslenoir.fr/feed/][hugues lenoir ]]                                                            :ecole:
+** pédagogies                                                                  :ecole:
+*** [[http://www.questionsdeclasses.org/reac/spip.php?page=backend][questions de classes]]
+** communisme                                                                  :communisme:
+*** [[http://www.reseau-salariat.info/f5f5e7055e793213f853ccaf95e95e8c.rss][livres réseau salariat]]
+** prof                                                                        :prof:
+*** [[http://adelb.univ-lyon1.fr/direct/index.jsp?projectId=1&ShowPianoWeeks=true&Cas=samuel.barreto&resources=48540&displayConfName=_DirectPlanning&days=0&weeks=&from=edt&ticket=ST-3484471-EPLv2bRVErGP274QGeNY-cas.univ-lyon1.fr][l2 tp rstat]]
+** sciences humaines                                                            :humanités:
+*** sciences sociales                                                         :socio:
+**** [[science][revue de la régulation]]
+**** [[https://www.erudit.org/fr/rss.xml][érudit]]
+**** [[http://www.arss.fr/feed/][arss]]
+*** philo                                                                       :philo:
+**** [[http://radiofrance-podcast.net/podcast09/rss_10467.xml][les chemins de la philo ]]                                                   :podcast:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13194&channel-name=European+Journal+for+Philosophy+of+Science][European Journal for Philosophy of Science]]                              :papers:
+**** [[http://www.journals.uchicago.edu/action/showFeed?type=etoc&feed=rss&jc=phos][Philosophy of Science Association]]                                       :papers:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10838&channel-name=Journal+for+General+Philosophy+of+Science][Journal for General Philosophy of Science]]                               :papers:
+** podcasts                                                                     :podcast:
+*** [[http://radiofrance-podcast.net/podcast09/rss_13957.xml][conversations scientifiques]]
+*** [[http://radiofrance-podcast.net/podcast09/rss_11921.xml][cours du collège de france]]

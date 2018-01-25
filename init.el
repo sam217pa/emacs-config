@@ -1,6 +1,6 @@
 ;; -*- emacs-lisp -*-
 
-;;; * Licence
+;;; Licence
 
 ;; Copyright (C) 2017 Samuel Barreto <samuel.barreto8@gmail.com>
 ;;
@@ -52,7 +52,6 @@
 
 
 (use-package general :quelpa (general :fetcher github :repo "noctuid/general.el"))
-;(use-package use-package-chords :config (key-chord-mode 1))
 (use-package diminish)
 (use-package bind-key)
 
@@ -71,8 +70,8 @@
  '((".*" "~/.emacs.d/auto-save-list/" t)) ; transforme les noms des fichiers sauvegardés
  inhibit-startup-screen t                 ; supprime l'écran d'accueil
  ring-bell-function 'ignore           ; supprime cette putain de cloche.
- coding-system-for-read 'utf-8        ; use UTF8 pour tous les fichiers
- coding-system-for-write 'utf-8       ; idem
+ coding-system-for-read 'utf-8         ; use UTF8 pour tous les fichiers
+ coding-system-for-write 'utf-8        ; idem
  sentence-end-double-space nil ; sentences does not end with double space.
  default-fill-column 72
  initial-scratch-message ""
@@ -105,8 +104,11 @@
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-(defvar my-font-for-light "Fira Code 12")
-(defvar my-font-for-dark "Fira Code 12")
+(defvar my-font-for-light "Fira Code 12"
+  "Font for coding situations")
+
+(defvar my-font-for-text "Input Serif Narrow 12"
+  "Font for text")
 
 ;;; apparences
 (when window-system
@@ -119,11 +121,29 @@
   (add-to-list 'default-frame-alist '(height . 46))
   (add-to-list 'default-frame-alist '(width . 85))
   (fringe-mode '(4 . 0))                ; reduce fringe size to 4 px
-  (setq-default line-spacing 4)         ; increase between-line space.
+  (setq-default line-spacing 6)         ; increase between-line space.
 
   ;; change default font for current frame
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
-  (set-face-attribute 'default nil :font my-font-for-light))
+  (set-face-attribute 'default nil :font my-font-for-light)
+
+  (defun simple-mode-line-render (left right)
+    "Return a string of `window-width' length containing LEFT, and RIGHT
+ aligned respectively."
+    (let* ((available-width (- (window-width) (length left) 2)))
+      (format (format " %%s %%%ds " available-width) left right)))
+
+  ;; use the function in conjunction with :eval and format-mode-line in
+  ;; your mode-line-format
+  (setq-default mode-line-format
+                '((:eval (simple-mode-line-render
+                          ;; left
+                          (format-mode-line "%*%* %b       [%m]")
+                          ;; right
+                          (concat (format-mode-line "%l")
+                                  (when (bound-and-true-p eyebrowse-mode)
+                                    (concat " " (eyebrowse-mode-line-indicator)))))))))
+>>>>>>> feature/helm
 
 
 ;;; keybindings
@@ -149,7 +169,6 @@
 When using Homebrew, install it using \"brew install trash\"."
     (call-process (executable-find "trash") nil nil nil file))
   (mac-auto-operator-composition-mode t)) ; enable ligatures
-
 
 
 ;;; Packages
@@ -181,7 +200,7 @@ When using Homebrew, install it using \"brew install trash\"."
   :init
   (global-anzu-mode 1)
   :bind*
-  (("C-/" . anzu-query-replace-at-cursor)
+  (("C-0" . anzu-query-replace-at-cursor)
    ("C-9" . anzu-replace-at-cursor-thing))
   :config
   (global-set-key [remap query-replace] 'anzu-query-replace)
@@ -197,10 +216,7 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package autoinsert
   :init
   (auto-insert-mode)
-  (setq auto-insert-directory "~/dotfile/emacs/autoinsert")
-  (define-auto-insert "\\.R\\'" "header.R")
-  (define-auto-insert "\\.pl\\'" "header.pl")
-  (define-auto-insert "\\.scm\\'" "header.scm"))
+  (setq auto-insert-directory "~/dotfile/emacs/autoinsert"))
 
 (use-package autorevert :defer t
   ;; mainly to make autorevert disappear from the modeline
@@ -231,27 +247,12 @@ When using Homebrew, install it using \"brew install trash\"."
 
 
 (use-package base16-theme :ensure t
-  :demand)
+  :demand t)
 
 (use-package blank-mode :ensure t
   :commands blank-mode)
 
 ;;;; C
-
-(use-package cedet
-  :ensure t
-  :defer t
-  :config
-  (setq semantic-default-submodes
-        '(global-semanticdb-minor-mode
-          global-semantic-mru-bookmark-mode
-          global-semantic-highlight-func-mode
-          global-semantic-idle-summary-mode
-          global-semantic-idle-local-symbol-highlight-mode
-          global-semantic-idle-completions-mode
-          global-semantic-decoration-mode))
-  (setq semantic-idle-scheduler-idle-time 0.2)
-  (setq semanticdb-persistent-path '(project)))
 
 (use-package cc-mode :ensure t
   :defer t
@@ -268,26 +269,15 @@ When using Homebrew, install it using \"brew install trash\"."
   (use-package ggo-mode :ensure t
     :mode ("\\.ggo\\'" . ggo-mode))
 
-  (use-package irony :ensure t
-    :disabled t
-    :commands (irony-mode)
-    :init
-    (add-hook 'c-mode-hook #'irony-mode)
-    :config
-    (use-package irony-eldoc :ensure t)
-    (use-package company-irony :ensure t
-      :config
-      (add-to-list 'company-backends '(company-irony))))
-
-  (use-package clang-format :ensure t
-    :bind* (:map c-mode-map
-            ("C-c f" . clang-format-buffer)))
-
   (defun compile-file ()
     "Runs the compilation of the current file.
 Assumes it has the same name, but without an extension"
     (interactive)
     (compile (file-name-sans-extension buffer-file-name))))
+
+
+(use-package conf-mode
+  :mode ("DESCRIPTION" . conf-mode))
 
 (use-package command-log-mode :ensure t
   :commands (command-log-mode))
@@ -297,22 +287,6 @@ Assumes it has the same name, but without an extension"
   :commands global-company-mode
   :init
   (add-hook 'after-init-hook #'global-company-mode)
-
-  ;; (setq-default company-backends
-  ;;               '(company-bbdb
-  ;;                 company-semantic
-  ;;                 company-capf
-  ;;                 company-files
-  ;;                 (company-dabbrev-code
-  ;;                  company-gtags
-  ;;                  company-etags
-  ;;                  company-keywords)
-  ;;                 company-dabbrev))
-
-
-  ;; (add-hook 'text-mode-hook
-  ;;           (lambda () (setq company-backends
-  ;;                       (delete 'company-capf (delete 'company-semantic company-backends)))))
 
   (setq
    company-idle-delay 0.2
@@ -345,56 +319,25 @@ Assumes it has the same name, but without an extension"
 
   ;; from https://github.com/syl20bnr/spacemacs/blob/master/layers/auto-completion/packages.el
   (setq hippie-expand-try-functions-list
-        '(
-          ;; Try to expand word "dynamically", searching the current buffer.
-          try-expand-dabbrev
-          ;; Try to expand word "dynamically", searching all other buffers.
+        '(try-expand-dabbrev
           try-expand-dabbrev-all-buffers
-          ;; Try to expand word "dynamically", searching the kill ring.
           try-expand-dabbrev-from-kill
-          ;; Try to complete text as a file name, as many characters as unique.
           try-complete-file-name-partially
-          ;; Try to complete text as a file name.
           try-complete-file-name
-          ;; Try to expand word before point according to all abbrev tables.
           try-expand-all-abbrevs
-          ;; Try to complete the current line to an entire line in the buffer.
           try-expand-list
-          ;; Try to complete the current line to an entire line in the buffer.
           try-expand-line
-          ;; Try to complete as an Emacs Lisp symbol, as many characters as
-          ;; unique.
           try-complete-lisp-symbol-partially
-          ;; Try to complete word as an Emacs Lisp symbol.
           try-complete-lisp-symbol)))
 
-(use-package counsel :ensure t
-  :commands (counsel-bookmark)
-  :bind*
-  (("M-x"     . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-c s"   . counsel-git-grep)
-   ("C-c /"   . counsel-rg)
-   ("C-c o"   . counsel-find-file-extern)
-   ("C-S-s"   . counsel-rg)
-   ("C-c l"   . counsel-locate))
+(use-package company-bibtex
+  :ensure t
+  :after company
   :config
-  (setq counsel-find-file-at-point t)
-  (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind)
-  (setq counsel-find-file-ignore-regexp "\\.DS_Store\\|.git")
-
-  (ivy-set-actions
-   'counsel-find-file
-   '(("o" (lambda (x) (counsel-find-file-extern x)) "open extern"))))
-
-(use-package counsel-projectile :ensure t
-  :bind* (("s-p" . counsel-projectile-switch-project)
-          ("s-f" . counsel-projectile-find-file))
-  :config
-  (counsel-projectile-on))
-
-(use-package counsel-gtags :ensure t
-  :defer t)
+  (setq company-bibtex-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (add-hook 'latex-mode-hook
+            (lambda ()
+              (add-to-list 'company-backends 'company-bibtex))))
 
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
@@ -487,10 +430,6 @@ _p_: prev    _r_: reverse
 
 
 ;;;; D
-(use-package debian-control-mode
-  :load-path "~/.emacs.d/private/dcf/"
-  :commands debian-control-mode
-  :mode (("DESCRIPTION" . debian-control-mode)))
 
 (use-package dired
   :bind* (("C-x d" . dired-other-window)
@@ -548,7 +487,7 @@ _e_xtension"
     (if (file-exists-p gls)
         (setq insert-directory-program gls)))
 
-  (setq dired-listing-switches "-XGalg --group-directories-first --human-readable --dired")
+  (setq dired-listing-switches "-al")
   (setq dired-dwim-target t) ; guess copy target based on other dired window
 
   (defun dired-view-other-window ()
@@ -594,12 +533,13 @@ _e_xtension"
     ("C-'" . shell)
     ("q"   . (lambda () (interactive) (quit-window 4)))))
 
-;;;; E
-(use-package edebug
-  :defer t
+
+(use-package doom-themes :ensure t
   :config
-  (setq edebug-active nil)
-  (setq edebug-outside-windows t))
+  (load-theme 'doom-one t)
+  (doom-themes-org-config))
+
+;;;; E
 
 (use-package ediff
   :commands (ediff
@@ -624,17 +564,82 @@ _e_xtension"
     (setq rmh-elfeed-org-files (list "~/dotfile/emacs/elfeed.org"))
     (elfeed-org))
 
+  (defun elfeed-mark-all-as-read ()
+    (interactive)
+    (mark-whole-buffer)
+    (elfeed-search-untag-all-unread))
+
   (bind-keys
    :map elfeed-search-mode-map
-    ("f" . hydra-elfeed-navigate/body)
-    ("." . hydra-elfeed/body))
+   ("N" . elfeed-next-tag)
+   ("f" . hydra-elfeed-navigate/body)
+   ("U" . elfeed-search-fetch)
+   ("." . hydra-elfeed/body)
+   ("R" . elfeed-mark-all-as-read))
+
+(defvar counsel-elfeed-tags
+    '(("papers" . "+papers")
+      ("biology" . "+bio")
+      ("bioinfo" . "+bioinfo")
+      ("computer science" . "+compsci")
+      ("package update" . "+pkg")
+      ("rstat" . "+rstat")
+      ("emacs" . "+emacs")
+      ("news" . "+news")
+      ("communisme libertaire" . "+anar")
+      ("communisme marxiste" . "+communisme"))
+    "This is a list of tag for elfeed filtering.")
+
+  (defun elfeed-update-filter (x)
+    (setf elfeed-search-filter
+          (concat "@6-months-ago +unread " x))
+    (elfeed-search-update :force))
+
+  (defun elfeed-next-tag ()
+    (interactive)
+    (let* ((elfeed-tag-list
+            (with-current-buffer
+                (find-file-noselect (expand-file-name (car rmh-elfeed-org-files)))
+              (org-mode)
+              (mapcar
+               (lambda (x) (concat "+" x))
+               (cdr (reverse (mapcar #'car (org-get-buffer-tags)))))))
+           (current-tag
+            (car (last (split-string elfeed-search-filter))))
+           (new-tag
+            (cadr (member current-tag elfeed-tag-list))))
+      (if new-tag
+          (elfeed-update-filter new-tag)
+        (elfeed-update-filter (car elfeed-tag-list)))))
+
+  (defun counsel-elfeed--update-tag (x)
+    "Update the elfeed filter with the last 10 char of ivy selection."
+    (elfeed-search-set-filter
+     (concat "@6-months-ago +unread " x)))
+
+  (defun counsel-elfeed-tag ()
+    "Shows a list of elfeed tags I like to browse."
+    (interactive)
+    (ivy-read "%d Elfeed tag: "
+              (with-current-buffer
+                  (find-file-noselect (expand-file-name (car rmh-elfeed-org-files)))
+                (org-mode)
+                (mapcar
+                 (lambda (x) (concat "+" x))
+                 (cdr (reverse (mapcar #'car (org-get-buffer-tags))))))
+              :require-match t
+              :action #'counsel-elfeed--update-tag
+              :update-fn (lambda ()
+                           (counsel-elfeed--update-tag (ivy-state-current ivy-last)))
+              :caller 'counsel-elfeed-tag
+              :sort t))
 
   (defhydra hydra-elfeed (:color pink :hint nil :columns 3)
     "
 ^ACTIONS^     ^ ^          ^MARK^       ^TAG^
 _u_: update   _b_: browse  _r_: read    _+_: add
 _g_: fetch    _y_: yank    _u_: unread  _-_: remove
-_s_: search   _f_: filter
+_s_: search
 "
     ("u" elfeed-search-update--force)
     ("g" elfeed-search-fetch)
@@ -645,25 +650,10 @@ _s_: search   _f_: filter
     ("u" elfeed-search-tag-all-unread)
     ("+" elfeed-search-tag-all)
     ("-" elfeed-search-untag-all)
-    ("f" hydra-elfeed-navigate/body :color blue)
+    ("N" elfeed-next-tag "next tag" :color red)
     ("q" (message "Abort.") "Quit" :color blue))
 
-  (defhydra hydra-elfeed-navigate (:hint nil :color pink :columns 1)
-    "filter"
-    ("*" (elfeed-search-set-filter "@6-months-ago +star") "Starred")
-    ("a" (elfeed-search-set-filter "@6-months-ago -cs") "all")
-    ("b" (elfeed-search-set-filter "@6-months-ago +bio") "bio")
-    ("c" (elfeed-search-set-filter "@6-months-ago +compsci -pkg") "cs")
-    ("e" (elfeed-search-set-filter "@6-months-ago +emacs") "emacs")
-    ("i" (elfeed-search-set-filter "@6-months-ago +bioinfo") "bioinfo")
-    ("n" (elfeed-search-set-filter "@6-months-ago +news") "news")
-    ("p" (elfeed-search-set-filter "@6-months-ago +pkg") "pkg")
-    ("r" (elfeed-search-set-filter "@6-months-ago +rstat") "rstat")
-    ("T" (elfeed-search-set-filter "@1-day-ago") "Today")
-    ("M" elfeed-toggle-star "Mark")
-    ("q" hydra-elfeed/body "quit" :color blue))
-
-  (setq-default elfeed-search-filter "@6-months-ago +unread -pkg -cran -news"))
+(setq-default elfeed-search-filter "@6-months-ago +unread"))
 
 (use-package emacs-lisp-mode
   :mode
@@ -672,7 +662,6 @@ _s_: search   _f_: filter
   (add-hook 'emacs-lisp-mode-hook
             (lambda ()
               (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)
-              (setq-local outline-regexp ";; ----------\\|^;;;")
               (setq-local company-backends
                           (append '(company-elisp) company-backends))))
 
@@ -686,20 +675,14 @@ _s_: search   _f_: filter
    "e" 'eval-last-sexp
    "b" 'eval-buffer
    "c" '(sam--eval-current-form-sp :which-key "eval-current")
-   "u" 'use-package-jump
+   "u" 'helm-use-package-jump
    "t" '(lispy-goto :which-key "goto tag")))
-
-(use-package emacsc :ensure t)
-
-(use-package ereader :ensure t
-  :mode (("\\.epub\\'" . ereader-mode)))
 
 (use-package eshell
   :defines eshell-here
-  :commands (eshell
-             eshell-here)
+  :commands (eshell eshell-here)
   :config
-  (use-package eshell-z :ensure t)
+  (require 'em-smart)
 
   (setq eshell-where-to-jump 'begin
         eshell-review-quick-commands nil
@@ -747,10 +730,31 @@ directory to make multiple eshell windows easier.
     (insert "ls -l")
     (eshell-send-input))
 
-  (general-define-key
-   :keymaps 'eshell-mode-map
-   "<tab>" (lambda () (interactive) (pcomplete-std-complete))
-   "C-'" (lambda () (interactive) (insert "exit") (eshell-send-input) (delete-window))))
+  (setq eshell-prompt-function (lambda () (concat "$ ")))
+  (setq eshell-prompt-function
+        (lambda ()
+          (let ((green (plist-get base16-shell-colors-256 :base0B))
+                (white (plist-get base16-shell-colors-256 :base07))
+                (yellow (plist-get base16-shell-colors-256 :base0F)))
+            (concat
+             (propertize "─[" 'face `(:foreground ,green))
+             (propertize (concat (eshell/pwd)) 'face `(:foreground ,white))
+             (propertize "]──[" 'face `(:foreground ,green))
+             (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground ,yellow))
+             (propertize "]\n" 'face `(:foreground ,green))
+             (propertize (if (= (user-uid) 0) " # " "> ") 'face `(:foreground ,green))))))
+
+  ;; should bind after eshell starts because eshell-mode-map is lazily
+  ;; defined. see https://emacs.stackexchange.com/questions/27849
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (eshell-smart-initialize)
+              (eshell-cmpl-initialize)
+              ;; init plan-9 like shell
+              (define-key eshell-mode-map (kbd "s-'") 'delete-window)
+              (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
+              (define-key eshell-mode-map (kbd "M-r") 'helm-eshell-history))))
+>>>>>>> feature/helm
 
 (use-package ess-site
   :ensure ess
@@ -787,11 +791,11 @@ directory to make multiple eshell windows easier.
   (R stata julia SAS)
 
   :init
-  (add-hook 'ess-mode-hook 'company-mode)
-  (add-hook 'ess-mode-hook (lambda () (run-hooks 'prog-mode-hook 'company-mode-hook)))
-  (add-hook 'ess-R-post-run-hook (lambda () (smartparens-mode 1)))
-  (add-hook 'ess-mode-hook (lambda () (lesspy-mode 1)))
-  (add-hook 'ess-mode-hook (lambda () (setq-local outline-regexp "### ----------\\|^##' #\\|^#' #")))
+  (add-hook 'ess-mode-hook
+            (lambda ()
+              (smartparens-mode 1)
+              (lesspy-mode 1)
+              (run-hooks 'prog-mode-hook 'company-mode-hook)))
   (add-hook 'inferior-ess-mode-hook (lambda () (setq-local outline-regexp "^>")))
   (setq ess-offset-continued 2           ; offset after first statement
         ess-expression-offset 2          ; offset for expression
@@ -846,6 +850,8 @@ directory to make multiple eshell windows easier.
       (build-ctags))
     (etags-select-find-tag-at-point)))
 
+(use-package evil :ensure t)
+
 (use-package exec-path-from-shell :ensure t
   :if (memq window-system '(mac ns))
   :defer 2
@@ -886,7 +892,9 @@ _R_: reset
   :ensure t
   :defines hydra-eyebrowse/body
   :bind* (("C-c w" . hydra-eyebrowse/body)
-          ("C-c C-w" . hydra-eyebrowse/body))
+          ("H-r" . eyebrowse-next-window-config)
+          ("H-c" . eyebrowse-prev-window-config))
+>>>>>>> feature/helm
   :config
   (defhydra hydra-eyebrowse (:color blue :hint nil)
     "
@@ -934,18 +942,19 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
   :config
   (setq flycheck-highlighting-mode 'symbols))
 
-
 ;;;; G
 
 (use-package geiser
-  :defer t
-  :mode (("\\.scm\\'" . geiser-mode)
-         ("\\.scm\\'" . scheme-mode))
-  :commands (run-guile
+  :mode (("\\.scm\\'" . scheme-mode)
+         ("\\.scm\\'" . geiser-mode))
+  :commands (geiser-mode
+             run-guile
+             run-geiser
              geiser)
   :config
-  (setq geiser-active-implementations '(guile racket chicken))
-  (setq geiser-guile-load-path '(""))
+  (setq geiser-active-implementations '(guile))
+  (setq geiser-guile-load-path '("/usr/local/Cellar/guile/2.2.2/share/guile/"))
+  (setq geiser-guile-load-init-file-p t)
   (setq geiser-guile-binary "/usr/local/bin/guile"))
 
 (use-package ggtags :ensure t
@@ -980,10 +989,6 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
    :keymaps 'c-mode-map
    "M-." 'counsel-gtags-dwim
    "M-," 'pop-tag-mark))
-
-(use-package git-timemachine
-  :ensure t
-  :commands (git-timemachine))
 
 (use-package go-mode
   :load-path "~/.emacs.d/private/go-mode.el/"
@@ -1076,7 +1081,7 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
   ;; keybindings
   (general-define-key
    :keymaps 'go-mode-map
-    "C-," 'hydra-go/body)
+   "C-," 'hydra-go/body)
 
   (defhydra hydra-go (:hint nil :color teal)
     "
@@ -1111,20 +1116,66 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
 
 
 ;;;; H
-(use-package haskell-mode :ensure t
-  :mode (("\\.hs\\'" . haskell-mode))
+
+(use-package helm-ag :ensure t
+  :bind ("C-c C-/" . helm-ag))
+
+(use-package helm-bibtex :ensure t
+  :bind ("C-x M-b" . helm-bibtex)
   :config
-  (use-package intero :ensure t
-    :init
-    (add-hook 'haskell-mode-hook 'intero-mode)
-    :commands (intero-mode)
-    :diminish " λ"))
+  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (setq bibtex-completion-library-path '("~/zotero_bib/"))
+  (setq bibtex-completion-pdf-field "file")
+  (setq bibtex-completion-pdf-symbol "⌘")
+  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
+  (setq bibtex-completion-format-citation-functions
+        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default))))
+
+(use-package helm-config
+  :diminish (helm-mode . "")
+  :bind* (("M-x" . helm-M-x)
+          ("C-x C-f" . helm-find-files)
+          ("s-<backspace>" . helm-mini)
+          ("C-c /" . helm-do-grep-ag)
+          ("C-c i" . helm-imenu)
+          :map helm-map
+          ("C-i" . helm-execute-persistent-action)
+          ("<tab>" . helm-execute-persistent-action)
+          ("M-i" . helm-select-action))
+  :config
+  (helm-mode +1)
+  (bind-key* "M-SPC" helm-command-prefix)
+
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+
+  (setq
+   ;; open helm buffer inside current window
+   helm-split-window-in-side-p t
+   ;; move to end or beginning of source when reaching top or bottom
+   helm-move-to-line-cycle-in-source t
+   ;; search for library in `require' and `declare-function' sexp.
+   helm-ff-search-library-in-sexp t
+   ;; scroll 8 lines other window using M-<next>/M-<prior>
+   helm-scroll-amount 8
+   helm-ff-file-name-history-use-recentf t
+   helm-echo-input-in-header-line nil
+   ;; helm use rg
+   helm-grep-ag-command "rg --smart-case --no-heading --line-number %s %s %s"))
+
+(use-package helm-descbinds :ensure t
+  :bind* ("C-h k" . helm-descbinds)
+  :config
+  (helm-descbinds-mode +1))
 
 (use-package helm-make
   :bind* (("C-c C" . helm-make)
           ("C-c p c" . helm-make-projectile))
   :config
-  (setq helm-make-completion-method 'ivy))
+  (setq helm-make-completion-method 'helm))
 
 (use-package helm-google :ensure t
   :commands (helm-google))
@@ -1132,21 +1183,41 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
 (use-package helm-gitignore :ensure t
   :commands helm-gitignore)
 
-(use-package hideshow
-  :commands hs-minor-mode
-  :diminish hs-minor-mode
-  :init
-  (add-hook 'prog-mode-hook 'hs-minor-mode))
+(use-package swiper-helm :ensure t
+  :disabled t
+  :after swiper
+  :bind* ("M-s" . swiper-helm))
+
+(use-package helm-projectile :ensure t
+  :after projectile
+  :bind* (("s-p" . helm-projectile)
+          ("s-f" . sam-helm-projectile-find-file-dwim))
+  :config
+  (defun sam-helm-projectile-find-file-dwim ()
+    "Find file in projectile project using projectile, otherwise
+falls back to ``helm-find-file''"
+    (interactive)
+    (if (projectile-project-p)
+        (helm-projectile-find-file-dwim)
+      (helm-find-file)))
+
+  (setq tramp-default-method "ssh")
+  (require 'helm-projectile)
+  (helm-projectile-on))
+
+(use-package helm-themes :ensure t
+  :commands (helm-themes))
 
 (use-package highlight-indent-guides :ensure t
+  :diminish ((highlight-indentation-mode . "")
+             (highlight-indent-guides-mode . ""))
   :init
   (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-method 'character))
 
-(use-package htmlize
-  :ensure t
-  :defer t)
+(use-package htmlize :ensure t :defer t)
+>>>>>>> feature/helm
 
 (use-package hungry-delete :ensure t
   :diminish ""
@@ -1156,6 +1227,12 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
 (use-package hydra :ensure t
   :config
   (setq hydra-is-helpful t))
+
+(use-package hyperbole :ensure t
+  :bind* (("s-<return>" . hkey-either)
+          ("s-h" . hyperbole)
+          ("C-h h" . hyperbole))
+  :mode ("\\.kotl\\'" . kotl-mode))
 
 ;;;; I
 
@@ -1178,9 +1255,32 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
    "c" 'ibuffer-backward-filter-group
    "p" 'ibuffer-backward-filter-group
    "n" 'ibuffer-forward-filter-group)
+
+  ;; Use human readable Size column instead of original one
+  (define-ibuffer-column size-h
+    (:name "Size" :inline t)
+    (cond
+     ((> (buffer-size) 1000000) (format "%7.1fM" (/ (buffer-size) 1000000.0)))
+     ((> (buffer-size) 100000) (format "%7.0fk" (/ (buffer-size) 1000.0)))
+     ((> (buffer-size) 1000) (format "%7.1fk" (/ (buffer-size) 1000.0)))
+     (t (format "%8d" (buffer-size)))))
+
+  ;; Modify the default ibuffer-formats
+  (setq ibuffer-formats
+        '((mark modified read-only " "
+                (name 18 18 :left :elide)
+                " "
+                (size-h 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                filename-and-process)))
+
   (setq-default ibuffer-saved-filter-groups
                 `(("Default"
-                   ("RStat" (mode . ess-mode))
+                   ("RStat" (or (mode . ess-mode)
+                                (mode . ess-help-mode)
+                                (mode . inferior-ess-mode)))
                    ("C / C++" (mode . c-mode))
                    ("Org" (mode . org-mode))
                    ("Markdown" (mode . markdown-mode))
@@ -1198,6 +1298,7 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
                    ("Music" (or (mode . bongo-mode)
                                 (mode . bongo-library-mode)
                                 (mode . bongo-playlist-mode)))
+                   ("Helm" (or (mode . helm-major-mode)))
                    ("Temp" (name . "\*.*\*")))))
   (setq ibuffer-show-empty-filter-groups nil)
   (setq ibuffer-display-summary t))
@@ -1216,11 +1317,6 @@ _f_: freevars      ^ ^               _s_: callstack    _e_: whicherrs"
     ("C-p" iedit-prev-occurrence "prev")
     ("C-n" iedit-next-occurrence "next")
     ("C-g" iedit-quit :color blue "toggle")))
-
-(use-package imenu-anywhere
-  :quelpa (imenu-anywhere :fetcher github :repo "vspinu/imenu-anywhere")
-  :bind* (("C-c i" . ivy-imenu-anywhere))
-  )
 
 (use-package indent-tools :ensure t
   :bind (("C-c C-i" . indent-tools-hydra/body)))
@@ -1365,43 +1461,9 @@ abort completely with `C-g'."
                      bef aft (if p "loc" "glob")))
         (user-error "No typo at or before point")))))
 
-(use-package swiper
-  :bind* ("s-s" . swiper))
-
 (use-package ivy
-  :quelpa (ivy :fetcher github :repo "abo-abo/swiper")
-  :diminish (ivy-mode . "")
-  :commands (ivy-switch-buffer
-             ivy-switch-buffer-other-window)
-  :config
-  (ivy-mode 1)
+  :ensure t :defer t)
 
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-height 10)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-initial-inputs-alist nil)
-  ;; from https://github.com/company-mode/company-statistics
-  ;; ignore buffers in the ignore buffer list.
-  (setq ivy-use-ignore-default 'always)
-  (setq ivy-ignore-buffers '("company-statistics-cache.el" "company-statistics-autoload.el"))
-  ;; if ivy-flip is t, presents results on top of query.
-  (setq ivy-flip t)
-  (setq ivy-overlay-at nil)
-  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
-
-(use-package ivy-bibtex :ensure t
-  :bind ("C-x M-b" . ivy-bibtex)
-  :config
-  (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
-  (setq bibtex-completion-library-path '("~/zotero_bib/"))
-  (setq bibtex-completion-pdf-field "file")
-  (setq bibtex-completion-pdf-symbol "⌘")
-  (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
-  (setq bibtex-completion-format-citation-functions
-        '((org-mode      . bibtex-completion-format-citation-pandoc-citeproc)
-          (latex-mode    . bibtex-completion-format-citation-cite)
-          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-          (default       . bibtex-completion-format-citation-default))))
 
 ;;;; L
 
@@ -1490,11 +1552,8 @@ abort completely with `C-g'."
    lorem-ipsum-insert-sentences
    lorem-ipsum-insert-paragraphs))
 
-(use-package lua-mode :ensure t
-  :defer t)
-
-
 ;;;; M
+
 (use-package magit
   :quelpa (magit :fetcher github :repo "magit/magit")
   :commands (magit-blame
@@ -1522,7 +1581,7 @@ abort completely with `C-g'."
 
   (general-define-key
    :keymaps 'magit-mode-map
-    "'" #'eshell-here)
+   "'" #'eshell-here)
 
   (use-package magit-popup :ensure t)
   (use-package git-commit :ensure t :defer t)
@@ -1536,17 +1595,16 @@ abort completely with `C-g'."
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
-  (setq magit-completing-read-function 'ivy-completing-read))
+  (setq magit-completing-read-function 'helm--completing-read-default))
 
 (use-package makefile-mode :defer t
   :init
-  ;; (add-hook 'makefile-mode-hook 'makefile-gmake-mode)
   (add-hook 'makefile-bsdmake-mode-hook #'makefile-gmake-mode))
 
 (use-package markdown-mode :ensure t
   :mode (("\\.md\\'" . markdown-mode))
   :config
-  (add-hook 'markdown-mode-hook (lambda () (auto-fill-mode 0)))
+  (setq markdown-footnote-location 'immediately)
 
   (defhydra hydra-markdown (:hint nil)
     "
@@ -1590,18 +1648,18 @@ undo               _u_: undo
   (general-define-key
    :keymaps 'markdown-mode-map
    :prefix "C-,"
-    "," 'hydra-markdown/body
-    "=" 'markdown-promote
-    "°" 'markdown-promote-subtree
-    "-" 'markdown-demote
-    "8" 'markdown-demote-subtree
-    "o" 'markdown-follow-thing-at-point
-    "j" 'markdown-jump
-    "»" 'markdown-indent-region
-    "«" 'markdown-exdent-region
-    "gc" 'markdown-forward-same-level
-    "gr" 'markdown-backward-same-level
-    "gs" 'markdown-up-heading)
+   "," 'hydra-markdown/body
+   "=" 'markdown-promote
+   "°" 'markdown-promote-subtree
+   "-" 'markdown-demote
+   "8" 'markdown-demote-subtree
+   "o" 'markdown-follow-thing-at-point
+   "j" 'markdown-jump
+   "»" 'markdown-indent-region
+   "«" 'markdown-exdent-region
+   "gc" 'markdown-forward-same-level
+   "gr" 'markdown-backward-same-level
+   "gs" 'markdown-up-heading)
 
   (which-key-add-major-mode-key-based-replacements 'markdown-mode
     "C-c C-a" "insert"
@@ -1667,7 +1725,7 @@ undo               _u_: undo
 
   ;; use mu4e as emacs default mail program
   (setq mail-user-agent 'mu4e-user-agent)
-
+  (setq mu4e-attachment-dir "~/Downloads/")
   (setq mu4e-maildir (expand-file-name "~/Maildir/")
         mu4e-drafts-folder "/drafts"
         mu4e-sent-folder "/sent"
@@ -1738,11 +1796,19 @@ undo               _u_: undo
   (setq gnus-dired-mail-mode 'mu4e-user-agent)
   (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
 
+  ;; compose email in org-mode, send with mu4e.
+  (require 'org-mu4e)
+  (add-hook 'mu4e-compose-mode-hook #'org-mu4e-compose-org-mode)
+  (setq org-export-with-toc nil)
+  (setq org-mu4e-convert-to-html t)
+
   ;; keybindings
   (bind-keys
    :map mu4e-main-mode-map
    ("n" . next-line)
    ("p" . previous-line)
+   :map mu4e-compose-mode-map
+   ("M-q" . nil)
    :map mu4e-headers-mode-map
    ("s-c" . mu4e-headers-query-prev)
    ("s-r" . mu4e-headers-query-next))
@@ -1757,6 +1823,17 @@ undo               _u_: undo
     ("u" mu4e-update-mail-and-index "update" :color red)
     ("s" mu4e-headers-search "search")))
 
+(use-package multi-term :ensure t
+  :commands (multi-term
+             multi-term-next
+             multi-term-prev
+             multi-term-dedicated-open
+             multi-term-dedicated-close
+             multi-term-dedicated-select
+             multi-term-dedicated-toggle)
+  :init
+  (setq multi-term-program "/usr/local/bin/bash"))
+
 
 ;;;; N
 
@@ -1764,17 +1841,20 @@ undo               _u_: undo
   :commands (global-nlinum-mode
              nlinum-mode)
   :init
-  (defun sam--fix-linum-size ()
-    "Fixe la taille de charactère dans linum mode"
-    (interactive)
-    (set-face-attribute 'linum nil :height 100 :foreground "#93a1a1"))
-  (add-hook 'nlinum-mode-hook 'sam--fix-linum-size))
+  (global-nlinum-mode t)
+  :config
+  (setq nlinum-highlight-current-line t))
 
-(use-package nlinum-relative :ensure t
-  :disabled t
-  :commands (nlinum-relative-mode -1)
-  :init
-  (add-hook 'prog-mode-hook 'nlinum-relative-mode))
+(use-package nov :ensure t
+  :mode ("\\.epub\\'" . nov-mode)
+  :config
+  (defun my-nov-font-setup ()
+    (face-remap-add-relative
+     'variable-pitch
+     :family "Input Sans Narrow"
+     :height 1.0))
+  (add-hook 'nov-mode-hook 'my-nov-font-setup)
+  (setq nov-text-width 80))
 
 ;;;; O
 
@@ -1784,17 +1864,14 @@ undo               _u_: undo
   :config
   (osx-clipboard-mode +1))
 
-(use-package navi-mode
-  :ensure t
-  :commands (navi-mode))
-
-(use-package outorg
-  :ensure t
-  :defer t)
-
-(use-package outshine
-  :ensure t
-  :commands (outshine-hook-function))
+(use-package openwith :ensure t
+  :config
+  (openwith-mode -1)
+  (setq openwith-associations
+        '(("\\.xlsx\\'" "open -a Microsoft\\ Excel" (file))
+          ("\\.xls\\'" "open -a Microsoft\\ Excel" (file))
+          ("\\.doc\\'" "open -a Microsoft\\ Word" (file))
+          ("\\.docx\\'" "open -a Microsoft\\ Word" (file)))))
 
 (use-package outline
   :bind (("H-<tab>" . hydra-outline/body))
@@ -1806,18 +1883,22 @@ undo               _u_: undo
             "M-s-r" 'outline-next-heading)
   :diminish ((outline-minor-mode . "")
              (outline-mode . ""))
-  :init
-  (setq-default outline-minor-mode-prefix (kbd "s-*"))
 
+  :config
+  (use-package navi-mode :ensure t)
+  (use-package outorg :ensure t)
+  (use-package outshine :ensure t)
   (add-hook 'prog-mode-hook #'outline-minor-mode)
   (add-hook 'outline-minor-mode-hook #'outshine-hook-function)
-  :config
-  (outline-minor-mode)
+
+  ;; (setq outshine-regexp-base-char "*\\|#")
+  (setq-default outline-minor-mode-prefix (kbd "s-*"))
 
   (defun outline-narrow-to-subtree ()
     (interactive)
     (outline-mark-subtree)
-    (narrow-to-region (region-beginning) (region-end)))
+    (narrow-to-region (region-beginning) (region-end))
+    (deactivate-mark))
 
   (defun outline-indent-subtree ()
     (interactive)
@@ -1825,21 +1906,10 @@ undo               _u_: undo
       (outline-mark-subtree)
       (indent-region (region-beginning) (region-end))
       (message nil)))
+
   (bind-key* "C-M-i" #'outshine-cycle-buffer)
   (bind-key "C-c @ n" 'outline-narrow-to-subtree)
   (bind-key "C-c @ i" 'outline-indent-subtree)
-
-  (add-hook 'outline-minor-mode-hook
-            (lambda ()
-              (add-to-list 'hjkl-bindings
-                           '(:keymap outline-minor-mode-map
-                             :bind (:up    ((outline-regexp #'outline-previous-heading))
-                                    :down  ((outline-regexp #'outline-next-heading))
-                                    :left  ((outline-regexp #'outline-hide-leaves))
-                                    :right ((outline-regexp #'outline-show-subtree))))
-                           t)
-              (hjkl-update-keys)))
-
 
   (defhydra hydra-outline
     (:hint nil :body-pre (outline-minor-mode 1))
@@ -1907,7 +1977,10 @@ _r_: show    _R_: show  ^   ^          _M-s_: move up
 
    (defun pdf-view-open-in-external-app ()
      (interactive)
-     (shell-command (format "open -a Preview %s" (buffer-file-name))))
+     (shell-command
+      (format
+       "open -a Preview %s"
+       (shell-quote-argument (buffer-file-name)))))
 
    (defun pdf-view-finder ()
      (interactive)
@@ -1950,7 +2023,7 @@ _d_: delete buffer _O_: open extern"
      ("C" . pdf-view-first-page)
      ("R" . pdf-view-last-page)))
 
- (use-package cperl
+(use-package cperl
    :mode ("\\.pl\\'". cperl-mode)
    :defines (cperl-eldoc-documentation-function)
    :init
@@ -2003,59 +2076,6 @@ _d_: delete buffer _O_: open extern"
    (sp-local-pair 'perl-mode "\"\"" nil
                   :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
-(use-package persp-mode
- :quelpa (persp-mode :fetcher github :repo "Bad-ptr/persp-mode.el")
- :diminish (persp-mode . "")
- :commands (persp-mode
-            persp-next
-            persp-prev
-            pers-switch)
- :config
-
- (setq wg-morph-on nil)                ; switch off animation ?
- (setq persp-autokill-buffer-on-remove 'kill-weak)
- (setq persp-nil-name "nil")
-
- (defhydra hydra-persp (:hint nil :color blue)
-   "
-^Nav^        ^Buffer^      ^Window^     ^Manage^      ^Save/load^
-^---^        ^------^      ^------^     ^------^      ^---------^
-_n_: next    _a_: add      ^ ^          _r_: rename   _w_: save
-_p_: prev    _b_: → to     ^ ^          _c_: copy     _W_: save subset
-_s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
-^ ^          ^ ^           ^ ^          ^ ^           _L_: load subset
-"
-   ("n" persp-next :color red)
-   ("p" persp-prev :color red)
-   ("s" persp-switch)
-   ("S" persp-window-switch)
-   ("r" persp-rename)
-   ("c" persp-copy)
-   ("C" persp-kill)
-   ("a" persp-add-buffer)
-   ("b" persp-switch-to-buffer)
-   ("i" persp-import-buffers-from)
-   ("I" persp-import-win-conf)
-   ("o" persp-mode)
-   ("w" persp-save-state-to-file)
-   ("W" persp-save-to-file-by-names)
-   ("l" persp-load-state-from-file)
-   ("L" persp-load-from-file-by-names)
-   ("q" nil "quit"))
-
- (bind-key* "H-P" 'persp-prev)
- (bind-key* "H-N" 'persp-next))
-
-(use-package shell-pop :ensure t
-  :bind* (("s-'" . shell-pop))
-  :config
-  (setq shell-pop-default-directory nil
-        shell-pop-shell-type '("eshell" "*eshell*" (lambda nil (eshell)))
-        shell-pop-term-shell "/usr/local/bin/bash"
-        shell-pop-window-height 20
-        shell-pop-full-span t
-        shell-pop-window-position "bottom"))
-
 (use-package pretty-mode :ensure t
   :disabled t
   :commands turn-on-pretty-mode
@@ -2065,12 +2085,16 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package prog-mode
   :config
   (defun highlight-todos ()
-    (font-lock-add-keywords nil '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t))))
+    (font-lock-add-keywords
+     nil
+     '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t)
+       ("\\<\\(FIXED\\|DONE\\|DEBUGGED\\):" 1 font-lock-string-face t))))
   (add-hook 'prog-mode-hook 'highlight-todos)
   (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
   :diminish (projectile-mode . "Ⓟ")
+  :bind* (("s-p" . projectile-switch-project))
   :commands (projectile-mode)
   :config
   (projectile-global-mode 1)
@@ -2080,14 +2104,16 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     :config
     (org-projectile-per-project)
     (setq org-projectile-per-project-filepath "RoadMap.org")
-    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-    (push (org-projectile-project-todo-entry) org-capture-templates))
+
+
+    (let ((opaf (remove-if-not #'file-exists-p (org-projectile-todo-files))))
+      (setq org-agenda-files (append org-agenda-files opaf)))
+    (push (org-projectile-project-todo-entry) org-capture-templates)
+    (bind-key* "C-c n p" #'org-projectile-project-todo-completing-read))
 
   (setq projectile-switch-project-action 'projectile-dired)
-  (setq projectile-completion-system 'ivy)
+  (setq projectile-completion-system 'helm)
   (add-to-list 'projectile-globally-ignored-files ".DS_Store"))
-
-
 
 (use-package python
   :ensure python-mode
@@ -2124,16 +2150,73 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 (use-package rg :ensure t
   :commands (rg))
 
-(use-package rtf-mode
-  :quelpa (rtf-mode :fetcher wiki))
-
 ;;;; S
-(use-package scss-mode :ensure t
-  :mode ("\\.scss\\'" . scss-mode))
+
+(use-package selected
+  :diminish (selected-minor-mode . "")
+  :ensure t
+  :commands (selected-minor-mode
+             selected-global-mode)
+  :bind (:map selected-keymap
+         ("a" . align-regexp)
+         ("q" . selected-off)
+         ("s" . sort-lines)
+         ("u" . upcase-region)
+         ("d" . downcase-region)
+         ("w" . count-words-region)
+         ("m" . apply-macro-to-region-lines))
+  :init
+  (selected-global-mode)
+  :config
+  (selected-global-mode))
+
+(use-package shackle
+  :config
+  (shackle-mode t)
+
+  (setq helm-display-function 'pop-to-buffer)
+
+  (setq shackle-rules
+        '((calendar-mode :select t :align below :size 0.25)
+          (help-mode :select t :align right :size 0.5)
+          (compilation-mode :select t :align right :size 0.5)
+          (navi-mode :select t :align left :size 0.1)
+          ("*Org Select*" :select t :align below :size 0.33)
+          ("*Org Note*" :select t :align below :size 0.33)
+          ("*Org Links*" :select t :align below :size 0.2)
+          ("*Org todo*" :select t :align below :size 0.2)
+          ("\\`\\*e?shell" :select t :align below :size 0.3 :regexp t)
+          ("*eshell.*" :select t :align below :size 0.5)
+          ("*Man.*" :select t :align below :size 0.5 :regexp t)
+          ("*Org Src.*" :select t :align below :size 0.5 :regexp t))))
 
 (use-package shell
+  :bind ("s-'" . shell-dwim)
   :config
-  (setq explicit-shell-file-name "/usr/local/bin/bash"))
+  (setq explicit-shell-file-name "/usr/local/bin/bash")
+  (defun shell-dwim ()
+    "Opens a shell buffer in directory associated with current
+buffer.
+
+If the current buffer is already a shell buffer, it closes the
+window or do nothing if shell is the sole current window in
+frame.
+"
+
+    (interactive)
+    (if (string-equal major-mode "shell-mode")
+        (ignore-errors (delete-window))
+      (let* ((cwd default-directory)
+             (buf (concat "*shell " (file-name-base default-directory) "*"))
+             (proper-cwd (shell-quote-argument (expand-file-name cwd))))
+        (shell buf)
+        (with-current-buffer buf
+          (goto-char (point-max))
+          (comint-kill-input)
+          (insert (concat "cd " proper-cwd))
+          (let ((comint-process-echoes t))
+            (comint-send-input))
+          (recenter 0))))))
 
 (use-package sh-script :defer t
   :mode
@@ -2218,6 +2301,8 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
   :config
   ;; Only use smartparens in web-mode
+  (sp-local-pair 'text-mode " — " " — ")
+  (sp-local-pair 'text-mode "« " " »")
   (sp-local-pair 'markdown-mode "_" "_")
   (sp-local-pair 'markdown-mode "**" "**")
   (sp-local-pair 'markdown-mode "`" "`")
@@ -2291,9 +2376,6 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     (forward-line -1)
     (indent-according-to-mode)))
 
-(use-package smex
-  :quelpa (smex :fetcher github :repo "abo-abo/smex"))
-
 (use-package smooth-scrolling :ensure t
   :config
   (smooth-scrolling-mode)
@@ -2309,8 +2391,7 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
 
   (defhydra hydra-string-inflection
     (:color pink
-     :columns 3
-     :pre (iedit-mode))
+     :columns 3)
     "STRING INFLECTION"
     ("t" string-inflection-toggle  "toggle")
     ("l" string-inflection-lower-camelcase "lower-camelcase")
@@ -2325,100 +2406,53 @@ _s_: → to    _i_: import   _S_: → to    _C_: kill     _l_: load
     ("q" nil "quit" :color blue)))
 
 (use-package subword :defer t
+  :diminish ""
   :init
-  (add-hook 'prog-mode-hook (lambda () (subword-mode 1)))
-  :diminish "")
+  (add-hook 'prog-mode-hook (lambda () (subword-mode 1))))
+
+(use-package swiper :ensure t
+  :bind* ("M-s" . swiper))
+
+(use-package system-packages :ensure t
+  :commands (system-packages-install
+             system-packages-search))
 
 ;;;; T
-
-(use-package term
-  :config
-  (defun terminal ()
-    "switch to terminal, launch if non-existent."
-    (interactive)
-    (let ((buf "*eshell*"))
-      (if (get-buffer buf)
-          (switch-to-buffer buf)
-        (eshell-here )))
-    (get-buffer-process "*ansi-term*"))
-  (defalias 'tt 'terminal)
-
-  (defun dired-open-term ()
-    (interactive)
-    (let ((current-dir (dired-current-directory)))
-      (term-send-string
-       (terminal)
-       (if (file-remote-p current-dir)
-           (let ((v (tramp-dissect-file-name current-dir t)))
-             (format "ssh %s@%s\n" (aref v 1) (aref v 2)))
-         (format "cd '%s'\n" current-dir))))))
 
 (use-package terminal-here :ensure t
   :bind (("H-'" . terminal-here-launch)))
 
-(use-package tex
+(use-package tex-site
   :ensure auctex
-  :commands init-auctex
-  :defines init-auctex
-  :mode (("\\.tex\\'" . LaTeX-mode))
-  :init
-  (add-hook 'LaTeX-mode-hook #'outline-minor-mode)
-  (add-hook 'LaTeX-mode-hook #'init-auctex)
-  (add-hook 'LaTeX-mode-hook 'latex-auto-fill-mode)
-  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-  (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+  :commands (TeX-tex-mode)
+  :mode (("\\.tex\\'" . TeX-tex-mode)
+         ("\\.cls\\'" . TeX-tex-mode))
   :config
-  (defun init-auctex ()
-    "Toggle loading of auctex. Use it when there is needs for
-auctex in the editing session. Otherwise emacs falls back to the
-integrated Tex-mode. "
-    (interactive)
-    (require 'latex)
-    (require 'tex)
-    (load-file "~/dotfile/emacs/latex-config.el")
-    (message "Auctex loaded")))
-
-(use-package textpy
-  :disabled t
-  :load-path "~/.emacs.d/private/textpy"
-  :diminish "☉"
-  :init
-  (add-hook 'text-mode-hook (lambda () (textpy-minor-mode 1)))
-  :commands
-  (textpy-minor-mode)
-  :config
-  (general-define-key
-   :keymaps 'text-mode-map
-    "A" 'textpy-avy-sentence
-    "a" 'textpy-avy-jump
-    "b" 'textpy-backward-sentence
-    "c" 'textpy-correct
-    "d" 'textpy-delete-buffer
-    "f" 'textpy-forward-sentence
-    "q" 'textpy-fill-paragraph
-    "s" 'textpy-save
-    "v" 'textpy-git
-    "/" 'textpy-search))
+  (load-file "~/dotfile/emacs/latex-config.el"))
 
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
 
+(use-package tramp
+  :init
+  (setq tramp-default-method "ssh"))
+
 ;;;; U
 
-(use-package undo-tree :ensure t
+(use-package undo-tree
   :diminish undo-tree-mode
   :bind* (("C-x u" . undo-tree-visualize)
           ("C-z" . undo-tree-undo)
           ("C-S-z" . undo-tree-redo))
   :config
+  (global-undo-tree-mode)
   (general-define-key
    :keymaps 'undo-tree-visualizer-mode-map
-    "RET" 'undo-tree-visualizer-quit
-    "t" 'undo-tree-visualize-redo
-    "s" 'undo-tree-visualize-undo
-    "c" 'undo-tree-visualize-switch-branch-left
-    "r" 'undo-tree-visualize-switch-branch-right))
+   "RET" 'undo-tree-visualizer-quit
+   "t" 'undo-tree-visualize-redo
+   "s" 'undo-tree-visualize-undo
+   "c" 'undo-tree-visualize-switch-branch-left
+   "r" 'undo-tree-visualize-switch-branch-right))
 
 ;;;; V
 
@@ -2532,21 +2566,20 @@ integrated Tex-mode. "
   :config
   (setq zoom-frame/buffer 'buffer))
 
-(use-package spaceline :ensure t
-  :config
-  (setq powerline-default-separator 'arrow)
-  (require 'spaceline-config)
-  (spaceline-spacemacs-theme)
-  (spaceline-helm-mode))
-
 ;;; personal functions
+
 (load-file "~/dotfile/emacs/functions.el")
+
 ;;; org
+
 (load-file "~/dotfile/emacs/org.el")
-;; ---------- keybindings -------------------------------------------------
+
+;;; bind-key* "C-x x"  keybindings
+
 (load-file "~/dotfile/emacs/keybindings.el")
 
 ;;; custom
+
 (setq custom-file "~/.emacs.d/emacs-custom.el")
 (load custom-file)
 (put 'erase-buffer 'disabled nil)

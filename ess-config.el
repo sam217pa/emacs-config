@@ -19,17 +19,13 @@
 
 ;;; * Code
 
-(use-package ess-R-data-view :ensure t
-  :bind* (:map ess-mode-map
-          ("C-c d" . ess-R-dv-ctable)
-          ("C-c v" . ess-R-dv-pprint)))
-
-(use-package ctable :ensure t)
-
 ;; ---------- defaults ----------------------------------------------------
-(setq ess-completing-read 'ivy-completing-read)
+(setq ess-swv-plug-into-AUCTeX-p t)
 (setq ess-eval-visibly 'nowait)
 (setq ess-roxy-insert-prefix-on-newline t)
+(setq ess-eldoc-show-on-symbol t)
+;; ess should use default completing-read, either ivy or helm.
+(setq ess-use-ido nil)
 
 (setq ess-R-font-lock-keywords
       '((ess-R-fl-keyword:modifiers . t)
@@ -45,7 +41,6 @@
         (ess-R-fl-keyword:F&T . t)
         (ess-R-fl-keyword:%op% . t)))
 
-
 (ess-toggle-underscore nil)
 
 (sp-local-pair 'ess-mode "%" "%")
@@ -57,9 +52,6 @@
                :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
 (sp-local-pair 'ess-mode "(" nil
                :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-;; usually i wanna type something in it, but not always.
-(sp-local-pair 'ess-mode "(" ")")
-
 
 ;; ---------- function definition -----------------------------------------
 (defun lesspy-backward-slurp ()
@@ -88,12 +80,6 @@
   (interactive)
   (insert "%>% "))
 
-;; ---------- font lock ---------------------------------------------------
-(font-lock-add-keywords
- 'ess-mode
- '(("^#' #.+$" . font-lock-warning-face)))
-
-
 ;; ---------- keybindings -------------------------------------------------
 
 (general-define-key
@@ -107,7 +93,7 @@
   " " 'ess-insert-S-assign               ; shift space
   (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
   (general-chord ",,") 'hydra-ess/body
-  (general-chord ",l") 'ess-eval-line
+  (general-chord ",l") 'lesspy-eval-line
   (general-chord ",r") 'ess-eval-region-or-line-and-step
   (general-chord ",t") 'ess-eval-function-or-paragraph)
 
