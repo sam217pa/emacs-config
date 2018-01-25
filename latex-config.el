@@ -32,8 +32,6 @@
   :config
   (auctex-latexmk-setup))
 
-(load "preview-latex.el" nil t t)
-
 (defvar latex-nofill-env '("equation" "equation*" "align" "align*" "tabular" "tikzpicture")
   "List of environment names in which `auto-fill-mode' will be inhibited.")
 
@@ -70,7 +68,7 @@
  LaTeX-fill-break-at-separators nil     ; Don't insert line-break at inline math
  )
 
-(setq-default LaTeX-item-indent 0)
+(setq-default LaTeX-item-indent 2)
 
 (setq-default
  TeX-engine 'default
@@ -94,16 +92,25 @@
 (defun latex/font-oblique () (interactive) (TeX-font nil ?\C-s))
 (defun latex/font-upright () (interactive) (TeX-font nil ?\C-u))
 
-(defun TeX-newline-and-indent-region ()
-  (interactive)
-  (TeX-newline)
-  (outline-indent-subtree)
-  (indent-according-to-mode))
+(defun latex--insecable (arg)
+  (insert (concat "~" arg)))
 
-(global-set-key [remap TeX-newline] #'TeX-newline-and-indent-region)
+(defun latex-insecable-colon ()
+  "Replace simple colon `:' by its insecable space counterpart,
+common in french `~:'"
+  (interactive)
+  (latex--insecable ":"))
+
+(defun latex-insecable-semicolon ()
+  "Replace simple semicolon `;' by its insecable space counterpart,
+common in french `~;'"
+  (interactive)
+  (latex--insecable ";"))
 
 (general-define-key
  :keymaps 'LaTeX-mode-map
+ ":" 'latex-insecable-colon
+  ";" 'latex-insecable-semicolon
  "C-," 'hydra-latex/body
  "M-q" 'fill-paragraph
  "M-s-q" 'hydra-latex-fill/body)

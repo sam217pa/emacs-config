@@ -171,7 +171,6 @@
 
 (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
 (global-set-key [remap kill-line] (bol-with-prefix kill-line))
-(global-set-key [remap fill-paragraph] #'sam/fill-or-unfill)
 (global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
 (global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
 (global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
@@ -180,7 +179,6 @@
 (global-set-key (kbd "<f6>") 'elfeed)
 (global-set-key (kbd "<f7>") 'org-capture)
 (global-set-key (kbd "<f8>") 'org-agenda)
-
 
 ;;; * HYDRA
 

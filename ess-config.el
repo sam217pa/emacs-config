@@ -19,23 +19,8 @@
 
 ;;; * Code
 
-(use-package polymode :ensure t
-  :mode
-  (("\\.Rmd\\'" . poly-markdown+r-mode)))
-
-(projectile-mode)
-
-(use-package ess-R-data-view :ensure t
-  :bind* (:map ess-mode-map
-          ("C-c d" . ess-R-dv-ctable)
-          ("C-c v" . ess-R-dv-pprint))
-  )
-
-(use-package ctable :ensure t)
-
-(setq ess-swv-plug-into-AUCTeX-p t)
-
 ;; ---------- defaults ----------------------------------------------------
+(setq ess-swv-plug-into-AUCTeX-p t)
 (setq ess-eval-visibly 'nowait)
 (setq ess-roxy-insert-prefix-on-newline t)
 (setq ess-eldoc-show-on-symbol t)
@@ -56,7 +41,6 @@
         (ess-R-fl-keyword:F&T . t)
         (ess-R-fl-keyword:%op% . t)))
 
-
 (ess-toggle-underscore nil)
 
 (sp-local-pair 'ess-mode "%" "%")
@@ -68,9 +52,6 @@
                :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
 (sp-local-pair 'ess-mode "(" nil
                :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-;; usually i wanna type something in it, but not always.
-(sp-local-pair 'ess-mode "(" ")")
-
 
 ;; ---------- function definition -----------------------------------------
 (defun lesspy-backward-slurp ()
@@ -98,12 +79,6 @@
 (defun ess-insert-pipe ()
   (interactive)
   (insert "%>% "))
-
-;; ---------- font lock ---------------------------------------------------
-(font-lock-add-keywords
- 'ess-mode
- '(("^#' #.+$" . font-lock-warning-face)))
-
 
 ;; ---------- keybindings -------------------------------------------------
 

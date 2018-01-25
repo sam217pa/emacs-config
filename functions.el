@@ -190,16 +190,18 @@ pointing to the Hugo localhost server."
           ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
            (format-time-string "%z"))))
 
-;;;
-;; a redefinition of lisp-indent-function to make it respect sexp that start with a keyword
+
+;;;; correct indentation with keywords
+;;
+;; A redefinition of lisp-indent-function to make it respect sexp that start with a keyword
 ;; (:keymap patate
 ;;          pamplemousse)
-;; is the default behavior
+;; is the default behavior while
 ;; (:keymap patate
 ;;  pamplemousse)
 ;; is the expected behavior
-;; https://github.com/Fuco1/.emacs.d/blob/af82072196564fa57726bdbabf97f1d35c43b7f7/site-lisp/redef.el#L20-L94
-;;;
+;; see (https://github.com/Fuco1/.emacs.d/blob/af82072196564fa57726bdbabf97f1d35c43b7f7/site-lisp/redef.el#L20-L94)
+
 (defun Fuco1/lisp-indent-function (indent-point state)
   "This function is the normal value of the variable `lisp-indent-function'.
 The function `calculate-lisp-indent' calls this to determine
@@ -303,24 +305,6 @@ Lisp function does not specify a special indentation."
   (let ((newbuf (generate-new-buffer-name "*Untitled*")))
     (switch-to-buffer newbuf)))
 
-
-;; (defun use-package-jump ()
-;;   "Jump to an outer-level `use-package' definition in current buffer."
-;;   (interactive)
-;;   (let ((packages))
-;;     (save-excursion
-;;       (goto-char (point-max))
-;;       (while (beginning-of-defun)
-;;         (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
-;;           (when (string-match "^(use-package \\([^[:space:]\n]+\\)"
-;;                               line)
-;;             (push (cons (match-string-no-properties 1 line)
-;;                         (point))
-;;                   packages)))))
-;;     packages
-;;     ;; (goto-char (cdr (assoc (helm :sources packages)
-;;     ;;                        packages)))
-;;     ))
 
 ;; adapted from
 ;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers
@@ -490,6 +474,8 @@ is already narrowed."
                 (delete-other-windows))
                ((ignore-errors (org-narrow-to-block) t))
                (t (org-narrow-to-subtree))))
+        ((looking-at outline-regexp)
+         (ignore-errors (outline-narrow-to-subtree)))
         ((derived-mode-p 'latex-mode)
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
@@ -554,10 +540,6 @@ prefix argument."
                     (point-max))
            fill-column)))
     (call-interactively #'fill-paragraph)))
-
-;; (defun sam/end-of-line (arg)
-;;   (interactive "P")
-;;   (let* ((argp (and arg (= 4 (prefix-numeric-value arg)))))))
 
 ;; from  http://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
 (defun smarter-move-beginning-of-line (arg)
@@ -741,3 +723,60 @@ as input."
               :caller 'counsel-tldr)))
 
 (custom-set-variables '(epg-gpg-program  "gpg2"))
+
+;;;; use-package jump
+
+(defun helm--list-use-package-calls ()
+  (let ((packages))
+    (save-excursion
+      (goto-char (point-max))
+      (while (beginning-of-defun)
+        (let ((line (buffer-substring (line-beginning-position) (line-end-position))))
+          (when (string-match "^(use-package \\([^[:space:]\n]+\\)" line)
+            (push (cons (match-string-no-properties 1 line) (point))
+                  packages)))))
+    packages))
+
+(defun helm--goto-use-package-call (candidate)
+  (push-mark)
+  (goto-char candidate))
+
+(defun helm-use-package-jump ()
+  "Jump to an outer-level `use-package' definition in current buffer."
+  (interactive)
+  (helm
+   :sources (helm-build-sync-source "Packages"
+              :candidates (helm--list-use-package-calls)
+              :fuzzy-match t
+              :action (helm-make-actions
+                       "Go to use-package call" #'helm--goto-use-package-call))
+   :buffer "*helm upj*"))
+
+;;;; Hidden mode line mode
+
+(defvar-local hidden-mode-line-mode nil)
+
+(define-minor-mode hidden-mode-line-mode
+  "Minor mode to hide the mode-line in the current buffer."
+  :init-value nil
+  :global t
+  :variable hidden-mode-line-mode
+  :group 'editing-basics
+  (if hidden-mode-line-mode
+      (setq hide-mode-line mode-line-format
+            mode-line-format nil)
+    (setq mode-line-format hide-mode-line
+          hide-mode-line nil))
+  (force-mode-line-update)
+  ;; Apparently force-mode-line-update is not always enough to
+  ;; redisplay the mode-line
+  (redraw-display)
+  (when (and (called-interactively-p 'interactive)
+             hidden-mode-line-mode)
+    (run-with-idle-timer
+     0 nil 'message
+     (concat "Hidden Mode Line Mode enabled.  "
+             "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
+
+;; If you want to hide the mode-line in every buffer by default
+;; (add-hook 'after-change-major-mode-hook 'hidden-mode-line-mode)
