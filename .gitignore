@@ -4,3 +4,4 @@ emacs.d/
 *.elc
 /eshell/history
 /eshell/lastdir
+/ID
