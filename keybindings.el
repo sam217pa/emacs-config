@@ -218,26 +218,6 @@
    "s" 'compilation-previous-error
    "r" 'compile-goto-error))
 
-;;; * Which-key
-
-;; key description for C-x
-(which-key-add-key-based-replacements
-  "C-x RET" "coding system -input"
-  "C-x 4"   "Other Window"
-  "C-x 5"   "Frame"
-  "C-x 6"   "2C"
-  "C-x @"   "event"
-  "C-x 8"   "special char"
-  "C-x a"   "abbrev"
-  "C-x n"   "narrow"
-  "C-x r"   "rectangle"
-  "C-x v"   "version control"
-  "C-c &"   "yas"
-  "C-c @"   "hide-show"
-  "M-SPC h" "info"
-  "M-SPC g" "grep"
-  "M-SPC M-s" "occur")
-
 ;;; * Global
 
 (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))

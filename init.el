@@ -108,12 +108,14 @@
   "Font for text")
 
 ;;; apparences
+
+(tooltip-mode -1)      ; don't know what that is
+(tool-bar-mode -1)     ; sans barre d'outil
+(menu-bar-mode -1)     ; barre de menu
+(scroll-bar-mode -1)   ; enlève la barre de défilement
+(blink-cursor-mode -1) ; pas de clignotement
+
 (when window-system
-  (tooltip-mode -1)                    ; don't know what that is
-  (tool-bar-mode -1)                   ; sans barre d'outil
-  (menu-bar-mode -1)                   ; barre de menu
-  (scroll-bar-mode -1)                 ; enlève la barre de défilement
-  (blink-cursor-mode -1)               ; pas de clignotement
   (set-frame-size (selected-frame) 85 61)
   (add-to-list 'default-frame-alist '(height . 46))
   (add-to-list 'default-frame-alist '(width . 85))
@@ -122,24 +124,7 @@
 
   ;; change default font for current frame
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
-  (set-face-attribute 'default nil :font my-font-for-light)
-
-  (defun simple-mode-line-render (left right)
-    "Return a string of `window-width' length containing LEFT, and RIGHT
- aligned respectively."
-    (let* ((available-width (- (window-width) (length left) 2)))
-      (format (format " %%s %%%ds " available-width) left right)))
-
-  ;; use the function in conjunction with :eval and format-mode-line in
-  ;; your mode-line-format
-  (setq-default mode-line-format
-                '((:eval (simple-mode-line-render
-                          ;; left
-                          (format-mode-line "%*%* %b       [%m]")
-                          ;; right
-                          (concat (format-mode-line "%l")
-                                  (when (bound-and-true-p eyebrowse-mode)
-                                    (concat " " (eyebrowse-mode-line-indicator)))))))))
+  (set-face-attribute 'default nil :font my-font-for-light))
 
 ;;; keybindings
 
@@ -147,13 +132,13 @@
   (setq mac-right-command-modifier 'meta ; cmd de droite = meta
         mac-command-modifier 'control    ; cmd de gauche = control
         mac-option-modifier 'super       ; option de gauche = super
-        mac-right-option-modifier nil ; option de droite = carac spéciaux
-        mac-control-modifier 'hyper ; control de gauche = hyper (so does capslock)
-        ns-function-modifier 'hyper ; fn key = hyper
+        mac-right-option-modifier nil    ; option de droite = carac spéciaux
+        mac-control-modifier 'hyper      ; control de gauche = hyper (so does capslock)
+        ns-function-modifier 'hyper      ; fn key = hyper
         ns-right-alternate-modifier nil) ; cette touche n'existe pas.
-  (setq mac-pass-command-to-system nil) ; disable system call to commands like
-                                        ; C-h (hide frame on macOS by default
-  (setq mac-pass-control-to-system nil) ; idem
+  (setq mac-pass-command-to-system nil)  ; disable system call to commands like
+                                         ; C-h (hide frame on macOS by default
+  (setq mac-pass-control-to-system nil)  ; idem
   (setq-default locate-command "mdfind")
 
 
@@ -162,13 +147,9 @@
   (defun system-move-file-to-trash (file)
     "Use \"trash\" to move FILE to the system trash.
 When using Homebrew, install it using \"brew install trash\"."
-    (call-process (executable-find "trash") nil nil nil file))
-  ;; (mac-auto-operator-composition-mode t)
-  ) ; enable ligatures
-
+    (call-process (executable-find "trash") nil nil nil file)))
 
 ;;; Packages
-
 
 ;;;; A
 
@@ -183,8 +164,7 @@ When using Homebrew, install it using \"brew install trash\"."
   (setq-default abbrev-mode t))
 
 (use-package ace-window :ensure t
-  :commands
-  ace-window
+  :commands (ace-window)
   :config
   (setq aw-keys '(?t ?s ?r ?n ?m ?a ?u ?i ?e))
   (setq aw-background t)
@@ -206,7 +186,7 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package anzu
   :defer 0.2
   :ensure t
-  :delight
+  :diminish ""
   :bind*
   (("C-0" . anzu-query-replace-at-cursor)
    ("C-9" . anzu-replace-at-cursor-thing))
@@ -227,8 +207,9 @@ When using Homebrew, install it using \"brew install trash\"."
   (auto-insert-mode)
   (setq auto-insert-directory "~/dotfile/emacs/autoinsert"))
 
-(use-package autorevert :defer t
-  ;; mainly to make autorevert disappear from the modeline
+;; mainly to make autorevert disappear from the modeline
+(use-package autorevert
+  :defer t
   :diminish auto-revert-mode)
 
 (use-package avy :ensure t
@@ -252,38 +233,36 @@ When using Homebrew, install it using \"brew install trash\"."
 
 ;;;; B
 
-(use-package bash-completion :ensure t
+(use-package bash-completion
+  :ensure t
+  :hook (shell-dynamic-complete-functions . bash-completion-dynamic-complete)
   :config
   (autoload 'bash-completion-dynamic-complete
     "bash-completion"
-    "BASH completion hook")
-  (add-hook 'shell-dynamic-complete-functions
-            'bash-completion-dynamic-complete))
+    "BASH completion hook"))
 
-;; (use-package base16-theme :ensure t
-;;   :demand t)
+;; (use-package bioseq-mode
+;;   :load-path "~/.emacs.d/private/bioseq-mode"
+;;   :commands (bioseq-mode))
 
-(use-package bioseq-mode
-  :load-path "~/.emacs.d/private/bioseq-mode"
-  :commands (bioseq-mode))
-
-(use-package blank-mode :ensure t
+(use-package blank-mode
+  :ensure t
   :commands blank-mode)
-
-
 
 ;;;; C
 
-(use-package cc-mode :ensure t
+(use-package cc-mode
+  :ensure t
   :defer t
   :config
-  (use-package company-c-headers :ensure t)
+  (use-package company-c-headers
+    :ensure t)
 
-  (use-package cquery :ensure t
+  (use-package cquery
+    :ensure t
     :after lsp-mode
     :commands (lsp-cquery-enable)
     :init
-
     (defun cquery//enable ()
       (ignore-errors (lsp-cquery-enable)))
 
@@ -294,55 +273,39 @@ When using Homebrew, install it using \"brew install trash\"."
     (setq cquery-sem-highlight-method 'font-lock)
     (setq cquery-executable "/usr/local/bin/cquery"))
 
-  ;; (use-package irony :ensure t
-  ;;   :init (add-hook 'c-mode-hook 'irony-mode)
-  ;;   :config
-  ;;   (use-package company-irony :ensure t
-  ;;     :after company
-  ;;     :config
-  ;;     (add-hook 'c-mode-hook
-  ;;               (lambda ()
-  ;;                 (setq-local company-backends
-  ;;                             (append '(company-irony) company-backends))))))
-
-  (use-package ggo-mode :ensure t
-    :mode ("\\.ggo\\'" . ggo-mode))
-
-  (defun compile-file ()
-    "Runs the compilation of the current file.
-Assumes it has the same name, but without an extension"
-    (interactive)
-    (compile (file-name-sans-extension buffer-file-name))))
-
+  ;; gengetopt mode
+  (use-package ggo-mode
+    :ensure t
+    :mode ("\\.ggo\\'" . ggo-mode)))
 
 (use-package conf-mode
   :mode (("DESCRIPTION" . conf-mode)
          ("\\.log\\'" . conf-mode)
          ("\\.toml\\'" . conf-toml-mode)))
 
-(use-package command-log-mode :ensure t
+(use-package command-log-mode
+  :ensure t
   :commands (command-log-mode))
 
-(use-package company :ensure t
+(use-package company
+  :ensure t
   :diminish ""
   :commands global-company-mode
   :init
   (add-hook 'after-init-hook #'global-company-mode)
 
   (setq company-tooltip-align-annotations t)
-  (setq
-   company-idle-delay 0.2
-   company-selection-wrap-around t
-   company-minimum-prefix-length 2
-   company-require-match nil
-   company-dabbrev-ignore-case nil
-   company-dabbrev-downcase nil
-   company-show-numbers t)
+  (setq company-idle-delay 0.2
+        company-selection-wrap-around t
+        company-minimum-prefix-length 2
+        company-require-match nil
+        company-dabbrev-ignore-case nil
+        company-dabbrev-downcase nil
+        company-show-numbers t)
 
   :config
   (global-company-mode)
   (setq company-backends (delete 'company-semantic company-backends))
-  (setq company-clang-arguments '("-I /usr/local/Cellar/guile/2.2.3_1/include/guile/2.2/"))
 
   (use-package company-statistics
     :ensure t
@@ -391,12 +354,12 @@ Assumes it has the same name, but without an extension"
 (use-package counsel :ensure
   :commands (counsel-load-theme
              counsel-bookmark)
-  :bind* (("M-x" . counsel-M-x)
-          ("C-x C-f" . counsel-find-file)
-          ("s-<backspace>" . ivy-switch-buffer)
+  :bind* (("C-c /" . counsel-rg)
           ("C-c i" . counsel-imenu)
-          ("C-c /" . counsel-rg))
-
+          ("C-x C-f" . counsel-find-file)
+          ("C-x C-b" . ivy-switch-buffer)
+          ("s-<backspace>" . ivy-switch-buffer)
+          ("M-x" . counsel-M-x))
   :config
   (setq counsel-find-file-ignore-regexp
         (concat "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
@@ -419,93 +382,6 @@ Assumes it has the same name, but without an extension"
 
 (use-package css-mode :ensure t
   :mode (("\\.css\\'" . css-mode)))
-
-(use-package csv-mode :ensure t
-  :mode (("\\.csv\\'" . csv-mode))
-  :bind (:map csv-mode-map
-         ("'" . hydra-csv/body))
-  :defines hydra-csv/body
-  :config
-  (defhydra hydra-csv (:hint nil :color amaranth)
-    "
-^NAV^        ^TRANSFORM^      ^ALIGN^         ^TOGGLE^         ^YANK^
-_f_: fwd     _s_: sort        _a_: align      _d_: desc        _k_: kill
-_b_: bwd     _S_: sort num    _A_: unalign    _T_: invisible   _y_: yank
-_n_: next    _t_: transpose   ^ ^             ^ ^              _Y_: yank as new table
-_p_: prev    _r_: reverse
-"
-    ("f" csv-forward-field)
-    ("b" csv-backward-field)
-    ("n" next-line)
-    ("p" previous-line)
-    ("t" csv-transpose)
-    ("s" csv-sort-fields)
-    ("S" csv-sort-numeric-fields)
-    ("a" csv-align-fields)
-    ("A" csv-unalign-fields)
-    ("r" csv-reverse-region)
-    ("d" csv-toggle-descending)
-    ("T" csv-toggle-invisibility)
-    ("k" csv-kill-fields)
-    ("y" csv-yank-fields)
-    ("Y" csv-yank-as-new-table)
-    ("u" undo "undo")
-    ("q" nil "quit" :color blue))
-
-  (setq csv-invisibility-default nil)
-
-  (defun csv--align-buffer ()
-    (save-excursion
-      (csv-align-fields t (point-min) (point-max))))
-
-  (defun csv--next-or-new-field ()
-    (cond ((looking-at ",$")
-           (forward-char 1)
-           (save-excursion (insert ",")))
-          ((eq (point) (point-at-eol))
-           (insert ","))
-          (t
-           (unless (re-search-forward "," nil t)
-             (end-of-line))))
-    (csv--align-buffer))
-
-  (defun csv-tab-to-next-field ()
-    (interactive)
-    (if (or (mapcar #'looking-at csv-separators))
-        (csv--next-or-new-field)
-      (yas-expand)))
-
-  (defun csv--previous-field ()
-    (re-search-backward "," nil t))
-
-  (defun csv-backtab-to-previous-field ()
-    (interactive)
-    (when (or (mapcar #'looking-at csv-separators))
-      (csv--previous-field)))
-
-  (defun csv--new-line-or-next-field ()
-    (cond ((and (looking-back "," (- (point) 2))
-                (eq (point) (point-at-eol)))
-           (delete-char -1)
-           (unless (re-search-forward "," nil t)
-             (newline)))
-          (t
-           (if (eq (point) (point-max))
-               (newline)
-             (next-line))))
-    (csv--align-buffer))
-
-  (defun csv-new-line-or-next-field ()
-    (interactive)
-    (when (mapcar #'looking-at csv-separators)
-      (csv--new-line-or-next-field)))
-
-  (general-define-key
-   :keymaps 'csv-mode-map
-    "<tab>" 'csv-tab-to-next-field
-    "<backtab>" 'csv-backtab-to-previous-field
-    "RET" 'csv-new-line-or-next-field))
-
 
 ;;;; D
 
@@ -543,48 +419,15 @@ _p_: prev    _r_: reverse
                dired-sort-time
                dired-sort-ctime
                dired-sort-utime
-               dired-sort-extension)
-    :config
-    (defhydra hydra-dired-sort
-      (:color blue
-       :hint nil
-       :post (hydra-dired-main/body))
-      "
-_n_ame
-_s_ize
-_t_ime
-_e_xtension"
-      ("n" dired-sort-name)
-      ("s" dired-sort-size)
-      ("t" dired-sort-time)
-      ("e" dired-sort-extension)))
-
-
-  ;;preview files in dired
-  (use-package peep-dired
-    :ensure t
-    :defer t ; don't access `dired-mode-map' until `peep-dired' is loaded
-    :bind (:map dired-mode-map
-           ("P" . peep-dired)))
-
-  ;;narrow dired to match filter
-  (use-package dired-narrow
-    :ensure t
-    :bind (:map dired-mode-map
-           ("/" . dired-narrow)))
-
-  (use-package dired-quick-sort :ensure t
-    ;; press S in dired to see a nice hydra for sorting
-    :config
-    (dired-quick-sort-setup))
+               dired-sort-extension))
 
 
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
         (setq insert-directory-program gls)))
 
-  ;; (setq ls-lisp-use-insert-directory-program nil)
-  ;; (setq dired-listing-switches "-alF")
+  (setq ls-lisp-use-insert-directory-program t)
+  (setq dired-listing-switches "-alh")
   (setq dired-dwim-target t) ; guess copy target based on other dired window
 
   (defun dired-view-other-window ()
@@ -633,23 +476,23 @@ _e_xtension"
 ;;;; E
 
 (use-package ediff
-  :commands (ediff
-             ediff3)
+  :commands (ediff ediff3)
   :config
   (setq ediff-split-window-function #'split-window-horizontally
         ediff-window-setup-function #'ediff-setup-windows-plain))
 
-(use-package eldoc :ensure t
-  :commands turn-on-eldoc-mode
+(use-package eldoc
+  :ensure t
+  :commands (turn-on-eldoc-mode)
   :diminish ""
   :init
   (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
   (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode))
 
-(use-package elfeed :ensure t
+(use-package elfeed
+  :ensure t
   :bind* ("C-c E" . elfeed)
   :config
-
   ;; increase title width to accomodate papers
   (setq elfeed-search-title-max-width 120)
 
@@ -664,13 +507,12 @@ _e_xtension"
     (mark-whole-buffer)
     (elfeed-search-untag-all-unread))
 
-  (bind-keys
-   :map elfeed-search-mode-map
-   ("N" . elfeed-next-tag)
-   ("f" . hydra-elfeed-navigate/body)
-   ("U" . elfeed-search-fetch)
-   ("." . hydra-elfeed/body)
-   ("R" . elfeed-mark-all-as-read))
+  (bind-keys :map elfeed-search-mode-map
+    ("N" . elfeed-next-tag)
+    ("f" . hydra-elfeed-navigate/body)
+    ("U" . elfeed-search-fetch)
+    ("." . hydra-elfeed/body)
+    ("R" . elfeed-mark-all-as-read))
 
   (defvar counsel-elfeed-tags
     '(("papers" . "+papers")
@@ -764,91 +606,7 @@ _s_: search
    :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
    "" '(:ignore t :which-key "Emacs Help")
-   "f" 'counsel-describe-function
-   "k" 'counsel-descbinds
-   "v" 'counsel-describe-variable
-   "e" 'eval-last-sexp
-   "b" 'eval-buffer
-   "c" '(sam--eval-current-form-sp :which-key "eval-current")
-   "u" 'use-package-jump
-   "t" '(lispy-goto :which-key "goto tag")))
-
-(use-package eshell
-  :defines eshell-here
-  :commands (eshell eshell-here)
-  :config
-  (require 'em-smart)
-
-  (setq eshell-where-to-jump 'begin
-        eshell-review-quick-commands nil
-        eshell-smart-space-goes-to-end t
-        eshell-list-files-after-cd t
-        eshell-ls-initial-args "-alh")
-
-  ;; TODO: pimp to base16
-  (setq eshell-prompt-function
-        (lambda ()
-          (concat
-           (propertize "┌─[" 'face `(:foreground "green"))
-           (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-           (propertize "]──[" 'face `(:foreground "green"))
-           (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-           (propertize "]\n" 'face `(:foreground "green"))
-           (propertize "└─>" 'face `(:foreground "green"))
-           (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "green"))
-           )))
-
-  (setq eshell-directory-name "~/dotfile/emacs/eshell/")
-
-  ;; from http://www.howardism.org/Technical/Emacs/eshell-fun.html
-  (defun eshell-here ()
-    "
-Opens up a new shell in the directory associated with the
-current buffer's file. The eshell is renamed to match that
-directory to make multiple eshell windows easier.
-"
-    (interactive)
-    (let* ((parent (if (buffer-file-name)
-                       (file-name-directory (buffer-file-name))
-                     default-directory))
-           (height (/ (window-total-height) 3))
-           (name   (car (last (split-string parent "/" t)))))
-      (split-window-vertically (- height))
-      (other-window 1)
-      (eshell "new")
-      (rename-buffer (concat "*eshell: " name "*"))
-
-      (insert (concat "ls"))
-      (eshell-send-input)))
-
-  (defun eshell/ll ()
-    (insert "ls -l")
-    (eshell-send-input))
-
-  (setq eshell-prompt-function (lambda () (concat "$ ")))
-  (setq eshell-prompt-function
-        (lambda ()
-          (let ((green (plist-get base16-shell-colors-256 :base0B))
-                (white (plist-get base16-shell-colors-256 :base07))
-                (yellow (plist-get base16-shell-colors-256 :base0F)))
-            (concat
-             (propertize "─[" 'face `(:foreground ,green))
-             (propertize (concat (eshell/pwd)) 'face `(:foreground ,white))
-             (propertize "]──[" 'face `(:foreground ,green))
-             (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground ,yellow))
-             (propertize "]\n" 'face `(:foreground ,green))
-             (propertize (if (= (user-uid) 0) " # " "> ") 'face `(:foreground ,green))))))
-
-  ;; should bind after eshell starts because eshell-mode-map is lazily
-  ;; defined. see https://emacs.stackexchange.com/questions/27849
-  (add-hook 'eshell-mode-hook
-            (lambda ()
-              (eshell-smart-initialize)
-              (eshell-cmpl-initialize)
-              ;; init plan-9 like shell
-              (define-key eshell-mode-map (kbd "s-'") 'delete-window)
-              (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-              (define-key eshell-mode-map (kbd "M-r") 'helm-eshell-history))))
+   "u" 'use-package-jump))
 
 (use-package ess-site
   :ensure ess
@@ -902,54 +660,18 @@ directory to make multiple eshell windows easier.
   (setq ess-indent-with-fancy-comments nil)
   ;; do not truncate line in the R repl:
   (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
-  (add-hook 'ess-julia-mode-hook #'ess-roxy-mode)
-  (add-hook 'ess-julia-mode-hook #'latex-unicode-mode)
   :config
   ;; config for R
-  (load-file "~/dotfile/emacs/ess-config.el")
+  (load-file "~/dotfile/emacs/ess-config.el"))
 
-  (setq inferior-julia-program-name "/usr/local/bin/julia")
-
-  (bind-keys :map julia-mode-map
-    ("RET" . (lambda () (interactive) (ess-roxy-newline-and-indent)))))
-
-(use-package esup :ensure t
+(use-package esup
+  :ensure t
   :commands esup)
 
-(use-package etags-select :ensure t
-  :defines (sam-find-tag
-            build-ctags
-            visit-project-tags)
-  :bind* ("M-s-." . sam-find-tag)
-  :commands (build-ctags
-             visit-project-tags)
-  :config
-
-  ;; from http://mattbriggs.net/blog/2012/03/18/awesome-emacs-plugins-ctags/
-  (defun build-ctags ()
-    (interactive)
-    (message "building project tags")
-    (let ((root (projectile-project-root)))
-      (shell-command (concat "ctags -e -R --extra=+fq --exclude=bin --exclude=db --exclude=test --exclude=.git --exclude=public -f " root "TAGS " root)))
-    (visit-project-tags)
-    (message "tags built successfully"))
-
-  (defun visit-project-tags ()
-    (interactive)
-    (let ((tags-file (concat (projectile-project-root) "TAGS")))
-      (visit-tags-table tags-file)
-      (message (concat "Loaded " tags-file))))
-
-  (defun sam-find-tag ()
-    (interactive)
-    (if (file-exists-p (concat (projectile-project-root) "TAGS"))
-        (visit-project-tags)
-      (build-ctags))
-    (etags-select-find-tag-at-point)))
-
-(use-package exec-path-from-shell :ensure t
+(use-package exec-path-from-shell
+  :ensure t
   :if (memq window-system '(mac ns))
-  :defer 2
+  :defer 1
   :commands (exec-path-from-shell-initialize
              exec-path-from-shell-copy-env)
   :init
@@ -1000,38 +722,8 @@ _R_: reset
     ("p" hydra-mc/mc/mark-previous-like-this :color blue)
     ("q" nil "quit" :color blue)))
 
-(use-package eyebrowse          ; Easy workspaces creation and switching
-  :ensure t
-  :defines hydra-eyebrowse/body
-  :bind* (("C-c w" . hydra-eyebrowse/body)
-          ("H-r" . eyebrowse-next-window-config)
-          ("H-c" . eyebrowse-prev-window-config))
-  :config
-  (defhydra hydra-eyebrowse (:color blue :hint nil)
-    "
-Workspace: _1_ _2_ _3_ _4_ _5_ _6_ _7_ _8_ _9_ _0_
-Navigate : _n_ext _p_rev _c_lose _l_ast
-"
-    ("1" eyebrowse-switch-to-window-config-1)
-    ("2" eyebrowse-switch-to-window-config-2)
-    ("3" eyebrowse-switch-to-window-config-3)
-    ("4" eyebrowse-switch-to-window-config-4)
-    ("5" eyebrowse-switch-to-window-config-5)
-    ("6" eyebrowse-switch-to-window-config-6)
-    ("7" eyebrowse-switch-to-window-config-7)
-    ("8" eyebrowse-switch-to-window-config-8)
-    ("9" eyebrowse-switch-to-window-config-9)
-    ("0" eyebrowse-switch-to-window-config-0)
-    ("n" eyebrowse-next-window-config :color red)
-    ("p" eyebrowse-prev-window-config :color red)
-    ("c" eyebrowse-close-window-config :color red)
-    ("l" eyebrowse-last-window-config))
-
-  (setq eyebrowse-mode-line-separator " "
-        eyebrowse-new-workspace t)
-  (eyebrowse-mode t))
-
 ;;;; F
+
 (use-package fastx
   :load-path "~/.emacs.d/private/fastx"
   :mode (("\\.fasta$" . fastx-mode)
@@ -1047,8 +739,9 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
 
 (use-package flx :ensure t)
 
-(use-package flycheck :ensure t
-  :commands flycheck-mode
+(use-package flycheck
+  :ensure t
+  :commands (flycheck-mode)
   :diminish (flycheck-mode . "ⓕ")
   :config
   (setq flycheck-highlighting-mode 'symbols))
@@ -1107,14 +800,19 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
          :map emacs-lisp-mode-map
          ("C-c C-d" . helpful-at-point)))
 
-(use-package highlight-indent-guides :ensure t
+(use-package highlight-indent-guides
+  :ensure t
+  :if window-system
+  :hook (prog-mode . highlight-indent-guides-mode)
   :config
-  (add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character))
 
-(use-package htmlize :ensure t :defer t)
+(use-package htmlize
+  :ensure t
+  :defer t)
 
-(use-package hungry-delete :ensure t
+(use-package hungry-delete
+  :ensure t
   :diminish ""
   :config
   (global-hungry-delete-mode))
@@ -1123,15 +821,11 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
   :config
   (setq hydra-is-helpful t))
 
-(use-package hyperbole :ensure t
-  :bind* (("s-<return>" . hkey-either)
-          ("s-h" . hyperbole)
-          ("C-h h" . hyperbole))
-  :mode ("\\.kotl\\'" . kotl-mode))
-
 ;;;; I
 
-(use-package ibuffer :ensure t
+(use-package ibuffer
+  :ensure t
+  :bind* (("C-x b" . ibuffer))
   :commands ibuffer
   :init
   (add-hook 'ibuffer-hook (lambda () (ibuffer-switch-to-saved-filter-groups "Default")))
@@ -1213,94 +907,6 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
     ("C-n" iedit-next-occurrence "next")
     ("C-g" iedit-quit "toggle" :color blue)))
 
-(use-package indent-tools :ensure t
-  :bind (("C-c C-i" . indent-tools-hydra/body)))
-
-(use-package info
-  :mode (("\\.info\\'" . Info-mode))
-  :config
-
-  (info-initialize)
-
-  (defun sam--list-info-dirs ()
-    (let* ((dir "/usr/local/share/info")
-           (files (directory-files dir t))
-           (links (seq-filter #'file-symlink-p files))
-           (links-full (seq-map #'file-truename links ))
-           (dirs (remove-duplicates
-                  (seq-map #'file-name-directory links-full)
-                  :test #'equal)))
-      dirs))
-
-  (define-key Info-mode-map (kbd ".") #'hydra-info/body)
-
-  (defhydra hydra-info (:color pink
-                        :hint nil)
-    "
-Info-mode:
-
-  ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
-  ^^_[_ backward (prev logical node)       ^^_r_eturn (→)      _m_enu (↓) (C-u for new window)      _i_ndex                  _d_irectory
-  ^^_n_ext (same level only)               ^^_H_istory         _g_oto (C-u for new window)          _,_ next index item      _c_opy node name
-  ^^_p_rev (same level only)               _<_/_t_op           _b_eginning of buffer                virtual _I_ndex          _C_lone buffer
-  regex _s_earch (_S_ case sensitive)      ^^_>_ final         _e_nd of buffer                      ^^                       _a_propos
-
-  _1_ .. _9_ Pick first .. ninth item in the node's menu.
-
-"
-    ("]"   Info-forward-node)
-    ("["   Info-backward-node)
-    ("n"   Info-next)
-    ("p"   Info-prev)
-    ("s"   hydra-info-search/body :color blue)
-    ("S"   Info-search-case-sensitively)
-
-    ("l"   Info-history-back)
-    ("r"   Info-history-forward)
-    ("H"   Info-history)
-    ("t"   Info-top-node)
-    ("<"   Info-top-node)
-    (">"   Info-final-node)
-
-    ("u"   Info-up)
-    ("^"   Info-up)
-    ("m"   Info-menu)
-    ("g"   Info-goto-node)
-    ("b"   beginning-of-buffer)
-    ("e"   end-of-buffer)
-
-    ("f"   Info-follow-reference)
-    ("i"   Info-index)
-    (","   Info-index-next)
-    ("I"   Info-virtual-index)
-
-    ("T"   Info-toc)
-    ("d"   Info-directory)
-    ("c"   Info-copy-current-node-name)
-    ("C"   clone-buffer)
-    ("a"   info-apropos)
-
-    ("1"   Info-nth-menu-item)
-    ("2"   Info-nth-menu-item)
-    ("3"   Info-nth-menu-item)
-    ("4"   Info-nth-menu-item)
-    ("5"   Info-nth-menu-item)
-    ("6"   Info-nth-menu-item)
-    ("7"   Info-nth-menu-item)
-    ("8"   Info-nth-menu-item)
-    ("9"   Info-nth-menu-item)
-
-    ("?"   Info-summary "Info summary")
-    ("h"   Info-help "Info help")
-    ("q"   Info-exit "Info exit")
-    ("C-g" nil "cancel" :color blue))
-
-  (defhydra hydra-info-search (:hint nil)
-    "search"
-    ("s" Info-search "search")
-    ("n" Info-search-next "next")
-    ("p" Info-search-backward "prev")))
-
 (use-package "isearch"
   :config
   (defun symbol-name-at-point ()
@@ -1369,9 +975,14 @@ abort completely with `C-g'."
                      bef aft (if p "loc" "glob")))
         (user-error "No typo at or before point")))))
 
-(use-package ivy :ensure t
+(use-package ivy
+  :ensure t
+  :diminish ""
+  :after (counsel swiper)
   :config
-  (setq ivy-height 20)
+  (if window-system
+      (setq ivy-height 30)
+    (setq ivy-height 10))
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t) )
 
@@ -1391,15 +1002,16 @@ abort completely with `C-g'."
           (default       . bibtex-completion-format-citation-default))))
 
 (use-package ivy-posframe
-  :after posframe
+  :after ivy
+  :if window-system
   :load-path "~/.emacs.d/private/ivy-posframe"
   :config
   (ivy-posframe-setup)
   (push '(complete-symbol . ivy-posframe-display-at-point) ivy-display-functions-alist)
   (setq ivy-display-function #'ivy-posframe-display-at-point)
   (setq ivy-posframe-parameters
-        '((left-fringe . 10)
-          (right-fringe . 10))))
+        '((left-fringe . 5)
+          (right-fringe . 5))))
 
 ;;;; L
 
@@ -1490,6 +1102,7 @@ abort completely with `C-g'."
 
 (use-package lsp-mode
   :ensure t
+  :commands (lsp-mode)
   :config
 
   (require 'lsp-imenu)
@@ -1510,9 +1123,6 @@ abort completely with `C-g'."
     (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
     (define-key lsp-ui-mode-map (kbd "M-p") #'lsp-ui-find-prev-reference)
     (define-key lsp-ui-mode-map (kbd "M-n") #'lsp-ui-find-next-reference)))
-
-(use-package lua-mode :ensure t
-  :mode ("\\.lua\\'" . lua-mode))
 
 ;;;; M
 
@@ -1562,62 +1172,7 @@ abort completely with `C-g'."
 (use-package markdown-mode :ensure t
   :mode (("\\.md\\'" . markdown-mode))
   :config
-  (setq markdown-footnote-location 'immediately)
-
-  (defhydra hydra-markdown (:hint nil)
-    "
-Formatting         _s_: bold          _e_: italic     _b_: blockquote   _p_: pre-formatted    _c_: code
-Headings           _h_: automatic     _1_: h1         _2_: h2           _3_: h3               _4_: h4
-Lists              _m_: insert item
-Demote/Promote     _l_: promote       _r_: demote     _U_: move up      _D_: move down
-Links, footnotes   _L_: link          _U_: uri        _F_: footnote     _W_: wiki-link      _R_: reference
-undo               _u_: undo
-"
-
-
-    ("s" markdown-insert-bold)
-    ("e" markdown-insert-italic)
-    ("b" markdown-insert-blockquote :color blue)
-    ("p" markdown-insert-pre :color blue)
-    ("c" markdown-insert-code)
-
-    ("h" markdown-insert-header-dwim)
-    ("1" markdown-insert-header-atx-1)
-    ("2" markdown-insert-header-atx-2)
-    ("3" markdown-insert-header-atx-3)
-    ("4" markdown-insert-header-atx-4)
-
-    ("m" markdown-insert-list-item)
-
-    ("l" markdown-promote)
-    ("r" markdown-demote)
-    ("D" markdown-move-down)
-    ("U" markdown-move-up)
-
-    ("L" markdown-insert-link :color blue)
-    ("U" markdown-insert-uri :color blue)
-    ("F" markdown-insert-footnote :color blue)
-    ("W" markdown-insert-wiki-link :color blue)
-    ("R" markdown-insert-reference-link-dwim :color blue)
-
-    ("u" undo :color teal)
-    )
-
-  (general-define-key
-   :keymaps 'markdown-mode-map
-   :prefix "C-,"
-   "," 'hydra-markdown/body
-   "=" 'markdown-promote
-   "°" 'markdown-promote-subtree
-   "-" 'markdown-demote
-   "8" 'markdown-demote-subtree
-   "o" 'markdown-follow-thing-at-point
-   "j" 'markdown-jump
-   "»" 'markdown-indent-region
-   "«" 'markdown-exdent-region
-   "gc" 'markdown-forward-same-level
-   "gr" 'markdown-backward-same-level
-   "gs" 'markdown-up-heading))
+  (setq markdown-footnote-location 'immediately))
 
 (use-package move-text :ensure t
   :commands
@@ -1774,73 +1329,29 @@ undo               _u_: undo
     ("u" mu4e-update-mail-and-index "update" :color red)
     ("s" mu4e-headers-search "search")))
 
-(use-package multi-term :ensure t
-  :commands (multi-term
-             multi-term-next
-             multi-term-prev
-             multi-term-dedicated-open
-             multi-term-dedicated-close
-             multi-term-dedicated-select
-             multi-term-dedicated-toggle)
-  :init
-  (setq multi-term-program "/usr/local/bin/bash"))
-
 (use-package mwim :ensure t
   :bind* (("C-a" . mwim-beginning)
           ("C-e" . mwim-end)))
 
-
 ;;;; N
-
-(use-package nlinum :ensure t
-  :commands (global-nlinum-mode
-             nlinum-mode)
-  :config
-  (setq nlinum-highlight-current-line t))
-
-(use-package nov :ensure t
-  :mode ("\\.epub\\'" . nov-mode)
-  :config
-  (defun my-nov-font-setup ()
-    (face-remap-add-relative
-     'variable-pitch
-     :family "Input Sans Narrow"
-     :height 1.0))
-  (add-hook 'nov-mode-hook 'my-nov-font-setup)
-  (setq nov-text-width 80))
 
 ;;;; O
 
-(use-package osx-clipboard :ensure t
+(use-package osx-clipboard
+  :ensure t
   :if (and (eq system-type 'darwin)
            (window-system))
   :config
   (osx-clipboard-mode +1))
 
-(use-package openwith :ensure t
-  :config
-  (openwith-mode -1)
-  (setq openwith-associations
-        '(("\\.xlsx\\'" "open -a Microsoft\\ Excel" (file))
-          ("\\.xls\\'" "open -a Microsoft\\ Excel" (file))
-          ("\\.doc\\'" "open -a Microsoft\\ Word" (file))
-          ("\\.docx\\'" "open -a Microsoft\\ Word" (file)))))
-
 (use-package outline
-  :delight
-  :bind (("H-<tab>" . hydra-outline/body))
+  :diminish ""
   :commands (outline-hide-body
              outline-show-all
              outline-minor-mode
              hydra-outline/body)
+  :hook (prog-mode . outline-minor-mode)
   :config
-  (use-package navi-mode :ensure t)
-  (use-package outorg :ensure t)
-  (use-package outshine :ensure t)
-  (add-hook 'prog-mode-hook #'outline-minor-mode)
-  (add-hook 'outline-minor-mode-hook #'outshine-hook-function)
-  (setq-default outline-minor-mode-prefix (kbd "s-*"))
-
   (defun outline-narrow-to-subtree ()
     (interactive)
     (outline-mark-subtree)
@@ -1854,40 +1365,16 @@ undo               _u_: undo
       (indent-region (region-beginning) (region-end))
       (message nil)))
 
-  (bind-key* "C-M-i" #'outshine-cycle-buffer)
   (bind-key "C-c @ n" 'outline-narrow-to-subtree)
-  (bind-key "C-c @ i" 'outline-indent-subtree)
+  (bind-key "C-c @ i" 'outline-indent-subtree))
 
-  (defhydra hydra-outline
-    (:hint nil :body-pre (outline-minor-mode 1))
-    "
-Outline
+(use-package outshine
+  :ensure t
+  :hook (outline-minor-mode . outshine-hook-function)
+  :bind* (("C-M-i" . outshine-cycle-buffer)))
 
-^CURRENT^    ^ALL^      ^LEAVES^      ^MANIPULATE^
-_c_: hide    _C_: hide  _C-c_: hide    _M-r_: demote
-_t_: next    ^ ^        _C-r_: show    _M-c_: promote
-_s_: prev    ^ ^        ^   ^          _M-t_: move down
-_r_: show    _R_: show  ^   ^          _M-s_: move up
-"
-    ("C" outline-hide-body)
-    ("t" outline-next-visible-heading)
-    ("s" outline-previous-visible-heading)
-    ("R" outline-show-all)
-    ("c" outline-hide-subtree)
-    ("r" outline-show-subtree)
-
-    ("C-c" outline-hide-leaves)
-    ("C-r" outline-show-subtree)
-
-    ("M-r" outline-demote)
-    ("M-c" outline-promote)
-    ("M-t" outline-move-subtree-down)
-    ("M-s" outline-move-subtree-up)
-
-    ("i" outline-insert-heading "insert heading" :color blue)
-    ("q" nil "quit" :color blue)))
-
-(use-package org-download :ensure t
+(use-package org-download
+  :ensure t
   :after org
   :config
 
@@ -1915,10 +1402,6 @@ _r_: show    _R_: show  ^   ^          _M-s_: move up
 
 ;;;; P
 
-(use-package paradox :ensure t
-  :commands (paradox-list-packages
-             package-list-packages))
-
 (use-package pathify :ensure t
   :bind (:map dired-mode-map
          ("L" . pathify-dired))
@@ -1930,89 +1413,19 @@ _r_: show    _R_: show  ^   ^          _M-s_: move up
   :config
   (turn-on-pbcopy))
 
-(use-package pdf-tools :ensure t
-   :mode ("\\.pdf\\'" . pdf-view-mode)
-   :config
-   (setq pdf-tools-enabled-modes
-         '(pdf-isearch-minor-mode
-           pdf-links-minor-mode
-           pdf-misc-minor-mode
-           pdf-outline-minor-mode
-           pdf-misc-size-indication-minor-mode
-           pdf-misc-menu-bar-minor-mode
-           pdf-sync-minor-mode
-           pdf-misc-context-menu-minor-mode
-           pdf-cache-prefetch-minor-mode
-           pdf-view-auto-slice-minor-mode))
-   (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo")
-   (require 'pdf-occur)
-   (require 'pdf-links)
-   (require 'pdf-outline)
-   (require 'pdf-sync)
-   (pdf-tools-install)
-
-   (setq pdf-view-continuous t)
-
-   (defun pdf-view-open-in-external-app ()
-     (interactive)
-     (shell-command
-      (format
-       "open -a Preview %s"
-       (shell-quote-argument (buffer-file-name)))))
-
-   (defun pdf-view-finder ()
-     (interactive)
-     (shell-command "open -a Finder ./"))
-
-   (defun pdf-kill-this-buffer (really-kill)
-     (interactive (list (y-or-n-p "Really kill this buffer [yN] ? ")))
-     (when really-kill
-       (kill-this-buffer)))
-
-   (defhydra hydra-pdf-view ()
-     "pdf-view"
-     ("t" pdf-view-next-line-or-next-page)
-     ("s" pdf-view-previous-line-or-previous-page))
-
-   (defhydra hydra-pdf-view (:hint nil :columns 4 :color pink)
-     "
-_d_: delete buffer _O_: open extern"
-     ("C" pdf-view-first-page "⇚")
-     ("c" image-backward-hscroll "←")
-     ("r" image-forward-hscroll "→")
-     ("R" pdf-view-last-page  "⇛")
-     ("ß" pdf-view-previous-page "⇑")
-     ("s" pdf-view-previous-line-or-previous-page "↑")
-     ("t" pdf-view-next-line-or-next-page "↓")
-     ("þ" pdf-view-next-page "⇓")
-     ("O" pdf-view-open-in-external-app :color blue)
-     ("d" pdf-kill-this-buffer :color blue))
-
-   (bind-keys :map pdf-view-mode-map
-     ("." . hydra-pdf-view/body)
-     ("r" . image-forward-hscroll)
-     ("c" . image-backward-hscroll)
-     ("O" . pdf-view-open-in-external-app)
-     ("s" . pdf-view-previous-line-or-previous-page)
-     ("ß" . pdf-view-previous-page)
-     ("þ" . pdf-view-next-page)
-     ("t" . pdf-view-next-line-or-next-page)
-     ("d" . pdf-kill-this-buffer)
-     ("C" . pdf-view-first-page)
-     ("R" . pdf-view-last-page)))
-
 (use-package posframe
-  :load-path "~/.emacs.d/private/posframe"
-  :demand t)
+  :ensure t
+  :after ivy-posframe)
 
-(use-package spacemacs-theme
+(use-package spaceline
+  :defer t
   :ensure t)
 
-(use-package spaceline)
-
 (use-package spaceline-all-the-icons
-  :after spaceline
   :ensure t
+  :when window-system
+  ;; defer loading after 2 seconds of standing still
+  :defer 2
   :config (spaceline-all-the-icons-theme))
 
 (use-package cperl
@@ -2038,27 +1451,17 @@ _d_: delete buffer _O_: open extern"
     :config
     (plsense-config-default))
 
-  ;; (use-package perl-completion :ensure t
-  ;;   :init
-  ;;   (add-hook 'cperl-mode-hook
-  ;;             (lambda ()
-  ;;               (require 'perl-completion)
-  ;;               (perl-completion-mode t))))
-
   (use-package pde-load
     :load-path "~/src/github.com/wenbinye/emacs-pde/lisp"
     :defines (my-pde-load)
     :commands (my-pde-load)
     :init
     (setq pde-extra-setting t)
-    (setq inf-perl-shell-program (expand-file-name "~/anaconda/bin/re.pl"))
+
     :config
     (defun my-pde-load ()
       (interactive)
-      (load "pde-load"))
-
-    (bind-keys :map cperl-mode-map
-      ("C-<return>" . inf-perl-send-line)))
+      (load "pde-load")))
 
   (setq cperl-invalid-face (quote off))
   (setq cperl-invalid-face nil)
@@ -2067,12 +1470,6 @@ _d_: delete buffer _O_: open extern"
                  :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'perl-mode "\"\"" nil
                  :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
-
-(use-package pretty-mode :ensure t
-  :disabled t
-  :commands turn-on-pretty-mode
-  :init
-  (add-hook 'ess-mode-hook 'turn-on-pretty-mode))
 
 (use-package prog-mode
   :config
@@ -2126,7 +1523,8 @@ _d_: delete buffer _O_: open extern"
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
-(use-package rainbow-mode :ensure t
+(use-package rainbow-mode
+  :ensure t
   :commands (rainbow-mode))
 
 (use-package recentf
@@ -2156,7 +1554,7 @@ _d_: delete buffer _O_: open extern"
 ;;;; S
 
 (use-package selected
-  :delight
+  :diminish ""
   :ensure t
   :commands (selected-minor-mode
              selected-global-mode)
@@ -2178,29 +1576,8 @@ _d_: delete buffer _O_: open extern"
   (setq selected-minor-mode-override t)
   (selected-global-mode))
 
-(use-package shackle :ensure t
-  :config
-  (shackle-mode t)
-
-  (setq helm-display-function 'pop-to-buffer)
-
-  (setq shackle-rules
-        '((calendar-mode :select t :align below :size 0.25)
-          (help-mode :select t :align right :size 0.5)
-          (compilation-mode :select t :align right :size 0.5)
-          (navi-mode :select t :align left :size 0.1)
-          (inferior-emacs-lisp-mode :select t :align below :size 0.2)
-          ("*Org Select*" :select t :align below :size 0.33)
-          ("*Org Note*" :select t :align below :size 0.33)
-          ("*Org Links*" :select t :align below :size 0.2)
-          ("*Org todo*" :select t :align below :size 0.2)
-          ("\\`\\*e?shell" :select t :align below :size 0.3 :regexp t)
-          ("*eshell.*" :select t :align below :size 0.5)
-          ("*ielm*" :select t :align below :size 0.3)
-          ("*Man.*" :select t :align below :size 0.5 :regexp t)
-          ("*Org Src.*" :select t :align below :size 0.5 :regexp t))))
-
 (use-package shell
+  :functions (shell-dwim)
   :bind ("s-'" . shell-dwim)
   :config
   (setq explicit-shell-file-name "/usr/local/bin/bash")
@@ -2268,17 +1645,6 @@ frame.
   ;; keybindings
   (general-define-key :keymaps 'sh-mode-map "C-c c" 'sh-cleanup-line)
   (general-define-key :keymaps 'sh-mode-map "C-<return>" 'sh-send-line-or-region-and-step))
-
-(use-package slime
-  :ensure t
-  :commands (slime)
-  :mode (("\\.cl\\'" . common-lisp-mode)
-         ("\\.lisp\\'" . common-lisp-mode))
-  :config
-  (load (expand-file-name "~/quicklisp/slime-helper.el"))
-  ;; Replace "sbcl" with the path to your implementation
-  (setq inferior-lisp-program "sbcl")
-  (setq slime-contribs '(slime-fancy)))
 
 (use-package smartparens
   :ensure t
@@ -2388,13 +1754,15 @@ frame.
     (forward-line -1)
     (indent-according-to-mode)))
 
-(use-package smooth-scrolling :ensure t
+(use-package smooth-scrolling
+  :ensure t
+  :hook (after-init . smooth-scrolling-mode)
   :config
-  (smooth-scrolling-mode)
   (setq smooth-scroll-margin 5))
 
 (use-package solarized-theme
   :ensure t
+  :defer 0.2
   :config
   (setq solarized-distinct-fringe-background t) ; make the fringe stand out from the background
   (setq solarized-use-variable-pitch t)
@@ -2403,14 +1771,11 @@ frame.
   (setq solarized-scale-org-headlines t)
   (setq-default cursor-type 'bar)
 
-  (load-theme 'solarized-light t)
-  (let ((line (face-attribute 'mode-line :underline)))
-    (set-face-attribute 'mode-line          nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :underline  line)
-    (set-face-attribute 'mode-line          nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9")))
+  (cond (window-system
+         (load-theme 'solarized-light t))
+        (t
+         (load-theme 'solarized-dark t)
+         (set-face-background 'default "unspecified-bg"))))
 
 (use-package spotlight :ensure t
   :bind (("C-c C-s" . spotlight)
@@ -2444,10 +1809,6 @@ frame.
 (use-package swiper :ensure t
   :bind* ("M-s" . swiper))
 
-(use-package system-packages :ensure t
-  :commands (system-packages-install
-             system-packages-search))
-
 ;;;; T
 
 (use-package tex-site
@@ -2461,14 +1822,16 @@ frame.
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
 
-(use-package tramp
-  :init
-  (setq tramp-default-method "ssh"))
-
 ;;;; U
 
 (use-package undo-tree
   :ensure t
+  :functions (sam|undo
+              sam|undo-tree-visualize
+              sam|redo)
+  :bind* (("C-x u" . sam|undo-tree-visualize)
+          ("C-z" . sam|undo)
+          ("C-S-z" . sam|redo))
   :config
   (defun sam|undo (&optional arg)
     (interactive)
@@ -2484,11 +1847,6 @@ frame.
     (interactive)
     (undo-tree-mode t)
     (undo-tree-redo))
-
-  (bind-keys*
-   ("C-x u" . sam|undo-tree-visualize)
-   ("C-z" . sam|undo)
-   ("C-S-z" . sam|redo))
 
   (general-define-key
    :keymaps 'undo-tree-visualizer-mode-map
@@ -2541,21 +1899,42 @@ frame.
 
 (use-package wgrep :ensure t :defer t)
 
-(use-package which-key :ensure t
+(use-package which-key
+  :ensure t
+  :defer 2
   :diminish which-key-mode
   :config
   (which-key-mode)
   (which-key-setup-side-window-bottom)
-;; simple then alphabetic order.
+  ;; simple then alphabetic order.
   (setq which-key-sort-order 'which-key-prefix-then-key-order)
   (setq which-key-popup-type 'side-window
         which-key-side-window-max-height 0.3
         which-key-side-window-max-width 0.5
         which-key-idle-delay 0.3
-        which-key-min-display-lines 7))
+        which-key-min-display-lines 7)
+  ;; key description for C-x
+  (which-key-add-key-based-replacements
+    "C-x RET" "coding system -input"
+    "C-x 4"   "Other Window"
+    "C-x 5"   "Frame"
+    "C-x 6"   "2C"
+    "C-x @"   "event"
+    "C-x 8"   "special char"
+    "C-x a"   "abbrev"
+    "C-x n"   "narrow"
+    "C-x r"   "rectangle"
+    "C-x v"   "version control"
+    "C-c &"   "yas"
+    "C-c @"   "hide-show"
+    "M-SPC h" "info"
+    "M-SPC g" "grep"
+    "M-SPC M-s" "occur"))
 
-(use-package wrap-region :ensure t
+(use-package wrap-region
+  :ensure t
   :diminish ""
+  :commands (wrap-region-mode)
   :config
   (wrap-region-global-mode -1)
   (wrap-region-add-wrappers
@@ -2573,15 +1952,14 @@ frame.
 
 (use-package xterm-color
   :ensure t
+  :hook (comint-preoutput-filter-functions . xterm-color-filter)
   :config
   ;; comint install
-  (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+  ;; (add-hook 'comint-preoutput-filter-functions ')
   (setq comint-output-filter-functions
         (remove 'ansi-color-process-output comint-output-filter-functions)))
 
 ;;;; Y
-
-(use-package yaml-mode :ensure t :defer t)
 
 (use-package yasnippet
   :diminish yas-minor-mode
