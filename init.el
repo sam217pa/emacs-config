@@ -66,8 +66,6 @@
  '((".*" "~/.emacs.d/auto-save-list/" t)) ; transforme les noms des fichiers sauvegardés
  inhibit-startup-screen t                 ; supprime l'écran d'accueil
  ring-bell-function 'ignore           ; supprime cette putain de cloche.
- coding-system-for-read 'utf-8        ; use UTF8 pour tous les fichiers
- coding-system-for-write 'utf-8       ; idem
  sentence-end-double-space nil ; sentences does not end with double space.
  default-fill-column 72
  initial-scratch-message ""
@@ -76,6 +74,8 @@
  tab-width 4                            ; tab are 4 spaces large
  auto-window-vscroll nil
  )
+
+(prefer-coding-system 'utf-8)
 
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
