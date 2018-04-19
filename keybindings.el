@@ -19,6 +19,100 @@
 
 ;;; * Code
 
+(use-package key-chord
+  :ensure t
+  :config
+  (key-chord-mode 1)
+  (setq key-chord-two-keys-delay 0.2)
+  (key-chord-define-global "xq" #'ryo-modal-mode))
+
+(use-package key-seq
+  :ensure t
+  :after key-chord
+  :config
+  (key-seq-define-global "««" (lambda () (interactive) (insert "<")))
+  (key-seq-define-global "»»" (lambda () (interactive) (insert ">")))
+  (key-seq-define-global "qb" #'counsel-bookmark)
+  (key-seq-define-global "qd" #'kill-this-buffer)
+  (key-seq-define-global "qr" (lambda () (interactive) (set-mark-command 4))))
+
+(use-package ryo-modal
+  :ensure t
+  :delight
+  :commands ryo-modal-mode
+  :init
+  (add-hook 'ryo-modal-mode-hook
+            (lambda ()
+              (if ryo-modal-mode
+                  (selected-minor-mode 1)
+                (selected-minor-mode -1))
+              (when (string-equal "emacs-lisp-mode" major-mode)
+                (if ryo-modal-mode (lispy-mode -1) (lispy-mode 1)))
+              (when (string-equal "ess-mode" major-mode)
+                (if ryo-modal-mode (lesspy-mode -1) (lesspy-mode 1)))))
+  :config
+  ;; nicer which-key printing
+  (push '((nil . "ryo:.*:") . (nil . "")) which-key-replacement-alist)
+
+  (setq ryo-modal-cursor-color "#268bd2")
+  (setq ryo-modal-cursor-type 'box)
+
+  (let ((text-objects '(("w" er/mark-word :name "Word")
+                        ("i" er/mark-inside-pairs :name "In pairs")
+                        ("o" er/mark-outside-pairs :name "Out pairs")
+                        ("d" er/mark-defun :name "Defun")
+                        ("p" er/mark-paragraph :name "Paragraph")
+                        ("s" er/mark-sentence :name "Sentence")))
+        (avy-destinations '(("l" avy-goto-line :name "line")
+                            ("w" avy-goto-word-1 :name "word")
+                            ("c" avy-goto-char :name "char"))))
+    (eval `(ryo-modal-keys
+            ("." ryo-modal-repeat)
+            ("/" swiper)
+            ("0" "M-0")
+            ("1" "M-1")
+            ("2" "M-2")
+            ("3" "M-3")
+            ("4" "M-4")
+            ("5" "M-5")
+            ("6" "M-6")
+            ("7" "M-7")
+            ("8" "M-8")
+            ("9" "M-9")
+            ("<tab>" sam|switch-to-other-buffer :name "other buffer")
+            ("A" sam|end-of-code-or-line :exit t)
+            ("B" counsel-bookmark)
+            ("I" smarter-move-beginning-of-line :exit t)
+            ("O" previous-line :then '(end-of-line newline-and-indent) :exit t)
+            ("U" sam|redo)
+            ("J" sam|join-to-next-line)
+            ("b" ivy-switch-buffer)
+            ("c" backward-char)
+            ("f" counsel-find-file)
+            ("h" ,text-objects :then '(kill-region) :exit t)
+            ("i" ryo-modal-mode)
+            ("j" ,avy-destinations)
+            ("k" ,text-objects :then '(kill-region))
+            ("o" end-of-line :then '(newline-and-indent) :exit t)
+            ("p" hydra-project/body :name "project" :exit t)
+            ("r" forward-char)
+            ("s" previous-line)
+            ("t" next-line)
+            ("u" sam|undo)
+            ("v" ,text-objects)
+            ("w" hydra-window/body :name "window")
+            ("y" hydra-yank-pop/yank :name "yank"))))
+
+  (ryo-modal-key
+   "SPC" '(("a" org-agenda :name "agenda")
+           ("b" ibuffer-list-buffers :name "buffer list")
+           ("c" org-capture :name "capture")
+           ("d" dired-jump :name "dired")
+           ("g" magit-status)
+           ("m" mu4e :name "mail")
+           ("n" elfeed :name "news")
+           ("s" save-buffer :name "save"))))
+
 (use-package general :ensure t
   :config
 
@@ -50,8 +144,7 @@
 
   (general-define-key
    :prefix "C-c"
-   "v" 'magit-status
-   "T" 'hydra-transparency/body)
+   "v" 'magit-status)
 
 ;;; * C-x
 
@@ -60,22 +153,21 @@
    "SPC" 'hydra-rectangle/body
    "d" 'dired-other-window
    "n" 'narrow-or-widen-dwim
-   "p" 'hydra-projectile/body
-   "o" 'other-window
    "=" 'balance-windows
-
    "C-b" 'ibuffer
-   "M-i" 'sam--insert-timestamp
    "M-c" 'compile)
 
 ;;; M-
   (general-define-key
-   "M-<backspace>" 'delete-to-sentence-beg
+   "M-<backspace>" 'sam|delete-to-sentence-beg
    "M-é" 'ace-window
    "M-/" 'hippie-expand
    "M-«" 'beginning-of-buffer
    "M-»" 'end-of-buffer
    "M-ê" 'hydra-error/body
+
+   "M-P" 'scroll-other-window
+   "M-N" 'scroll-other-window-down
 
    "M-s-n" 'forward-paragraph
    "M-s-p" 'backward-paragraph
@@ -83,38 +175,32 @@
 
 ;;; s-
   (general-define-key
-   "s-<tab>" 'sam--switch-to-other-buffer
+   "s-<tab>" 'sam|switch-to-other-buffer
    "s-c" 'windmove-left
    "s-r" 'windmove-right
    "s-d" 'kill-buffer-and-window
    "s-f" 'projectile-find-file
-   "s-i" (lambda () (interactive) (save-excursion (mark-paragraph) (indent-region (region-beginning) (region-end))))
-   "s-j" (lambda () (interactive) (join-line 4))
-   "s-k" (lambda () (interactive)
-           (save-excursion
-             (move-beginning-of-line nil)
-             (kill-visual-line -1)))    ; delete previous line
-   "s-l" 'sam--comment-or-uncomment-region-or-line
-   "s-o" 'sam--open-in-external-app
-   "s-q" nil                          ; don't close emacs with option q.
-   "s-t" nil                          ; don't show font panel with s-t.
+   "s-i" 'sam|indent-paragraph
+   "s-j" 'sam|join-to-next-line
+   "s-l" 'sam|comment-or-uncomment-region-or-line
+   "s-o" 'sam|open-in-external-app
+   "s-q" 'sam|unfill-paragraph
+   "s-t" 'ivy-switch-buffer          ; don't show font panel with s-t.
    "s-u" 'negative-argument
    "s-w" 'delete-other-windows
-   "s-n" 'narrow-or-widen-dwim
-   "s-." 'hydra-secondary/body
-   "s-(" 'hydra-sp/body)
+   "s-n" 'narrow-or-widen-dwim)
 
 ;;; H-
   (general-define-key
    "H-<tab>" 'hydra-outline/body
-   "H-e" 'eshell-here
-   "H-w" 'toggle-frame-fullscreen
-   "H-i" 'sam/insert-filename
+   "H-w" 'toggle-frame-maximized
    "H-l" 'sam--duplicate-line
    "H-n" 'make-frame
    "H-s" 'move-text-up
    "H-t" 'move-text-down
    "H-u" 'revert-buffer
+   "H-." 'sam|finder-here
+   "H-'" 'sam|iterm-here
 
    ;; H-M-
    "H-M-p" 'scroll-up-command
@@ -123,24 +209,9 @@
 
 ;;; Key chords
 
-  (use-package key-chord :ensure t
-    :config
-    (key-chord-mode 1)
-    (setq key-chord-two-keys-delay 0.2)
-    (use-package key-seq :ensure t
-      :config
-      (key-seq-define-global "««" (lambda () (interactive) (insert "<")))
-      (key-seq-define-global "»»" (lambda () (interactive) (insert ">")))
-      (key-seq-define-global "xq" 'hydra-context/body)
-      (key-seq-define-global "qb" #'helm-bookmarks)
-      (key-seq-define-global "qd" #'kill-this-buffer)
-      (key-seq-define-global "ql" #'avy-goto-line)))
+
 
 ;;; Mode specific map
-  (general-define-key :keymaps 'Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
-  (general-define-key :keymaps 'emacs-lisp-mode-map "s-e" 'eval-defun)
-  (general-define-key :keymaps 'shell-mode-map "H-c" 'erase-buffer)
-  (general-define-key :keymaps 'term-mode-map "H-c" 'erase-buffer)
   (general-define-key
    :keymaps 'compilation-mode-map
    "t" 'compilation-next-error
@@ -172,155 +243,24 @@
 (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
 (global-set-key [remap kill-line] (bol-with-prefix kill-line))
 (global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
-(global-set-key [remap move-end-of-line] #'sam/end-of-code-or-line)
+(global-set-key [remap move-end-of-line] #'sam|end-of-code-or-line)
 (global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
 
-(global-set-key (kbd "<f5>") 'mu4e)
+(global-set-key (kbd "<f5>") 'mu4e-new-frame)
 (global-set-key (kbd "<f6>") 'elfeed)
 (global-set-key (kbd "<f7>") 'org-capture)
 (global-set-key (kbd "<f8>") 'org-agenda)
+(bind-keys*
+ ("C-c <left>" . hydra-winner/winner-undo)
+ ("C-c <right" . hydra-winner/winner-redo))
 
 ;;; * HYDRA
-
-(defhydra hydra-dired-main (:color pink :hint nil :columns 4)
-  "
-^^^NAV^ ^^   ^EDIT^                ^MARK^      ^ACTION^
-^ ^ _s_ ^ ^  _o_pen other window   _m_ark        _h_: show hidden
-_c_ ^ ^ _r_  _R_ename              _u_nmark      _'_: eshell
-^ ^ _t_ ^ ^  _S_ort                _d_elete    _C-'_: shell
-"
-  ("t" dired-next-line :color red)
-  ("s" dired-previous-line :color red)
-  ("r" dired-find-file :color blue)
-  ("c" dired-up-directory :color red)
-  ("o" dired-find-file-other-window :color blue)
-  ("R" dired-rename-file)
-  ("S" hydra-dired-sort/body :color blue)
-  ("u" dired-unmark)
-  ("m" dired-mark)
-  ("d" hydra-dired-delete/body :color blue)
-  ("h" dired-omit-mode)
-  ("'" eshell-here :color blue)
-  ("C-'" shell :color blue)
-  ("." nil "toggle hydra" :color blue)
-  ("q" nil "quit" :color blue))
-
-(defhydra hydra-dired-delete (:color pink :hint nil :columns 4)
-  ("d" dired-flag-file-deletion "flag delete")
-  ("x" dired-do-flagged-delete "DEL flagged")
-  ("D" dired-do-delete "delete this")
-  ("q" hydra-dired-main/body "back" :color blue))
-
-(defhydra hydra-error ()
-  ("t" next-error "next")
-  ("n" next-error "next")
-  ("s" previous-error "previous")
-  ("p" previous-error "previous"))
-
-(defun counsel-font ()
-  "Change font of current frame"
-  (interactive)
-  (ivy-read "Chose font :"
-            (font-family-list)
-            :caller 'counsel-font
-            :action (lambda (x) (set-frame-font x))))
 
 (defhydra hydra-frame (:hint nil :columns 3 :color blue)
   "frames"
   ("d" delete-frame "delete")
   ("n" new-frame "new")
   ("D" delete-other-frames "delete other"))
-
-(defhydra hydra-ibuffer-main (:color pink :hint nil)
-  ;; Ibuffer
-  ;; this is genius hydra making from
-  ;; https://github.com/abo-abo/hydra/wiki/Ibuffer
-  "
-  ^NAVIGATION^     ^MARK^          ^ACTIONS^          ^VIEW^
-  _s_:    ↑        _m_: mark       _d_: delete        _g_: refresh
-  _r_:  visit      _u_: unmark     _S_: save          _O_: sort
-  _t_:    ↓        _*_: specific   _a_: all actions   _/_: filter
-"
-  ("t" ibuffer-forward-line)
-  ("r" ibuffer-visit-buffer :color blue)
-  ("s" ibuffer-backward-line)
-
-  ("m" ibuffer-mark-forward)
-  ("u" ibuffer-unmark-forward)
-  ("*" hydra-ibuffer-mark/body :color blue)
-
-  ("d" ibuffer-do-delete)
-  ("S" ibuffer-do-save)
-  ("a" hydra-ibuffer-action/body :color blue)
-
-  ("g" ibuffer-update)
-  ("O" hydra-ibuffer-sort/body :color blue)
-  ("/" hydra-ibuffer-filter/body :color blue)
-
-  ("o" ibuffer-visit-buffer-other-window "other window" :color blue)
-  ("q" ibuffer-quit "quit ibuffer" :color blue)
-  ("." nil "toggle hydra" :color blue))
-
-(defhydra hydra-ibuffer-sort (:color amaranth :columns 3)
-  "Sort"
-  ("i" ibuffer-invert-sorting "invert")
-  ("a" ibuffer-do-sort-by-alphabetic "alphabetic")
-  ("v" ibuffer-do-sort-by-recency "recently used")
-  ("s" ibuffer-do-sort-by-size "size")
-  ("f" ibuffer-do-sort-by-filename/process "filename")
-  ("m" ibuffer-do-sort-by-major-mode "mode")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
-
-(defhydra hydra-ibuffer-action (:color teal :columns 4
-                                :after-exit
-                                (if (eq major-mode 'ibuffer-mode)
-                                    (hydra-ibuffer-main/body)))
-  "Action"
-  ("A" ibuffer-do-view "view")
-  ("E" ibuffer-do-eval "eval")
-  ("F" ibuffer-do-shell-command-file "shell-command-file")
-  ("I" ibuffer-do-query-replace-regexp "query-replace-regexp")
-  ("H" ibuffer-do-view-other-frame "view-other-frame")
-  ("N" ibuffer-do-shell-command-pipe-replace "shell-cmd-pipe-replace")
-  ("M" ibuffer-do-toggle-modified "toggle-modified")
-  ("O" ibuffer-do-occur "occur")
-  ("P" ibuffer-do-print "print")
-  ("Q" ibuffer-do-query-replace "query-replace")
-  ("R" ibuffer-do-rename-uniquely "rename-uniquely")
-  ("T" ibuffer-do-toggle-read-only "toggle-read-only")
-  ("U" ibuffer-do-replace-regexp "replace-regexp")
-  ("V" ibuffer-do-revert "revert")
-  ("W" ibuffer-do-view-and-eval "view-and-eval")
-  ("X" ibuffer-do-shell-command-pipe "shell-command-pipe")
-  ("b" nil "back"))
-
-(defhydra hydra-ibuffer-filter (:color amaranth :columns 4)
-  "Filter"
-  ("m" ibuffer-filter-by-used-mode "mode")
-  ("M" ibuffer-filter-by-derived-mode "derived mode")
-  ("n" ibuffer-filter-by-name "name")
-  ("c" ibuffer-filter-by-content "content")
-  ("e" ibuffer-filter-by-predicate "predicate")
-  ("f" ibuffer-filter-by-filename "filename")
-  (">" ibuffer-filter-by-size-gt "size")
-  ("<" ibuffer-filter-by-size-lt "size")
-  ("/" ibuffer-filter-disable "disable")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
-
-(defhydra hydra-ibuffer-mark (:color teal :columns 5
-                              :after-exit (hydra-ibuffer-main/body))
-  "Mark"
-  ("*" ibuffer-unmark-all "unmark all")
-  ("M" ibuffer-mark-by-mode "mode")
-  ("m" ibuffer-mark-modified-buffers "modified")
-  ("u" ibuffer-mark-unsaved-buffers "unsaved")
-  ("s" ibuffer-mark-special-buffers "special")
-  ("r" ibuffer-mark-read-only-buffers "read-only")
-  ("/" ibuffer-mark-dired-buffers "dired")
-  ("e" ibuffer-mark-dissociated-buffers "dissociated")
-  ("h" ibuffer-mark-help-buffers "help")
-  ("z" ibuffer-mark-compressed-file-buffers "compressed")
-  ("b" hydra-ibuffer-main/body "back" :color blue))
 
 (defhydra hydra-insert (:hint nil :color blue)
   "
@@ -330,8 +270,8 @@ _s_: sentence  _o_: org  _O_: org
 _p_: paragraph
 "
   ("t" sam--insert-timestamp)
-  ("m" (lambda () (interactive) (insert (grab-mac-link 'chrome 'markdown))))
-  ("o" (lambda () (interactive) (insert (grab-mac-link 'chrome 'markdown))))
+  ("m" (lambda () (interactive) (insert (grab-mac-link 'firefox 'markdown))))
+  ("o" (lambda () (interactive) (insert (grab-mac-link 'firefox 'org))))
   ("M" (lambda () (interactive) (insert (grab-mac-link 'finder 'markdown))))
   ("O" (lambda () (interactive) (insert (grab-mac-link 'finder 'org))))
 
@@ -368,44 +308,27 @@ _c_   _r_   _q_uit        _y_ank
   ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
   ("q" nil))
 
-(defhydra hydra-toggle (:hint nil :color blue)
-  "
-^THEMES^  ^MODES^        ^MODELINE^   ^FRAME^        ^LINE^
-_d_ark    _f_lycheck     _T_ime       _F_ullscreen   _t_runcate
-_l_ight   li_n_um        ^ ^          _m_aximized
-^^        _w_hitespace   ^ ^          ^ ^
-^^        _p_ersp-mode   ^ ^          ^ ^
-"
-  ;; ("d" (lambda () (interactive) (load-theme 'apropospriate-dark t)))
-
-  ("d" (lambda () (interactive) (solarized--dark-or-light 'dark)
-         (set-face-attribute 'default nil :font my-font-for-dark)))
-  ("l" (lambda () (interactive) (solarized--dark-or-light 'light)
-             (set-face-attribute 'default nil :font my-font-for-light)))
-  ("f" flycheck-mode)
-  ("n" nlinum-mode)
-  ("T" display-time-mode)
-  ("p" persp-mode)
-  ("m" toggle-frame-maximized)
-  ("F" toggle-frame-fullscreen)
-  ("w" blank-mode :color red)
-  ("t" toggle-truncate-lines)
-  ("q" nil "quit" :color blue))
+(defhydra hydra-toggle (:hint nil :color blue :columns 1)
+  "TOGGLE"
+  ("f" flycheck-mode "flycheck")
+  ("n" nlinum-mode "nlinum")
+  ("w" blank-mode "whitespace" :color red )
+  ("t" toggle-truncate-lines "truncate lines"))
 
 (defhydra hydra-transparency
   (:columns 2
    :body-pre
    (let* ((alpha (frame-parameter (selected-frame) 'alpha)))
-     (cond ((not alpha) (sam--set-transparency -10))
-           ((eql alpha 100) (sam--set-transparency -10))
+     (cond ((not alpha) (sam|set-transparency -10))
+           ((eql alpha 100) (sam|set-transparency -10))
            (t nil))))
   "
 ALPHA : [ %(frame-parameter nil 'alpha) ]
 "
-  ("t" (lambda () (interactive) (sam--set-transparency +1)) "+ more")
-  ("s" (lambda () (interactive) (sam--set-transparency -1)) "- less")
-  ("T" (lambda () (interactive) (sam--set-transparency +10)) "++ more")
-  ("S" (lambda () (interactive) (sam--set-transparency -10)) "-- less")
+  ("t" (lambda () (interactive) (sam|set-transparency +1)) "+ more")
+  ("s" (lambda () (interactive) (sam|set-transparency -1)) "- less")
+  ("T" (lambda () (interactive) (sam|set-transparency +10)) "++ more")
+  ("S" (lambda () (interactive) (sam|set-transparency -10)) "-- less")
   ("=" (lambda (value) (interactive "nTransparency Value 0 - 100 opaque:")
          (set-frame-parameter (selected-frame) 'alpha value)) "Set to ?" :color blue))
 
@@ -433,13 +356,12 @@ _C_ _c_ ^ ^ _r_ _R_
   (:hint nil
    :color amaranth
    :columns 4
-   :pre (winner-mode 1)
-   :post (balance-windows))
+   :pre (winner-mode 1))
   "
-^MOVE^ ^^^^   ^SPLIT^          ^SIZE^   ^COMMAND^   ^WINDOW^
-^ ^ _s_ ^ ^   _-_ : split H    ^ ^     _d_elete    ^1^ ^2^ ^3^ ^4^
-_c_ _é_ _r_   _|_ : split V    _e_     _m_aximize  ^5^ ^6^ ^7^ ^8^
-^ ^ _t_ ^ ^   _h_ : split H    ^ ^     _u_ndo      ^9^ ^0^
+^MOVE^ ^^^^   ^SPLIT^          ^SIZE^   ^COMMAND^
+^ ^ _s_ ^ ^   _-_ : split H    ^ ^     _d_elete
+_c_ _é_ _r_   _|_ : split V    _e_     _m_aximize
+^ ^ _t_ ^ ^   _h_ : split H    ^ ^     _u_ndo
 ^ ^ ^ ^ ^ ^   _v_ : split V    ^ ^     _R_edo
 "
   ("c" windmove-left :color blue)
@@ -447,7 +369,7 @@ _c_ _é_ _r_   _|_ : split V    _e_     _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("t" windmove-down :color blue)
   ("s" windmove-up :color blue)
 
-  ;; splt
+  ;; split
   ("-" split-window-vertically)
   ("|" split-window-horizontally)
   ("v" split-window-horizontally :color blue)
@@ -461,105 +383,116 @@ _c_ _é_ _r_   _|_ : split V    _e_     _m_aximize  ^5^ ^6^ ^7^ ^8^
   ("m" delete-other-windows)
   ("d" delete-window)
 
-  ;; change height and width
-  ("0" select-window-0 :color blue)
-  ("1" select-window-1 :color blue)
-  ("2" select-window-2 :color blue)
-  ("3" select-window-3 :color blue)
-  ("4" select-window-4 :color blue)
-  ("5" select-window-5 :color blue)
-  ("6" select-window-6 :color blue)
-  ("7" select-window-7 :color blue)
-  ("8" select-window-8 :color blue)
-  ("9" select-window-9 :color blue)
-
   ("=" balance-windows)
   ("é" ace-window)
-  ("." hydra-buffer/body "buffers" :color blue)
-  ("'" hydra-tile/body "tile" :color blue)
   ("q" nil "quit" :color blue))
 
+(setq text-scale-mode-step 1.05)
 (defhydra hydra-zoom (:hint nil)
-  "
-^BUFFER^   ^FRAME^    ^ACTION^
-_t_: +     _T_: +     _0_: reset
-_s_: -     _S_: -     _q_: quit
- ^^[_-_] [_+_]
-"
-  ("t" zoom-in)
-  ("s" zoom-out)
-  ("T" zoom-frm-in)
-  ("S" zoom-frm-out)
-  ("0" zoom-frm-unzoom)
-  ("-" zoom-out)
-  ("+" zoom-in)
+  "ZOOM"
+  ("t" text-scale-increase "+")
+  ("s" text-scale-decrease "-")
   ("q" nil :color blue))
+
+(defhydra hydra-winner (:color red :hint nil)
+  "WINNER"
+  ("<left>" winner-undo "undo")
+  ("<right>" winner-redo "redo"))
 
 ;;; ** MAIN HYDRA
 
-(defhydra hydra-main (:hint nil :color teal :columns 3)
+(defhydra hydra-main (:hint nil :color teal :columns 1)
   "MAIN"
-  ("b" hydra-buffer/body "buffer")
-  ("B" hydra-frame/body "frame")
-  ("é" hydra-window/body "window")
+  ("p" hydra-project/body "projects")
+  ("u" hydra-ui/body "UI")
+  ("w" hydra-window/body "window")
   ("i" hydra-insert/body "insert")
-  ("j" org-capture "capture")
-  ("o" hydra-outline/body "outline")
-  ("p" hydra-projectile-if-projectile-p)
-  ("t" hydra-toggle/body)
-  ("z" hydra-zoom/body)
-  ("s-<tab>" other-frame)
-  ("<tab>" hydra-secondary/body "secondary")
-  ("q" (message "Quit Primary Hydra") "quit" :color blue))
+  ("e" hydra-text/body "text")
+  ("s" hydra-search/body "search")
+  ("g" hydra-gtd/body "GTD")
+  ("q" nil "quit" :color blue))
 
-(defhydra hydra-secondary (:hint nil :color teal)
-  "
-_a_: agenda
-_f_: font
-_t_: todo
-"
-  ("a" (lambda () (interactive) (org-agenda 1 "a")))
-  ("t" (lambda () (interactive) (org-agenda 1 "t")))
-  ("f" counsel-font)
-  ("<tab>" hydra-main/body "primary")
-  ("q" (message "Abort") "abort" :color blue))
+(defhydra hydra-ui (:hint nil :color teal :columns 1)
+  ("a" hydra-transparency/body "alpha")
+  ("t" hydra-toggle/body "toggle")
+  ("z" hydra-zoom/body "zoom"))
 
+(defhydra hydra-gtd (:hint nil :color teal :columns 1)
+  ("a" org-agenda "agenda")
+  ("c" org-capture "capture"))
 
-(defhydra hydra-yank-pop ()
+(defhydra hydra-yank-pop (:hint nil)
   "yank"
   ("C-y" yank nil)
   ("M-y" yank-pop nil)
   ("y" (yank-pop 1) "next")
   ("p" (yank-pop 1) "next")
   ("n" (yank-pop -1) "prev")
-  ("l" helm-show-kill-ring "list" :color blue))
+  ("l" counsel-yank-pop "list" :color blue))
 (bind-key* "C-y" #'hydra-yank-pop/yank)
+(bind-key* "M-y" #'hydra-yank-pop/yank-pop)
 
-(defhydra hydra-mark (:exit t
-                      :columns 3
-                      :idle 1.0)
-  "Mark"
-  ("f" er/mark-defun "function")
-  ("w" er/mark-word "word")
-  ("u" er/mark-url "url")
-  ("e" mark-sexp "sexp")
-  ("E" er/mark-email "Email")
-  ("b" hydra-mark-buffer/body "Buffer")
-  ("l" mark-line "Line")
-  ("p" er/mark-text-paragraph "paragraph")
-  ("s" er/mark-symbol "symbol")
-  ("S" er/mark-symbol-with-prefix "Prefixed symbol")
-  ("q" er/mark-inside-quotes "Inside quotes")
-  ("Q" er/mark-outside-quotes "Outside quotes")
-  ("(" er/mark-inside-pairs "Inside pairs")
-  ("[" er/mark-inside-pairs "Inside pairs")
-  ("{" er/mark-inside-pairs "Inside pairs")
-  (")" er/mark-outside-pairs "Outside pairs")
-  ("]" er/mark-outside-pairs "Outside pairs")
-  ("}" er/mark-outside-pairs "Outside pairs")
-  ("t" er/mark-inner-tag "Inner tag")
-  ("T" er/mark-outer-tag "Outer tag")
-  ("c" er/mark-comment "Comment")
-  ("." er/expand-region "Expand region" :exit nil)
-  ("," er/contract-region "Contract region" :exit nil))
-(bind-key* "s-SPC" #'hydra-mark/body)
+
+;; taken from "http://joaotavora.github.io/yasnippet/snippet-development.html#sec-3-2
+;; useful when resolving merge conflicts
+(defhydra hydra-smerge (:color pink
+                        :hint nil
+                        :pre (smerge-mode 1)
+                        ;; Disable `smerge-mode' when quitting hydra if
+                        ;; no merge conflicts remain.
+                        :post (smerge-auto-leave))
+  "
+^Move^       ^Keep^               ^Diff^                 ^Other^
+^^-----------^^-------------------^^---------------------^^-------
+_n_ext       _b_ase               _<_: upper/base        _C_ombine
+_p_rev       _u_pper              _=_: upper/lower       _r_esolve
+^^           _l_ower              _>_: base/lower        _k_ill current
+^^           _a_ll                _R_efine
+^^           _RET_: current       _E_diff
+"
+  ("n" smerge-next)
+  ("p" smerge-prev)
+  ("b" smerge-keep-base)
+  ("u" smerge-keep-upper)
+  ("l" smerge-keep-lower)
+  ("a" smerge-keep-all)
+  ("RET" smerge-keep-current)
+  ("\C-m" smerge-keep-current)
+  ("<" smerge-diff-base-upper)
+  ("=" smerge-diff-upper-lower)
+  (">" smerge-diff-base-lower)
+  ("R" smerge-refine)
+  ("E" smerge-ediff)
+  ("C" smerge-combine-with-next)
+  ("r" smerge-resolve)
+  ("k" smerge-kill-current)
+  ("q" nil "cancel" :color blue))
+
+(defhydra hydra-text (:color red :hint nil :columns 1)
+  "TEXT"
+  ("i" hydra-indent/body "indent" :color blue ))
+
+(defhydra hydra-indent (:color red :hint nil :columns 1)
+  "
+MARK
+_l_ine
+_p_ara
+_b_uff
+"
+  ;; mark
+  ("l" mark-line)
+  ("p" mark-paragraph)
+  ("b" mark-whole-buffer)
+  ;; indent
+  ("i" sam|indent-region "indent" :color blue))
+
+(defhydra hydra-search (:color teal :hint nil :columns 1)
+  "SEARCH"
+  ("b" swiper "buffer"))
+
+(defhydra hydra-project (:color teal :hint nil :columns 1 :body-pre (projectile-mode))
+  "PROJECTS"
+  ("p" counsel-projectile-switch-project "project switch")
+  ("s" counsel-projectile-rg "project search")
+  ("c" projectile-compile-project "project compile")
+  ("f" counsel-projectile-find-file "find file"))

@@ -34,9 +34,7 @@
   :bind*
   (("C-c C-w" . org-refile)
    ("C-c C-l" . org-store-link)
-   ("C-c ." . org-time-stamp)
-   :map dired-mode-map
-   ("C-c C-l" . org-store-link))
+   ("C-M-c" . org-capture))
 
   :config
   (use-package ox-tufte :ensure t :disabled t)
@@ -48,6 +46,8 @@
     (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪")))
 
   (use-package org-indent :diminish "")
+
+  (use-package ox-pandoc :ensure t)
 
 ;;;; BABEL
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -75,7 +75,6 @@
 
   ;; ---------- default -----------------------------------------------------
   (require 'org-agenda)
-  (require 'org-mu4e)
 
   ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
   (setq org-agenda-files
@@ -105,12 +104,18 @@
            ((org-agenda-sorting-strategy '(ts-up priority-up))))))
   (bind-key* "C-c a" #'org-agenda)
 
-;;;;  gtd with org
+;;;;  attachment system
+
+  (setq org-attach-method 'lns)    ; make symlink instead of hard copy
+  (setq org-attach-archive-delete t) ; delete attachment when archiving entry
+  (setq org-attach-directory ".attach/") ; change folder from data/ to .attach/
+
+;;;; gtd with org
 
   (setq
    org-modules '(org-crypt)
-   org-tags-column 80          ; aligne les tags très loin sur la droite
-   org-hide-block-startup t    ; cache les blocks par défaut.
+   org-tags-column 80        ; aligne les tags très loin sur la droite
+   org-hide-block-startup t  ; cache les blocks par défaut.
    org-refile-targets '(("~/these/meta/nb/These.org" :level . 2)
                         ("~/Org/TODO" :level . 2)
                         ("~/Org/TODO" :level . 1)
@@ -118,11 +123,11 @@
                         ("~/Org/maybe.org" :level . 1))
    org-default-notes-file "~/Org/notes.org"
    org-capture-templates
-   '(("t" "these - todo" entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
-     ("r" "tickler"      entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %? %T")
-     ("p" "perso"        entry (file+headline "~/Org/TODO" "Collecte") "** %? %T :@perso:")
-     ("n" "notes"        entry (file+olp+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
-     ("j" "lab"          entry (file+olp+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
+   '(("t" "these - Todo"     entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
+     ("l" "Lab - these"      entry (file+olp+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
+     ("r" "these - tickleR"  entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %?\n%T")
+     ("c" "perso - Collecte" entry (file+headline "~/Org/TODO" "Collecte") "** %?\n%U\n")
+     ("n" "perso - Notes"    entry (file+olp+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
   (setq org-todo-keywords '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
   ;; prevent an item to switch to completed if an item below it is not:
   (setq org-enforce-todo-dependencies t)
@@ -149,6 +154,7 @@
    org-export-with-todo-keywords nil
    org-export-default-language "fr"
    org-export-backends '(ascii html icalendar latex md koma-letter))
+  (setq org-export-with-tags nil)
 
   (use-package ox-twbs
     :ensure t
@@ -196,8 +202,12 @@
    org-src-fontify-natively t
    org-latex-table-caption-above nil
    org-latex-tables-booktabs t
-   org-startup-with-inline-images nil
+   org-startup-with-inline-images t
    org-startup-indented t)
+
+  ;; rescale images to 400px if no with attribute is set (see
+  ;; https://lists.gnu.org/archive/html/emacs-orgmode/2012-08/msg01402.html)
+  (setq org-image-actual-width '(400))
 
   (with-eval-after-load 'ox-latex
     (append-to-list
@@ -243,4 +253,24 @@
 
   (general-define-key
    :keymaps 'org-mode-map
-   "C-c M-i" 'org-insert-link))
+   "C-c ." 'org-time-stamp
+   "C-c M-i" 'org-insert-link
+   ;; mnémotechnique : iMage (i is for imenu already)
+   "C-c m" 'hydra-org-image/body
+   "C-c $" 'hydra-org-archive/body)
+
+  (defhydra hydra-org-archive (:color red :columns 1)
+    ("a" org-archive-subtree "archive")
+    ("n" org-next-visible-heading "next")
+    ("t" org-next-visible-heading "next")
+    ("p" org-previous-visible-heading "previous")
+    ("s" org-previous-visible-heading "previous"))
+
+  (defhydra hydra-org-image (:color red :hint nil)
+    "
+Display inline images ?
+_y_es  _n_o    _t_oggle
+"
+    ("y" org-display-inline-images)
+    ("n" org-remove-inline-images)
+    ("t" org-toggle-inline-images)))

@@ -11,6 +11,7 @@
 **** guile                                                                   :guile:
 ***** [[https://wingolog.org/feed/atom][andy wingo]]
 ***** [[https://guix-hpc.bordeaux.inria.fr/blog/feed.xml][guix]]
+***** [[http://www.erikedrosa.com/feed.xml][orangeshark]]
 *** common lisp                                                               :cl:lisp:
 **** [[http://lispblog.xach.com/rss][zach beane]]
 **** [[http://lispmethods.com/feed.xml][lisp methods]]
@@ -27,19 +28,28 @@
 *** [[https://fedoramagazine.org/feed/][fedora]]                                                                      :fedora:
 *** perl                                                                      :perl:
 **** [[http://perltricks.com/index.xml][perltricks]]
+*** c                                                                         :c:
+**** [[https://modelingwithdata.org/modeling.xml][ben klemens]]
 ** bio                                                                         :bio:
-*** [[http://robertlanfear.com/blog/files/rob.lanfear.blog.xml][bob lanfear]]
-*** [[https://c2-d2.github.io/hanage-lab/feed.xml][bill hanage lab]]
-*** [[https://armchairecology.blog/feed/atom.xml][thimothée poisot]]
+*** blogs                                                                     :blog:
+**** [[http://robertlanfear.com/blog/files/rob.lanfear.blog.xml][bob lanfear]]
+**** [[https://c2-d2.github.io/hanage-lab/feed.xml][bill hanage lab]]
+**** [[https://armchairecology.blog/feed/atom.xml][thimothée poisot]]
+**** [[https://brentp.github.io/index.xml][brentp]]
+
 *** papers                                                                    :papers:
-**** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet]]
-**** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]
-**** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]
+**** [[https://evolbiol.peercommunityin.org/public/rss][PCI Evol Biol]]                                                           :ecology:evo:
+**** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet ]]                                                       :genet:
+**** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]                                             :microbio:
+**** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]                                                 :genet:
 **** [[http://biorxiv.org/alertsrss][biorxiv]]
-**** [[http://onlinelibrary.wiley.com/rss/journal/10.1111/(ISSN)1365-2958][molecular microbiology]]
+**** [[http://onlinelibrary.wiley.com/rss/journal/10.1111/(ISSN)1365-2958][molecular microbiology]]                                                  :microbio:biomol:
 **** [[http://feeds.feedburner.com/pnas/SMZM][PNAS current issue]]
 **** [[http://feeds.feedburner.com/pnas/uSDM][PNAS podcasts]]
-**** [[http://feeds.feedburner.com/ProceedingsOfTheNationalAcademyOfSciencesEvolution?format=xml][PNAS Evolution]]
+**** [[http://feeds.feedburner.com/ProceedingsOfTheNationalAcademyOfSciencesEvolution?format=xml][PNAS Evolution]]                                                          :ecology:evo:
+**** [[https://www.frontiersin.org/journals/ecology-and-evolution/rss][frontiers in ecology and evolution ]]                                     :ecology:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12064&channel-name=Theory+in+Biosciences][theory in biosciences]]                                                   :philo:epistemo:
+**** [[https://www.ptpbio.org/longfeed.xml][philosophy, theory and practice in biology]]                              :philo:
 *** bioinfo                                                                   :bioinfo:
 **** [[http://bioinfo-fr.net/feed][bioinfo.fr]]
 *** biostat                                                                   :biostat:
@@ -90,6 +100,7 @@
 **** [[http://radiofrance-podcast.net/podcast09/rss_10467.xml][les chemins de la philo ]]                                                   :podcast:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13194&channel-name=European+Journal+for+Philosophy+of+Science][European Journal for Philosophy of Science]]                              :papers:
 **** [[http://www.journals.uchicago.edu/action/showFeed?type=etoc&feed=rss&jc=phos][Philosophy of Science Association]]                                       :papers:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10539&channel-name=Biology+%26+Philosophy][Philosophy of Biology ]]                                                  :papers:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10838&channel-name=Journal+for+General+Philosophy+of+Science][Journal for General Philosophy of Science]]                               :papers:
 ** podcasts                                                                     :podcast:
 *** [[http://radiofrance-podcast.net/podcast09/rss_13957.xml][conversations scientifiques]]

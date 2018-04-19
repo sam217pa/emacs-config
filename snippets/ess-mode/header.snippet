@@ -7,32 +7,23 @@
 #' date: "\`r Sys.Date()\`"
 #' author: "Samuel Barreto"
 #' output:
-#'   tint::tintHtml:
-#'     self_contained: TRUE
-#'     fig.fullwidth: TRUE
-#'     highlight: kate
-#'     fig_width: 10
-#'     fig_height: 6.18
+#'   html_document:
+#'     theme: paper
+#'     highlight: tango
 #' ---
 
 # ----- r knitr_init, echo=FALSE, cache=FALSE
 library(knitr)
 
 # Global options
-opts_chunk\$set(echo=TRUE,
-               cache=FALSE,
-               prompt=FALSE,
-               comment=NA,
-               fig.path = "graphics/",
-               message=FALSE,
-               warning=FALSE,
+opts_chunk\$set(echo=TRUE, cache=FALSE, prompt=FALSE, comment=NA,
+               fig.path = "figures/", message=FALSE, warning=FALSE,
                global.par = TRUE)
-opts_knit\$set(width=80)
 
 ## /*
 rmarkdown::render(
-  input = "`(buffer-file-name)`",
-  output_file = "`(format "%s%s%s.html" (file-name-directory (buffer-file-name)) "reports/" (file-name-base (buffer-file-name)))`",
+  input = "`(concat (file-name-base (buffer-file-name)) ".R")`",
+  output_file = "`(concat "reports/" (file-name-base (buffer-file-name)) ".html")`",
   encoding = "UTF-8"
 )
 ## */

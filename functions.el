@@ -49,7 +49,7 @@
       (open-line 1)
       (insert line-text))))
 
-(defun sam--comment-or-uncomment-region-or-line ()
+(defun sam|comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
   (interactive)
   (let (beg end)
@@ -58,7 +58,7 @@
       (setq beg (line-beginning-position) end (line-end-position)))
     (comment-or-uncomment-region beg end)))
 
-(defun sam--switch-to-other-buffer ()
+(defun sam|switch-to-other-buffer ()
   "Switch to other buffer"
   (interactive)
   (switch-to-buffer (other-buffer)))
@@ -81,7 +81,7 @@ Requires smartparens because all movement is done using
     (call-interactively 'eval-last-sexp)))
 
 ;; from https://github.com/syl20bnr/spacemacs/
-(defun sam--open-in-external-app ()
+(defun sam|open-in-external-app ()
   "Open current file in external application."
   (interactive)
   (let ((file-path (if (eq major-mode 'dired-mode)
@@ -91,20 +91,6 @@ Requires smartparens because all movement is done using
         (shell-command (format "open \"%s\"" file-path))
       (message "No file associated to this buffer."))))
 
-
-;; from magnars ;; from spacemacs
-(defun sam--delete-current-buffer-file ()
-  "Removes file connected to current buffer and kills buffer."
-  (interactive)
-  (let ((filename (buffer-file-name))
-        (buffer (current-buffer))
-        (name (buffer-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to delete this file? ")
-        (delete-file filename t)
-        (kill-buffer buffer)
-        (message "File '%s' successfully removed" filename)))))
 
 ;;; Blog related functions
 ;; from https://blog.tohojo.dk/2015/10/integrating-hugo-into-emacs.html
@@ -278,7 +264,7 @@ Lisp function does not specify a special indentation."
               (method
                (funcall method indent-point state))))))))
 
-(defun sam--iterm-goto-filedir-or-home ()
+(defun sam|iterm-here ()
   "Go to present working dir and focus iterm"
   (interactive)
   (do-applescript
@@ -293,17 +279,16 @@ Lisp function does not specify a special indentation."
     " end tell\n"
     " do shell script \"open -a iTerm\"\n")))
 
-(defun sam--iterm-focus ()
+(defun sam|iterm-focus ()
   (interactive)
   (do-applescript
    " do shell script \"open -a iTerm\"\n"))
 
-(defun sam--scratch ()
-  "Create a new buffer called untitled(<n>)"
-  ;; from spacemacs/layers/+distribution/spacemacs-base/funcs.el
+(defun sam|finder-here ()
   (interactive)
-  (let ((newbuf (generate-new-buffer-name "*Untitled*")))
-    (switch-to-buffer newbuf)))
+  (let* ((dir default-directory)
+         (scr (format " do shell script \"open %s\"\n" dir)))
+    (do-applescript scr)))
 
 ;; adapted from
 ;; http://emacs.stackexchange.com/questions/202/close-all-dired-buffers
@@ -340,6 +325,7 @@ Lisp function does not specify a special indentation."
   "This a list of colors defined by the Solarized color
   palette.")
 
+
 (defun counsel-colors-solarized ()
   "Show a list of all solarized colors.
 
@@ -360,14 +346,12 @@ selected candidate."
                           'face (list :background (cdr x)))))
                       counsel-colors--solarized-alist)
               :require-match t
-              :action #'counsel-colors-action-insert-hex
-              :update-fn (lambda ()
-                           (counsel-colors--update-highlight (ivy-state-current ivy-last)))
+              :action (lambda (x) (insert (substring-no-properties x 26 33)))
               :caller 'counsel-colors-solarized
               :sort t)))
 
 ;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
-(defun unfill-paragraph (&optional region)
+(defun sam|unfill-paragraph (&optional region)
   "Takes a multi-line paragraph and makes it into a single line of text."
   (interactive (progn (barf-if-buffer-read-only) '(t)))
   (let ((fill-column (point-max))
@@ -384,11 +368,6 @@ selected candidate."
         (setcdr (last list) elements)
       (set list-var elements)))
   (symbol-value list-var))
-
-(defun sam--find-biblio ()
-  "Open a pdf in the directory containing my bibliography"
-  (interactive)
-  (counsel-find-file "~/zotero_bib/"))
 
 
 ;;; lab notebook
@@ -412,21 +391,7 @@ selected candidate."
       (goto-char (point-min))
       (save-buffer))))
 
-(defun search-journal ()
-  (interactive)
-  (counsel-ag nil "~/Org/journal/"))
-
-(use-package s
-  :commands all-sidenote-buffer
-  :defines all-sidenote buffer
-  :config
-  (defun all-sidenote-buffer ()
-    (interactive)
-    (ivy-read
-     "get a list of all sidenotes"
-     (s-match-strings-all "sidenote \"[0-9]+\"" (buffer-string)))))
-
-(defun delete-to-sentence-beg ()
+(defun sam|delete-to-sentence-beg ()
   (interactive)
   (save-excursion
     (let ((end (point)))
@@ -478,13 +443,6 @@ is already narrowed."
         ((derived-mode-p 'latex-mode)
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
-
-(defun buffer-to-new-frame ()
-  "Open the current buffer in a new frame"
-  (interactive)
-  (let ((buf (buffer-name)))
-    (delete-window)
-    (switch-to-buffer-other-frame buf)))
 
 (defun mark-line ()
   "Mark the whole line"
@@ -610,7 +568,7 @@ Uses `sam--move-end-of-line'."
             (/= 0 (logand (lsh 1 18) s))
             (/= 0 (logand (lsh 1 19) s))))))
 
-(defun sam/end-of-code-or-line (&optional arg)
+(defun sam|end-of-code-or-line (&optional arg)
   "Move to the end of code.  If already there, move to the end of line,
 that is after the possible comment.  If at the end of line, move
 to the end of code.
@@ -673,12 +631,7 @@ properly."
         (goto-char eoc))
        (t (goto-char eoc)))))))
 
-;; insert file name
-(defun sam/insert-filename ()
-  (interactive)
-  (insert (buffer-file-name)))
-
-(defun sam--set-transparency (inc)
+(defun sam|set-transparency (inc)
   "Increase or decrease the selected frame transparency"
   (let* ((alpha (frame-parameter (selected-frame) 'alpha))
          (next-alpha (cond ((not alpha) 100)
@@ -709,23 +662,43 @@ as input."
 
 (defalias 'kill-frame #'delete-frame)
 
-(defun counsel-tldr ()
-  "Search https://github.com/tldr-pages/tldr."
-  (interactive)
-  (let* ((default-directory "~/src/github.com/tldr-pages/tldr")
-         (cands (split-string
-                 (shell-command-to-string
-                  "git ls-files --full-name -- pages/")
-                 nil t)))
-    (ivy-read "Topic: " cands
-              :action #'find-file
-              :caller 'counsel-tldr)))
-
 (custom-set-variables '(epg-gpg-program  "gpg2"))
 
-;;;; use-package jump
+;;; counsel font
 
-(defun helm--list-use-package-calls ()
+(defun counsel-font ()
+  "Change font of current frame"
+  (interactive)
+  (ivy-read "Chose font :"
+            (font-family-list)
+            :caller 'counsel-font
+            :action (lambda (x) (set-frame-font x))))
+
+;;; counsel accession numbers
+
+(defun sam--completion-collection (col)
+  (mapcar (lambda (x)
+            (concat (propertize (car x) 'font-lock-face '(:foreground "#268bd2"))
+                    " => "
+                    (propertize (cadr x) 'face 'slanted)))
+          col))
+
+(defun sam--completion-collection-out (candidate)
+  (substring-no-properties candidate 0 (string-match " => " candidate)))
+
+(defun sam--genome-accession-numbers-action (candidate)
+  (insert (sam--completion-collection-out candidate)))
+
+(defun sam|genome-accession-numbers ()
+  (interactive)
+  (let* ((accessions '(("NC_005966.1" "Acinetobacter baylyi ADP1")))
+         (cols (sam--completion-collection accessions)))
+    (ivy-read "Chose genome ?" cols
+              :action #'sam--genome-accession-numbers-action)))
+
+;;; use-package jump
+
+(defun use-package-jump--list-calls ()
   (let ((packages))
     (save-excursion
       (goto-char (point-max))
@@ -736,6 +709,13 @@ as input."
                   packages)))))
     packages))
 
+(defun use-package-jump ()
+  "Jump to an outer-level `use-package' definition in current buffer."
+  (interactive)
+  (let ((packages (use-package-jump--list-calls)))
+    (goto-char (cdr (assoc (ivy-completing-read "Package: " packages)
+                           packages)))))
+
 (defun helm--goto-use-package-call (candidate)
   (push-mark)
   (goto-char candidate))
@@ -745,7 +725,7 @@ as input."
   (interactive)
   (helm
    :sources (helm-build-sync-source "Packages"
-              :candidates (helm--list-use-package-calls)
+              :candidates (use-package-jump--list-calls)
               :fuzzy-match t
               :action (helm-make-actions
                        "Go to use-package call" #'helm--goto-use-package-call))
@@ -753,29 +733,24 @@ as input."
 
 ;;;; Hidden mode line mode
 
-(defvar-local hidden-mode-line-mode nil)
-
-(define-minor-mode hidden-mode-line-mode
-  "Minor mode to hide the mode-line in the current buffer."
-  :init-value nil
-  :global t
-  :variable hidden-mode-line-mode
-  :group 'editing-basics
-  (if hidden-mode-line-mode
-      (setq hide-mode-line mode-line-format
-            mode-line-format nil)
-    (setq mode-line-format hide-mode-line
-          hide-mode-line nil))
-  (force-mode-line-update)
-  ;; Apparently force-mode-line-update is not always enough to
-  ;; redisplay the mode-line
-  (redraw-display)
-  (when (and (called-interactively-p 'interactive)
-             hidden-mode-line-mode)
-    (run-with-idle-timer
-     0 nil 'message
-     (concat "Hidden Mode Line Mode enabled.  "
-             "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
-
 ;; If you want to hide the mode-line in every buffer by default
 ;; (add-hook 'after-change-major-mode-hook 'hidden-mode-line-mode)
+
+(defun sam|indent-region ()
+  "Indent region "
+  (interactive)
+  (let ((beg (region-beginning))
+        (end (region-end)))
+    (indent-region beg end)))
+
+(defun sam|indent-paragraph ()
+  "Indent paragraph at point according to mode"
+  (interactive)
+  (save-excursion
+    (mark-paragraph)
+    (indent-region (region-beginning) (region-end))))
+
+(defun sam|join-to-next-line ()
+  "Join current line to next line."
+  (interactive)
+  (join-line 4))
