@@ -1086,36 +1086,12 @@ Navigate : _n_ext _p_rev _c_lose _l_ast
              gpl-ccL gpl-python-copyright-line gpl-test
              gpl-c-copyright-line gpl-c))
 
-(use-package grab-mac-link :ensure t
+(use-package grab-mac-link
+  :ensure t
   :commands grab-mac-link)
 
 
 ;;;; H
-
-(use-package helm-config
-  :diminish (helm-mode . "")
-  :commands (helm-locate
-             helm-bookmarks)
-  :bind (:map helm-map
-          ("C-i" . helm-execute-persistent-action)
-          ("<tab>" . helm-execute-persistent-action)
-          ("M-i" . helm-select-action))
-  :config
-  (setq helm-locate-command "mdfind -name %s %s")
-
-  (setq
-   ;; open helm buffer inside current window
-   helm-split-window-in-side-p t
-   ;; move to end or beginning of source when reaching top or bottom
-   helm-move-to-line-cycle-in-source t
-   ;; search for library in `require' and `declare-function' sexp.
-   helm-ff-search-library-in-sexp t
-   ;; scroll 8 lines other window using M-<next>/M-<prior>
-   helm-scroll-amount 8
-   helm-ff-file-name-history-use-recentf t
-   helm-echo-input-in-header-line nil
-   ;; helm use rg
-   helm-grep-ag-command "rg --smart-case --no-heading --line-number %s %s %s"))
 
 (use-package helm-make
   :bind* (("C-c C" . helm-make)
