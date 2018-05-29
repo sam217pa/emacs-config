@@ -1,6 +1,6 @@
 emacs.d/
 /.abbrev_defs
-
+elfeed/
 *.elc
 /eshell/history
 /eshell/lastdir

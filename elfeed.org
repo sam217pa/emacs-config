@@ -25,7 +25,8 @@
 **** [[http://planet.emacsen.org/atom.xml][planet.emacsen]]
 **** [[http://cestlaz.github.io/rss.xml][cestlaz]]
 **** [[http://cachestocaches.com/feed/][cachestocaches]]
-*** [[https://fedoramagazine.org/feed/][fedora]]                                                                      :fedora:
+**** [[https://scripter.co/atom.xml][kaushal modi]]
+*** [[https://fedoramagazine.org/feed/][fedora]]                                                                    :fedora:
 *** perl                                                                      :perl:
 **** [[http://perltricks.com/index.xml][perltricks]]
 *** c                                                                         :c:
@@ -69,6 +70,8 @@
 *** [[https://france.attac.org/spip.php?page=backend][attac]]
 *** [[http://www.kedistan.net/feed/][kedistan]]
 *** [[https://www.laquadrature.net/fr/rss.xml][quadrature du net]]
+*** syndicats                                                                 :syndic:
+**** [[http://www.sudeducation.org/spip.php?page=backend][sud éducation]]
 ** libertaire                                                                  :anar:
 *** [[http://almtoile.free.fr/data/fr-news.xml][amicale laïque de la montagne]]
 *** [[https://robertgraham.wordpress.com/feed/][robert graham]]
@@ -96,6 +99,9 @@
 **** [[science][revue de la régulation]]
 **** [[https://www.erudit.org/fr/rss.xml][érudit]]
 **** [[http://www.arss.fr/feed/][arss]]
+**** [[http://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=crsb&type=etoc&feed=rss][critical sociology]]
+*** [[http://www.laviedesidees.fr/spip.php?page=backend][la vie des idées]]
+Un journal du collège de France.
 *** philo                                                                       :philo:
 **** [[http://radiofrance-podcast.net/podcast09/rss_10467.xml][les chemins de la philo ]]                                                   :podcast:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13194&channel-name=European+Journal+for+Philosophy+of+Science][European Journal for Philosophy of Science]]                              :papers:
@@ -105,3 +111,4 @@
 ** podcasts                                                                     :podcast:
 *** [[http://radiofrance-podcast.net/podcast09/rss_13957.xml][conversations scientifiques]]
 *** [[http://radiofrance-podcast.net/podcast09/rss_11921.xml][cours du collège de france]]
+*** [[http://radiofrance-podcast.net/podcast09/rss_16274.xml][matières à penser]]
