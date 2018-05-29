@@ -17,134 +17,102 @@
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;;
 
-;;; * Code
+;;; Code
 
-;; ---------- defaults ----------------------------------------------------
-(setq ess-swv-plug-into-AUCTeX-p t)
-(setq ess-eval-visibly 'nowait)
-(setq ess-roxy-insert-prefix-on-newline t)
-(setq ess-eldoc-show-on-symbol t)
-;; ess should use default completing-read, either ivy or helm.
-(setq ess-use-ido nil)
+(use-package ess-site
+  :ensure ess
+  :mode
+  (("\\.sp\\'"           . S-mode)
+   ("/R/.*\\.q\\'"       . R-mode)
+   ("\\.[qsS]\\'"        . S-mode)
+   ("\\.ssc\\'"          . S-mode)
+   ("\\.SSC\\'"          . S-mode)
+   ("\\.[rR]\\'"         . R-mode)
+   ("\\.[rR]nw\\'"       . Rnw-mode)
+   ("\\.[sS]nw\\'"       . Snw-mode)
+   ("\\.[rR]profile\\'"  . R-mode)
+   ("NAMESPACE\\'"       . R-mode)
+   ("CITATION\\'"        . R-mode)
+   ("\\.omg\\'"          . omegahat-mode)
+   ("\\.hat\\'"          . omegahat-mode)
+   ("\\.lsp\\'"          . XLS-mode)
+   ("\\.do\\'"           . STA-mode)
+   ("\\.ado\\'"          . STA-mode)
+   ("\\.[Ss][Aa][Ss]\\'" . SAS-mode)
+   ("\\.jl\\'"           . ess-julia-mode)
+   ("\\.[Ss]t\\'"        . S-transcript-mode)
+   ("\\.Sout"            . S-transcript-mode)
+   ("\\.[Rr]out"         . R-transcript-mode)
+   ("\\.Rd\\'"           . Rd-mode)
+   ("\\.[Bb][Uu][Gg]\\'" . ess-bugs-mode)
+   ("\\.[Bb][Oo][Gg]\\'" . ess-bugs-mode)
+   ("\\.[Bb][Mm][Dd]\\'" . ess-bugs-mode)
+   ("\\.[Jj][Aa][Gg]\\'" . ess-jags-mode)
+   ("\\.[Jj][Oo][Gg]\\'" . ess-jags-mode)
+   ("\\.[Jj][Mm][Dd]\\'" . ess-jags-mode))
+  :commands
+  (R stata julia SAS)
 
-;; (setq ess-R-font-lock-keywords
-;;       '((ess-R-fl-keyword:modifiers . t)
-;;         (ess-R-fl-keyword:fun-defs . t)
-;;         (ess-R-fl-keyword:keywords . t)
-;;         (ess-R-fl-keyword:assign-ops . t)
-;;         (ess-R-fl-keyword:constants . t)
-;;         (ess-fl-keyword:fun-calls . t)
-;;         (ess-fl-keyword:numbers . t)
-;;         (ess-fl-keyword:operators . t)
-;;         (ess-fl-keyword:delimiters . t)
-;;         (ess-fl-keyword:= . t)
-;;         (ess-R-fl-keyword:F&T . t)
-;;         (ess-R-fl-keyword:%op% . t)))
+  :init
+  (add-hook 'ess-mode-hook
+            (lambda ()
+              (smartparens-mode 1)
+              (lesspy-mode 1)
+              (run-hooks 'prog-mode-hook 'company-mode-hook)))
+  (add-hook 'inferior-ess-mode-hook
+            (lambda ()
+              (setq-local outline-regexp "^>")
+              (rainbow-mode t)))
+  (setq ess-offset-continued 2          ; offset after first statement
+        ess-expression-offset 2         ; offset for expression
+        ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
+        ess-default-style 'RStudio) ; set default style for R source file
 
-(ess-toggle-underscore nil)
+  (setq ess-indent-with-fancy-comments nil)
+  ;; do not truncate line in the R repl:
+  (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
 
-(sp-local-pair 'ess-mode "%" "%")
-;; when pressed RET after { or (,
-;; {
-;;    | <- cursor
-;; }
-(sp-local-pair 'ess-mode "{" nil
-               :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-(sp-local-pair 'ess-mode "(" nil
-               :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  :config
 
-;; ---------- function definition -----------------------------------------
-(defun lesspy-backward-slurp ()
-  "slurp sexp backward if at an opening paren"
-  (interactive)
-  (cond ((looking-back ess-closing-delim)
-         (sp-backward-slurp-sexp))
-        (t (self-insert-command arg))))
+  (setq ess-swv-plug-into-AUCTeX-p t)
+  (setq ess-eval-visibly 'nowait)
+  (setq ess-roxy-insert-prefix-on-newline t)
+  (setq ess-eldoc-show-on-symbol t)
+  ;; ess should use default completing-read, either ivy or helm.
+  (setq ess-use-ido nil)
+  (ess-toggle-underscore nil)
 
-(defun lesspy-forward-slurp ()
-  "slurp sexp forward if at a closing paren"
-  (interactive)
-  (cond ((looking-back ess-closing-delim)
-         (sp-backward-down-sexp)
-         (sp-slurp-hybrid-sexp)
-         (sp-forward-sexp 2))
-        (t (self-insert-command arg))))
+  ;; -- parens --
+  ;; when pressed RET after { or (,
+  ;; {
+  ;;    | <- cursor
+  ;; }
+  (sp-local-pair 'ess-mode "{" nil
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  (sp-local-pair 'ess-mode "(" nil
+                 :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
+  (sp-local-pair 'ess-mode "%" "%")
 
-(defun lesspy-kill-wip ()
-  (interactive)
-  (let ((beg (re-search-backward "^## \/\\*"))
-        (end (re-search-forward "^## \\*\/")))
-    (kill-region beg end)))
-
-(defun ess-insert-pipe ()
-  (interactive)
-  (insert "%>% "))
-
-;; ---------- keybindings -------------------------------------------------
-
-(general-define-key
- :keymaps 'ess-mode-map
-  "RET" 'ess-newline-and-indent
-  "C-RET" 'ess-eval-region-or-line
-  "M-RET" 'ess-eval-function-or-paragraph
-  "M-p"   'sp-backward-up-sexp
-  "M-n"   'sp-up-sexp
-  " " 'ess-insert-S-assign               ; shift alt space
-  " " 'ess-insert-S-assign               ; shift space
-  (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
-  (general-chord ",,") 'hydra-ess/body
-  (general-chord ",l") 'lesspy-eval-line
-  (general-chord ",r") 'ess-eval-region-or-line-and-step
-  (general-chord ",t") 'ess-eval-function-or-paragraph)
-
-(general-define-key
- :keymaps 'inferior-ess-mode-map
-  "s-d" 'ess-insert-pipe)
-
-;; ---------- hydra -------------------------------------------------------
-
-(defhydra hydra-ess (:color teal :hint nil)
-  "
-     ^Commands^        ^info^          ^Load^         ^Navigate^
-     ^--------^        ^----^          ^----^         ^--------^
-[_s_]: send         _d_: rdired     _l_: library   _o_: outline
-_c_  : list         _h_: help       _f_: file
-_w_  : set width  _C-h_: web-help
-"
-  ("s" hydra-ess-send/body)
-  ("h" ess-help)
-  ("c" ess-handy-commands)
-  ("C-h" ess-help-web-search)
-  ("d" ess-rdired)
-  ("l" ess-load-library)
-  ("f" ess-load-file)
-  ("w" ess-execute-screen-options)
-  ("q" nil "quit" :color blue)
-  ("o" hydra-outline/body))
+  ;; function definition
+  (add-to-list
+   'semantic-symref-filepattern-alist
+   '(ess-mode "*.[rR]" "*.r"))
 
 
-(defhydra hydra-ess-send (:color teal :hint nil)
-  "
-^  ^      ^Send^  ^Step^   ^Go^
-^Line^     _l_     _C-l_   _M-l_
-^Region^   _r_     _C-r_   _M-r_
-^Chunk^    _c_     _C-c_   _M-c_
-^Function^ _s_     _C-s_   _M-s_
-"
-  ("l" ess-eval-line)
-  ("C-l" ess-eval-line-and-step :color red)
-  ("M-l" ess-eval-line-and-go)
 
-  ("r" ess-eval-region)
-  ("C-r" ess-eval-region-and-step :color red)
-  ("M-r" ess-eval-region-and-go)
+;;;; keybindings
 
-  ("c" ess-eval-chunk)
-  ("C-c" ess-eval-chunk-and-step :color red)
-  ("M-c" ess-eval-chunk-and-go)
-
-  ("s" ess-eval-function-or-paragraph)
-  ("C-s" ess-eval-function-or-paragraph-and-step :color red)
-  ("M-s" ess-eval-function-or-paragraph-and-go)
-
-  ("q" nil "quit" :color blue))
+  (general-define-key
+   :keymaps 'ess-mode-map
+   "RET" 'ess-newline-and-indent
+   "C-RET" 'ess-eval-region-or-line
+   "M-RET" 'ess-eval-function-or-paragraph
+   "M-p"   'sp-backward-up-sexp
+   "M-n"   'sp-up-sexp
+   " " 'ess-insert-S-assign             ; shift alt space
+   " " 'ess-insert-S-assign             ; shift space
+   (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
+   (general-chord ",,") 'hydra-ess/body
+   (general-chord ",l") 'lesspy-eval-line
+   (general-chord ",r") 'ess-eval-region-or-line-and-step
+   (general-chord ",t") 'ess-eval-function-or-paragraph))
