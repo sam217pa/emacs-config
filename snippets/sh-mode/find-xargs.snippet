@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: find-xargs
+# key: fx
+# --
+find . -name "*.${1:log}" | xargs -I {} sh -c "${2:echo {}}"

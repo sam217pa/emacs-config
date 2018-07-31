@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: bgzip compress
+# key: bgzip
+# --
+%.vcf.gz: %.vcf
+	bgzip -c $< > $@

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: setMethod
+# key: method
+# --
+
+setMethod(
+  "${1:name}",
+  signature = c(${2:object} = "${3:class}"),
+  definition = function($2, ...) {
+    $0
+  }
+)

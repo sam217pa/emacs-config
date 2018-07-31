@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ebi-fasta
+# key: ebi
+# --
+${1:ACC} := ${2:ACC_NUMBER}
+data/\$($1).fasta.gz:
+	curl --silent 'https://www.ebi.ac.uk/ena/data/view/\$($1)&display=fasta' \
+	| bgzip -c > $@

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: samtools index
+# key: s-index
+# --
+%.bam.bai: %.bam
+	samtools index $<

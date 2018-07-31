@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: ffmpeg-compress
+# key: ffmpeg
+# --
+${1:output.mp4}: ${2:input.mp4}
+	ffmpeg -i $< -vcodec h264 -acodec mp3 $@

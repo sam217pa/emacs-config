@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bcftools consensus
+# key: b-consensus
+# --
+%.fasta: %.vcf.gz
+	bcftools index $<
+	bcftools consensus -f ${1:\$(REF_BS)} -o $@ $<

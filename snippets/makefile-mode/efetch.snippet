@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: efetch
+# key: efetch
+# --
+${1:ACC} := ${2:ACC_NUMBER}
+data/\$($1).fasta.gz:
+	esearch -db nuccore -query \$($1) \
+	| efetch -format=${3:`(sam--efetch-formats)`} \
+	| bgzip -c > $@

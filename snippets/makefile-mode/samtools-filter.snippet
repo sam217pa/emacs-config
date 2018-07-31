@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: samtools filter unmapped
+# key: s-filter
+# --
+%.bam: %_1.fastq.gz %_2.fastq.gz
+	bwa mem -t 4 ${1:\$(REFERENCE)} $^ \
+	| samtools view -h -f P -F 4 - \
+	| samtools sort -@ 4 -O BAM -o $@ -
