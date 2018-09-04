@@ -867,8 +867,17 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
   :config
   (require 'geiser-install))
 
+;; gengetopt mode
+(use-package ggo-mode
+  :ensure t
+  :mode ("\\.ggo\\'" . ggo-mode))
+
 (use-package ggtags :ensure t
-  :commands (ggtags-mode))
+  :commands (ggtags-mode)
+  :bind (:map ggtags-mode-map
+         ("M-?" . ggtags-find-reference)))
+
+(use-package goto-addr
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
