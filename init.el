@@ -1511,15 +1511,23 @@ abort completely with `C-g'."
   :config
   (turn-on-pbcopy))
 
-(use-package posframe
+(use-package polymode
   :ensure t
-  :after ivy-posframe)
+  :mode ("\\.Rmd\\'" . poly-markdown+R-mode)
+  :config
+  (use-package poly-markdown
+    :ensure t)
 
-(use-package spaceline
-  :defer t
-  :ensure t)
+  (use-package poly-org
+    :ensure t)
 
-(use-package spaceline-all-the-icons
+  (use-package poly-R
+    :ensure t)
+
+  (use-package poly-noweb
+    :ensure t))
+
+
   :ensure t
   :when window-system
   ;; defer loading after 2 seconds of standing still
