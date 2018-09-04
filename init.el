@@ -859,7 +859,7 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
              geiser-connect
              geiser)
   :init
-  (setq geiser-active-implementations '(guile))
+  (setq geiser-active-implementations '(guile chez))
   (setq geiser-guile-load-path '("/usr/local/Cellar/guile/2.2.2/share/guile/"))
   (setq geiser-guile-load-init-file-p t)
   (setq geiser-guile-manual-lookup-nodes '("Guile" "guile-2.2"))
