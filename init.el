@@ -569,6 +569,25 @@ When using Homebrew, install it using \"brew install trash\"."
     ("C-'" . shell)
     ("q"   . (lambda () (interactive) (quit-window 4)))))
 
+(use-package doom-modeline
+  :load-path "~/.emacs.d/private/doom-modeline/"
+  :init
+  (use-package shrink-path
+    :ensure t)
+
+  (use-package eldoc-eval
+    :ensure t
+    :commands (eldoc-in-minibuffer-mode))
+
+  :config
+  (doom-modeline-init)
+  (setq doom-modeline-height 20))
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-one t)
+  (doom-themes-org-config))
 
 ;;;; E
 
