@@ -1121,12 +1121,13 @@ abort completely with `C-g'."
   :ensure t
   :diminish ""
   :after (counsel swiper)
+  :custom
+  (ivy-display-style 'fancy)
+  (ivy-count-format "(%d/%d) ")
+  (ivy-use-virtual-buffers t)
   :config
-  (if window-system
-      (setq ivy-height 30)
-    (setq ivy-height 10))
   (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t) )
+  (setq ivy-display-function nil))
 
 (use-package ivy-bibtex
   :ensure t
