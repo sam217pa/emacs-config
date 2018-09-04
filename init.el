@@ -51,22 +51,27 @@ Add a lamdba containing BODY to hook HOOK."
 
 (setq package-enable-at-startup nil)
 (let ((default-directory "~/.emacs.d/elpa"))
-  (normal-top-level-add-subdirs-to-load-path))
+   (normal-top-level-add-subdirs-to-load-path))
 (package-initialize t)
-(require 'use-package)
-
-(setq package-check-signature nil)
-(setq package-enable-at-startup nil)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")
-                         ("elpy" . "https://jorgenschaefer.github.io/packages/")))
+;; (require 'use-package)
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-(eval-when-compile (require 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+
+(use-package package
+  :config
+  (setq package-check-signature nil)
+  (setq package-enable-at-startup nil)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("marmalade" . "https://marmalade-repo.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")
+                           ("gnu" . "https://elpa.gnu.org/packages/")
+                           ("elpy" . "https://jorgenschaefer.github.io/packages/"))))
 
 (use-package general :ensure t)
 (use-package diminish)
