@@ -609,16 +609,49 @@ When using Homebrew, install it using \"brew install trash\"."
 
 (use-package elfeed
   :ensure t
-  :bind* ("C-c E" . elfeed)
+  :bind* (("<f6>" . elfeed)
+          ("C-c E" . elfeed))
   :config
   ;; increase title width to accomodate papers
   (setq elfeed-search-title-max-width 120)
 
+  (setq elfeed-db-directory "~/dotfile/emacs/elfeed/")
+
   (use-package elfeed-org
-    :load-path "~/.emacs.d/private/elfeed-org"
-    :config
+    :ensure t
+    :init
     (setq rmh-elfeed-org-files (list "~/dotfile/emacs/elfeed.org"))
-    (elfeed-org))
+    :functions (elfeed-org-minor-mode)
+    :config
+    (elfeed-org)
+
+    (define-minor-mode elfeed-org-minor-mode
+      "Minor mode to interact with elfeed from the elfeed org mode
+  buffer."
+      :lighter " eorg"
+      :keymap (let ((map (make-sparse-keymap)))
+                (define-key map (kbd "RET") #'elfeed-org-filter-entry)
+                map))
+
+    (defun elfeed-org-get-tags-not-properties (s)
+      (if (get-text-property 0 'inherited s)
+          (substring-no-properties s)
+        s))
+
+    (defun elfeed-org-filter-entry ()
+      (interactive)
+      (let* ((buf (elfeed-search-buffer))
+             (p (point))
+             (tag-at-point (org-get-tags-at p))
+             (tags (mapcar #'elfeed-org-get-tags-not-properties tag-at-point))
+             (clean-tags (delete rmh-elfeed-org-tree-id tags))
+             (tag-filter (mapconcat (lambda (x) (concat " +" x)) clean-tags ""))
+             (new-filter (concat (default-value 'elfeed-search-filter)
+                                 tag-filter)))
+        (elfeed-search-set-filter new-filter)
+        (unless (get-buffer-window buf 'visible)
+          (switch-to-buffer-other-window buf)
+          (switch-to-prev-buffer)))))
 
   (defun elfeed-mark-all-as-read ()
     (interactive)
@@ -689,26 +722,9 @@ When using Homebrew, install it using \"brew install trash\"."
               :caller 'counsel-elfeed-tag
               :sort t))
 
-  (defhydra hydra-elfeed (:color pink :hint nil :columns 3)
-    "
-^ACTIONS^     ^ ^          ^MARK^       ^TAG^
-_u_: update   _b_: browse  _r_: read    _+_: add
-_g_: fetch    _y_: yank    _u_: unread  _-_: remove
-_s_: search
-"
-    ("u" elfeed-search-update--force)
-    ("g" elfeed-search-fetch)
-    ("s" elfeed-search-live-filter)
-    ("b" elfeed-search-browse-url)
-    ("y" elfeed-search-yank)
-    ("r" elfeed-search-untag-all-unread)
-    ("u" elfeed-search-tag-all-unread)
-    ("+" elfeed-search-tag-all)
-    ("-" elfeed-search-untag-all)
-    ("N" elfeed-next-tag "next tag" :color red)
-    ("q" (message "Abort.") "Quit" :color blue))
-
   (setq-default elfeed-search-filter "@6-months-ago +unread"))
+
+
 
 (use-package emacs-lisp-mode
   :mode
