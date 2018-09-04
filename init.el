@@ -737,12 +737,15 @@ When using Homebrew, install it using \"brew install trash\"."
   (general-define-key
    :keymaps 'emacs-lisp-mode-map
    :prefix "ê"
-   "" '(:ignore t :which-key "Emacs Help")
    "u" 'use-package-jump))
 
 (use-package esup
   :ensure t
   :commands esup)
+
+(use-package etymologie
+  :load-path "~/.emacs.d/private/etymologie"
+  :commands (etymologie))
 
 (use-package exec-path-from-shell
   :ensure t
