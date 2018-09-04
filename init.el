@@ -32,12 +32,22 @@ Add a lamdba containing BODY to hook HOOK."
 
 ;;; Package.el
 
-(setq gc-cons-threshold 64000000)
-(add-hook 'after-init-hook
-          (lambda ()
-            ;; restore after startup
-            (setq gc-cons-threshold 800000)))
+(defun sam--increase-gc-threshold! ()
+  (setq gc-cons-threshold most-positive-fixnum))
 
+(defun sam--normal-gc-threshold! ()
+  (setq gc-cons-threshold 800000))
+
+(add-hook! 'minibuffer-setup-hook
+  (sam--increase-gc-threshold!))
+
+(add-hook! 'minibuffer-exit-hook
+  (sam--normal-gc-threshold!))
+
+(sam--increase-gc-threshold!)
+(add-hook! 'after-init-hook
+  ;; restore after startup
+  (sam--normal-gc-threshold!))
 
 (setq package-enable-at-startup nil)
 (let ((default-directory "~/.emacs.d/elpa"))
