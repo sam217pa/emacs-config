@@ -92,25 +92,8 @@
 (defun latex/font-oblique () (interactive) (TeX-font nil ?\C-s))
 (defun latex/font-upright () (interactive) (TeX-font nil ?\C-u))
 
-(defun latex--insecable (arg)
-  (insert (concat "~" arg)))
-
-(defun latex-insecable-colon ()
-  "Replace simple colon `:' by its insecable space counterpart,
-common in french `~:'"
-  (interactive)
-  (latex--insecable ":"))
-
-(defun latex-insecable-semicolon ()
-  "Replace simple semicolon `;' by its insecable space counterpart,
-common in french `~;'"
-  (interactive)
-  (latex--insecable ";"))
-
 (general-define-key
  :keymaps 'LaTeX-mode-map
- ":" 'latex-insecable-colon
-  ";" 'latex-insecable-semicolon
  "C-," 'hydra-latex/body
  "M-q" 'fill-paragraph
  "M-s-q" 'hydra-latex-fill/body)
