@@ -1789,8 +1789,7 @@ frame.
 
   :config
   ;; Only use smartparens in web-mode
-  (sp-local-pair 'text-mode " — " " — " :trigger "—" :wrap "C-—")
-  (sp-local-pair 'text-mode "« " " »" :trigger "«" :wrap "C-«")
+  (sp-local-pair 'text-mode "« " " »" :trigger-wrap "«")
   (sp-local-pair 'markdown-mode "_" "_")
   (sp-local-pair 'markdown-mode "**" "**")
   (sp-local-pair 'markdown-mode "`" "`")
@@ -1805,57 +1804,19 @@ frame.
   (sp-local-pair 'web-mode "{% "  " %}")
   (sp-local-pair 'web-mode "{%- "  " %}")
   (sp-local-pair 'web-mode "{# "  " #}")
+
   (sp-local-pair 'org-mode "$" "$")
+  (sp-local-pair 'org-mode "=" "=")
+  (sp-local-pair 'text-mode "--- " " ---" :trigger-wrap "—")
+
+  ;; TODO: smartparens search wrap and trigger functions.
+  (sp-local-pair 'org-mode "/" "/" :trigger-wrap "/" )
+  (sp-local-pair 'org-mode "#+BEGIN_QUOTE\n" "#+END_QUOTE\n" :wrap "M-( q")
   (sp-pair "'" nil :actions :rem)
+  (sp-pair "`" nil :actions :rem)
 
   (sp-local-pair 'c-mode  "{" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'cc-mode "{" nil :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
-  (sp-local-pair 'scheme-mode "<" ">")
-
-  ;; from hydra wiki
-  (defhydra hydra-sp (:hint nil)
-    "
-       ^Navigate^   ^^              ^Slurp - Barf^    ^Splice^          ^Commands^
-       ^--------^   ^^              ^------------^    ^------^          ^--------^
-    _b_: bwd      _f_: fwd       _c_: slurp bwd      _ll_: splice    _x_: del char
-    _T_: bwd ↓    _S_: bwd ↑     _r_: slurp fwd      _lf_: fwd       _é_: del word
-    _t_: ↓        _s_: ↑       _C-c_: barf bwd       _lb_: bwd       _(_: del sexp
-    _p_: prev     _n_: next    _C-r_: barf fwd       _la_: around    _w_: unwrap
-  _M-p_: end    _M-n_: begin   ^   ^                 ^  ^
-       ^------^     ^^             ^------------^
-       ^Symbol^     ^^             ^join - split^
-       ^------^     ^^             ^------------^
-  _C-b_: bwd    _C-b_: fwd       _j_: join
-      ^^            ^^           _v_: split
-"
-    ("b" sp-backward-sexp )
-    ("f" sp-forward-sexp )
-    ("T" sp-backward-down-sexp )
-    ("S" sp-backward-up-sexp )
-    ("t" sp-down-sexp )                 ; root - towards the root
-    ("s" sp-up-sexp )
-    ("n" sp-next-sexp )
-    ("p" sp-previous-sexp )
-    ("M-n" sp-beginning-of-sexp)
-    ("M-p" sp-end-of-sexp )
-    ("x" sp-delete-char )
-    ("é" sp-kill-word )
-    ("(" sp-kill-sexp )
-    ("w" sp-unwrap-sexp ) ;; Strip!
-    ("r" sp-forward-slurp-sexp )
-    ("C-r" sp-forward-barf-sexp )
-    ("c" sp-backward-slurp-sexp )
-    ("C-c" sp-backward-barf-sexp )
-    ("ll" sp-splice-sexp )
-    ("lf" sp-splice-sexp-killing-forward )
-    ("lb" sp-splice-sexp-killing-backward )
-    ("la" sp-splice-sexp-killing-around )
-    ("C-f" sp-forward-symbol )
-    ("C-b" sp-backward-symbol )
-    ("j" sp-join-sexp ) ;;Good
-    ("v" sp-split-sexp )
-    ("u" undo "undo")
-    ("q" nil "quit" :color blue))
 
 
 
@@ -2058,22 +2019,8 @@ frame.
     "M-SPC g" "grep"
     "M-SPC M-s" "occur"))
 
-(use-package wrap-region
+(use-package wiki-summary
   :ensure t
-  :diminish ""
-  :commands (wrap-region-mode)
-  :config
-  (wrap-region-global-mode -1)
-  (wrap-region-add-wrappers
-   '(("$" "$")
-     (" " " ")
-     ("{-" "-}" "#")
-     ("/" "/" nil (ruby-mode org-mode))
-     ("=" "=" nil (org-mode))
-     ("/* " " */" "#" (java-mode javascript-mode css-mode))
-     ("`" "`" nil (markdown-mode ruby-mode))
-     ("*" "*" nil (markdown-mode org-mode))
-     ("_" "_" nil (markdown-mode)))))
 
 ;;;; X
 
