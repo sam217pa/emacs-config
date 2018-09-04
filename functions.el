@@ -767,6 +767,16 @@ as input."
          (col (sam--completion-collection options)))
     (sam--completion-collection-out
      (ivy-read "Choose format :" col))))
+
+(defun sam--export-code ()
+  (let* ((options '(("code" "Code only")
+                    ("results" "Results only")
+                    ("both" "Code and Results")
+                    ("none" "None")))
+         (col (sam--completion-collection options)))
+    (sam--completion-collection-out
+     (ivy-read "Choose format :" col))))
+
 (defun org-enquote! (beg end)
   (interactive "r")
   (org--wrap "QUOTE" beg end))
