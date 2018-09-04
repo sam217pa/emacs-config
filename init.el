@@ -960,6 +960,10 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
   :config
   (setq hydra-is-helpful t))
 
+(use-package hy-mode
+  :ensure t
+  :mode ("\\.hy\\'" . hy-mode))
+
 ;;;; I
 
 (use-package ibuffer
