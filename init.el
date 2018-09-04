@@ -105,8 +105,6 @@ Add a lamdba containing BODY to hook HOOK."
  auto-window-vscroll nil
  )
 
-(prefer-coding-system 'utf-8)
-
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -152,6 +150,59 @@ Add a lamdba containing BODY to hook HOOK."
   ;; change default font for current frame
   (add-to-list 'default-frame-alist `(font . ,my-font-for-light))
   (set-face-attribute 'default nil :font my-font-for-light))
+
+(defvar parameters
+  '(window-parameters . ((no-other-window . t)
+                         (no-delete-other-windows . t))))
+
+(setq fit-window-to-buffer-horizontally t)
+(setq window-resize-pixelwise t)
+(setq frame-resize-pixelwise t)
+
+(defun sam--set-initial-frame ()
+  "Set the default dimension and position of a new frame."
+  (let* ((a-width (* (display-pixel-width) 0.50))
+         (a-height (* (display-pixel-height) 0.60))
+         (a-left (truncate (/ (- (display-pixel-width) a-width) 2)))
+         (a-top (truncate (/ (- (display-pixel-height) a-height) 2))))
+
+    (set-frame-position (selected-frame) a-left a-top)
+    (set-frame-size (selected-frame)
+                    (truncate a-width)
+                    (truncate a-height)
+                    t )))
+
+(sam--set-initial-frame)
+
+(setq
+ display-buffer-alist
+ `(("\\*Buffer List\\*" display-buffer-in-side-window
+    (side . top)
+    (slot . -1)
+    (window-height . 20)
+    (preserve-size . (nil . t)) ,parameters)
+   ("\\*Tags List\\*" display-buffer-in-side-window
+    (side . right)
+    (slot . 1)
+    (window-width . fit-window-to-buffer)
+    (preserve-size . (t . nil)) ,parameters)
+   ("\\*\\(?:help\\|grep\\|Completions\\)\\*"
+    display-buffer-in-side-window
+    (side . bottom)
+    (slot . -1)
+    (preserve-size . (nil . t))
+    ,parameters)
+   ("\\*\\(?:shell\\|compilation\\)\\*" display-buffer-in-side-window
+    (side . bottom)
+    (slot . 1)
+    (preserve-size . (nil . t))
+    ,parameters)
+   ("\\*Org Select\\*" display-buffer-in-side-window
+    (side . top)
+    (slot . -1)
+    (window-width . fit-window-to-buffer)
+    (preserve-size . (t . nil))
+    ,parameters)))
 
 ;;; keybindings
 
