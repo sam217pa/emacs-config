@@ -332,6 +332,9 @@ When using Homebrew, install it using \"brew install trash\"."
   :ensure t
   :commands blank-mode)
 
+(use-package blink-cursor
+  :commands (blink-cursor-mode))
+
 ;;;; C
 
 (use-package cc-mode
@@ -367,9 +370,20 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package company
   :ensure t
   :diminish ""
-  :commands global-company-mode
+  :bind* (("C-c C-i" . company-mode))
+  :commands (company-mode)
   :init
-  (add-hook 'after-init-hook #'global-company-mode)
+  ;; -- [2018-05-29 09:58] tentative de non utilisation de company.
+  ;; (add-hook 'after-init-hook #'global-company-mode)
+
+  (defun set-local-company-backends! (backend)
+    "Add a backend to company locally."
+    (with-eval-after-load 'company
+      (setq-local company-backends
+                  (pcase backend
+                    ((pred listp) (append backend company-backends))
+                    ((pred symbolp) (cons backend company-backends))
+                    (_ company-backends)))))
 
   (setq company-tooltip-align-annotations t)
   (setq company-idle-delay 0.2
@@ -381,13 +395,8 @@ When using Homebrew, install it using \"brew install trash\"."
         company-show-numbers t)
 
   :config
-  (global-company-mode)
-  (setq company-backends (delete 'company-semantic company-backends))
-
-  (use-package company-statistics
-    :ensure t
-    :config
-    (company-statistics-mode))
+  ;; (setq company-backends
+  ;;       (delete 'company-semantic company-backends))
 
   (bind-keys :map company-active-map
     ("C-d" . company-show-doc-buffer)
@@ -411,7 +420,16 @@ When using Homebrew, install it using \"brew install trash\"."
           try-complete-lisp-symbol-partially
           try-complete-lisp-symbol)))
 
+(use-package company-bibtex
+  :ensure t
+  :after company
+  :config
+  (setq company-bibtex-bibliography '("~/Dropbox/bibliography/references.bib"))
+  (add-hook! 'latex-mode-hook
+    (set-local-company-backends! 'company-bibtex)))
+
 (use-package company-childframe
+  :disabled t
   :load-path "~/.emacs.d/private/company-childframe"
   :after posframe
   :config
@@ -419,14 +437,11 @@ When using Homebrew, install it using \"brew install trash\"."
   (require 'desktop)
   (push '(company-childframe-mode . nil) desktop-minor-mode-table))
 
-(use-package company-bibtex
+(use-package company-statistics
   :ensure t
   :after company
   :config
-  (setq company-bibtex-bibliography '("~/Dropbox/bibliography/references.bib"))
-  (add-hook 'latex-mode-hook
-            (lambda ()
-              (add-to-list 'company-backends 'company-bibtex))))
+  (company-statistics-mode))
 
 (use-package counsel :ensure
   :commands (counsel-load-theme
