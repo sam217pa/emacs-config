@@ -930,6 +930,12 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
   :config
   (setq highlight-indent-guides-method 'character))
 
+(use-package hideshow
+  :diminish (hs-minor-mode . "")
+  :hook ((prog-mode . hs-minor-mode)
+         (latex-mode . hs-minor-mode))
+  :bind* (("s-h" . hs-toggle-hiding)))
+
 (use-package hl-todo
   :ensure t
   :hook (prog-mode . hl-todo-mode)
