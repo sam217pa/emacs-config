@@ -267,17 +267,17 @@ Lisp function does not specify a special indentation."
 (defun sam|iterm-here ()
   "Go to present working dir and focus iterm"
   (interactive)
-  (do-applescript
-   (concat
-    " tell application \"iTerm2\"\n"
-    "   tell the current session of current window\n"
-    (format "     write text \"cd %s\" \n"
-            ;; string escaping madness for applescript
-            (replace-regexp-in-string "\\\\" "\\\\\\\\"
-                                      (shell-quote-argument (or default-directory "~"))))
-    "   end tell\n"
-    " end tell\n"
-    " do shell script \"open -a iTerm\"\n")))
+  (let ((dir (shell-quote-argument (expand-file-name default-directory))))
+    (do-applescript
+     (concat
+      " tell application \"iTerm2\"\n"
+      "   tell the current session of current window\n"
+      (format "     write text \"cd %s\" \n"
+              ;; string escaping madness for applescript
+              (replace-regexp-in-string "\\\\" "\\\\\\\\" dir))
+      "   end tell\n"
+      " end tell\n"
+      " do shell script \"open -a iTerm\"\n"))))
 
 (defun sam|iterm-focus ()
   (interactive)
