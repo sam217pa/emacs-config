@@ -1696,10 +1696,13 @@ of KEY."
 ;;;; S
 
 (use-package selected
-  :diminish ""
+  :diminish (selected-minor-mode . "")
   :ensure t
+  :defer 1
   :commands (selected-minor-mode
              selected-global-mode)
+  :init
+  (setq selected-org-mode-map (make-sparse-keymap))
   :bind (:map selected-keymap
          ("a" . align-regexp)
          ("e" . er/expand-region)
@@ -1711,7 +1714,11 @@ of KEY."
          ("w" . count-words-region)
          ("m" . apply-macro-to-region-lines)
          ("x" . kill-ring-save)
-         ("X" . kill-region))
+         ("X" . kill-region)
+         :map selected-org-mode-map
+         ("t" . org-table-convert-region)
+         ("s" . org-ensrc!)
+         ("q" . org-enquote!))
   :init
   (selected-global-mode)
   :config

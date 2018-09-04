@@ -767,3 +767,24 @@ as input."
          (col (sam--completion-collection options)))
     (sam--completion-collection-out
      (ivy-read "Choose format :" col))))
+(defun org-enquote! (beg end)
+  (interactive "r")
+  (org--wrap "QUOTE" beg end))
+
+(defun org-ensrc! (beg end)
+  (interactive "r")
+  (org--wrap "SRC" beg end))
+
+(defun org--wrap (block-name beg end)
+  (let ((beg-name (format "#+BEGIN_%s\n" (upcase block-name)))
+        (end-name (format "#+END_%s\n" (upcase block-name))))
+    (save-excursion
+      (goto-char end)
+      (if (= end (point-at-bol))
+          (insert end-name)
+        (insert (concat "\n" end-name))))
+    (save-excursion
+      (goto-char beg)
+      (if (= beg (point-at-bol))
+          (insert beg-name)
+        (insert (concat "\n" beg-name))))))
