@@ -336,30 +336,24 @@ When using Homebrew, install it using \"brew install trash\"."
 
 (use-package cc-mode
   :ensure t
-  :defer t
+  :mode (("\\.c\\'" . c-mode)
+         ("\\.h\\'" . c-mode)
+         ("\\.cpp\\'" . cpp-mode)
+         ("\\.hpp\\'" . cpp-mode)))
+
+(use-package cquery
+  :ensure t
+  :functions (sam|cquery-enable)
+  :hook (c-mode-hook . sam|cquery-enable)
   :config
-  (use-package company-c-headers
-    :ensure t)
+  (defun sam|cquery-enable ()
+    (interactive)
+    (ignore-errors (lsp-cquery-enable)))
 
-  (use-package cquery
-    :ensure t
-    :after lsp-mode
-    :commands (lsp-cquery-enable)
-    :init
-    (defun cquery//enable ()
-      (ignore-errors (lsp-cquery-enable)))
-
-    (add-hook 'c-mode-common-hook #'cquery//enable)
-    :config
-    (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-    (setq cquery-extra-init-params '(:completion (:detailedLabel t)))
-    (setq cquery-sem-highlight-method 'font-lock)
-    (setq cquery-executable "/usr/local/bin/cquery"))
-
-  ;; gengetopt mode
-  (use-package ggo-mode
-    :ensure t
-    :mode ("\\.ggo\\'" . ggo-mode)))
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  (setq cquery-extra-init-params '(:completion (:detailedLabel t)))
+  (setq cquery-sem-highlight-method 'font-lock)
+  (setq cquery-executable "/usr/local/bin/cquery"))
 
 (use-package conf-mode
   :mode (("DESCRIPTION" . conf-mode)
