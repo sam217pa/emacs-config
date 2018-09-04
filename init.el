@@ -82,6 +82,10 @@ Add a lamdba containing BODY to hook HOOK."
   (unless (server-running-p) (server-start)))
 
 ;;; Sane default
+
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+
 (setq
  use-package-verbose nil      ; use-package décrit les appels qu'il fait
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
@@ -131,6 +135,12 @@ Add a lamdba containing BODY to hook HOOK."
   "Font for coding situations.")
 
 ;;; apparences
+
+(tooltip-mode -1)      ; don't know what that is
+(tool-bar-mode -1)     ; sans barre d'outil
+(menu-bar-mode -1)     ; barre de menu
+(scroll-bar-mode -1)   ; enlève la barre de défilement
+(blink-cursor-mode -1) ; pas de clignotement
 
 (when window-system
   (set-frame-size (selected-frame) 85 61)
