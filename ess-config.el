@@ -54,15 +54,17 @@
   (R stata julia SAS)
 
   :init
-  (add-hook 'ess-mode-hook
-            (lambda ()
-              (smartparens-mode 1)
-              (lesspy-mode 1)
-              (run-hooks 'prog-mode-hook 'company-mode-hook)))
-  (add-hook 'inferior-ess-mode-hook
-            (lambda ()
-              (setq-local outline-regexp "^>")
-              (rainbow-mode t)))
+  (add-hook! 'ess-mode-hook
+    (smartparens-mode 1)
+    (lesspy-mode 1)
+    (run-hooks 'prog-mode-hook 'company-mode-hook))
+
+  (add-hook! 'inferior-ess-mode-hook
+    (setq-local outline-regexp "^>")
+    (rainbow-mode t)
+    ;; do not truncate line in the R repl:
+    (toggle-truncate-lines 1))
+
   (setq ess-offset-continued 2          ; offset after first statement
         ess-expression-offset 2         ; offset for expression
         ess-nuke-trailing-whitespace-p t ;delete trailing whitespace

@@ -19,6 +19,17 @@
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ;;
 
+;;; Functions & Macros
+
+(defmacro add-hook! (hook &rest body)
+  "Nicer add-hooking that prevents writing lambdas explicitely.
+
+Add a lamdba containing BODY to hook HOOK."
+  (declare (indent 1))
+  `(add-hook ,hook
+             (lambda () ,@body)))
+
+
 ;;; Package.el
 
 (setq gc-cons-threshold 64000000)
@@ -156,7 +167,8 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package abbrev :defer t
   :diminish ""
   :init
-  (add-hook 'text-mode-hook (lambda () (abbrev-mode 1)))
+  (add-hook! 'text-mode-hook
+    (abbrev-mode))
   ;; tell emacs where to read abbrev definitions from...
   (setq abbrev-file-name "~/dotfile/emacs/.abbrev_defs")
   (setq save-abbrevs 'silently)
@@ -394,8 +406,10 @@ When using Homebrew, install it using \"brew install trash\"."
     :bind* (("C-x C-'" . dired-jump))
     :commands (dired-omit-mode)
     :init
-    (add-hook 'dired-load-hook (lambda () (load "dired-x")))
-    (add-hook 'dired-mode-hook #'dired-omit-mode)
+    (add-hook! 'dired-load-hook
+      (load "dired-x"))
+    (add-hook! 'dired-mode-hook
+      (dired-omit-mode))
     :config
     (setq dired-omit-verbose nil)
     (setq dired-omit-extensions
@@ -486,8 +500,10 @@ When using Homebrew, install it using \"brew install trash\"."
   :commands (turn-on-eldoc-mode)
   :diminish ""
   :init
-  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode))
+  (add-hook! 'emacs-lisp-mode-hook
+    (turn-on-eldoc-mode))
+  (add-hook! 'lisp-interaction-mode-hook
+    (turn-on-eldoc-mode)))
 
 (use-package elfeed
   :ensure t
@@ -596,11 +612,9 @@ _s_: search
   :mode
   (("*scratch*" . emacs-lisp-mode))
   :init
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda ()
-              (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)
-              (setq-local company-backends
-                          (append '(company-elisp) company-backends))))
+  (add-hook! 'emacs-lisp-mode-hook
+    (setq-local lisp-indent-function #'Fuco1/lisp-indent-function)
+    (set-local-company-backends! 'company-elisp))
 
   (general-define-key
    :keymaps 'emacs-lisp-mode-map
@@ -828,7 +842,8 @@ _R_: reset
   :bind* (("C-x b" . ibuffer))
   :commands ibuffer
   :init
-  (add-hook 'ibuffer-hook (lambda () (ibuffer-switch-to-saved-filter-groups "Default")))
+  (add-hook! 'ibuffer-hook
+    (ibuffer-switch-to-saved-filter-groups "Default"))
   :config
   (use-package ibuffer-vc :ensure t
     :config
@@ -1021,10 +1036,8 @@ abort completely with `C-g'."
   :config
   (use-package company-math :ensure t
     :init
-    (add-hook 'ess-julia-mode-hook
-              (lambda () (setq-local company-backends
-                                (append '((company-math-symbols-latex))
-                                        company-backends))))))
+    (add-hook! 'ess-julia-mode-hook
+      (set-local-company-backends! 'company-math-symbols-latex))))
 
 (use-package lesspy
   :load-path "~/.emacs.d/private/lesspy"
@@ -1065,12 +1078,13 @@ abort completely with `C-g'."
    "C-(" 'lesspy-paren-wrap-next))
 
 (use-package lispy :ensure t
-  ;; :disabled t
   :diminish (lispy-mode . " λ")
   :commands lispy-mode
   :init
-  (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-  (add-hook 'lisp-mode-hook (lambda () (lispy-mode 1)))
+  (add-hook! 'emacs-lisp-mode-hook
+    (lispy-mode 1))
+  (add-hook! 'lisp-mode-hook
+    (lispy-mode 1))
 
   :config
   ;; adapté au bépo
@@ -1215,18 +1229,16 @@ abort completely with `C-g'."
     (" " nil "quit" :color blue)))
 
 (use-package mu4e
-  :commands (mu4e
-             mu4e-new-frame)
-  :defines (hydra-mu4e/body
-            mu4e-new-frame)
-  :bind* (("C-c M" . hydra-mu4e/body))
+  :bind* (("<f5>" . mu4e))
   :load-path "/usr/local/share/emacs/site-lisp/mu4e"
   :init
-  ;; (add-hook 'mu4e-compose-mode-hook (lambda () (openwith-mode -1)))
-  (add-hook 'message-mode-hook 'turn-on-orgtbl)
-  (add-hook 'message-mode-hook 'turn-on-orgstruct++)
-  (add-hook 'message-mode-hook
-            (lambda () (add-to-list 'company-backends 'company-capf)))
+
+  (add-hook! 'message-mode-hook
+    (turn-on-orgtbl)
+    (turn-on-orgstruct++)
+    (set-local-company-backends! 'company-capf)
+    (company-mode))
+
   :config
   (use-package smtpmail)
 
@@ -1301,12 +1313,8 @@ abort completely with `C-g'."
       (nreverse buffers)))
 
   (setq gnus-dired-mail-mode 'mu4e-user-agent)
-  (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
-
-  (defun mu4e-new-frame ()
-    (interactive)
-    (make-frame)
-    (mu4e))
+  (add-hook! 'dired-mode-hook
+    (turn-on-gnus-dired-mode))
 
   ;; keybindings
   (bind-keys
@@ -1471,15 +1479,15 @@ abort completely with `C-g'."
   (sp-local-pair 'perl-mode "\"\"" nil
                  :post-handlers '((sam--create-newline-and-enter-sexp "RET"))))
 
+(use-package pretty-hydra
+  :load-path "~/.emacs.d/private/major-mode-hydra"
+  :commands (pretty-hydra-define))
+
 (use-package prog-mode
   :config
-  (defun highlight-todos ()
-    (font-lock-add-keywords
-     nil
-     '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t)
-       ("\\<\\(FIXED\\|DONE\\|DEBUGGED\\):" 1 font-lock-string-face t))))
-  (add-hook 'prog-mode-hook 'highlight-todos)
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook! 'prog-mode-hook
+    (display-line-numbers-mode))
+
   (global-prettify-symbols-mode))
 
 (use-package projectile :ensure t
@@ -1498,7 +1506,9 @@ abort completely with `C-g'."
     :commands (counsel-projectile-mode)
     :bind* (("s-p" . counsel-projectile-switch-project)
             ("s-f" . counsel-projectile-find-file)))
-  (add-hook 'projectile-mode-hook #'counsel-projectile-mode))
+
+  (add-hook! 'projectile-mode-hook
+    (counsel-projectile-mode)))
 
 (use-package python
   :ensure python-mode
@@ -1622,9 +1632,8 @@ frame.
   (use-package company-shell
     :ensure t
     :config
-    (add-hook 'sh-mode-hook
-              (lambda ()
-                (setq-local company-backends (append '(company-shell) company-backends)))))
+    (add-hook! 'sh-mode-hook
+      (set-local-company-backends! 'company-shell)))
 
   (defun indent-paragraph ()
     (interactive)
@@ -1671,8 +1680,10 @@ frame.
           ("C-S-f" . sp-forward-symbol)
           ("C-ß"   . sp-splice-sexp))
   :init
-  (add-hook 'after-init-hook (lambda () (smartparens-global-mode)))
-  (add-hook 'prog-mode-hook (lambda () (smartparens-strict-mode)))
+  (add-hook! 'after-init-hook
+    (smartparens-global-mode))
+  (add-hook! 'prog-mode-hook
+    (smartparens-strict-mode))
 
   :config
   ;; Only use smartparens in web-mode
@@ -1804,7 +1815,8 @@ frame.
 (use-package subword :defer t
   :diminish ""
   :init
-  (add-hook 'prog-mode-hook (lambda () (subword-mode 1))))
+  (add-hook! 'prog-mode-hook
+    (subword-mode 1)))
 
 (use-package swiper :ensure t
   :bind* ("M-s" . swiper))
@@ -1817,15 +1829,29 @@ frame.
   :mode (("\\.tex\\'" . TeX-tex-mode)
          ("\\.cls\\'" . TeX-tex-mode))
   :config
+  (add-hook! 'TeX-mode-hook
+    (hl-todo-mode))
+
   (load-file "~/dotfile/emacs/latex-config.el"))
 
 (use-package tiny :ensure t
   :bind* (("C-;" . tiny-expand)))
 
+(use-package tooltip
+  :defer 2
+  :config
+  (tooltip-mode -1))
+
+(use-package tool-bar
+  :defer 2
+  :config
+  (tool-bar-mode -1))
+
 ;;;; U
 
 (use-package undo-tree
   :ensure t
+  :diminish (undo-tree-mode . "")
   :functions (sam|undo
               sam|undo-tree-visualize
               sam|redo)
@@ -1891,11 +1917,10 @@ frame.
   :config
   (use-package company-web :ensure t)
 
-  (add-hook 'web-mode-hook
-            (lambda ()
-              (setq-local company-backends (append '(company-web-html) company-backends))
-              (setq-local tab-width 2)
-              (setq-local outline-regexp "<!--*"))))
+  (add-hook! 'web-mode-hook
+    (set-local-company-backends! 'company-web-html)
+    (setq-local tab-width 2)
+    (setq-local outline-regexp "<!--*")))
 
 (use-package wgrep :ensure t :defer t)
 
@@ -1952,10 +1977,10 @@ frame.
 
 (use-package xterm-color
   :ensure t
-  :hook (comint-preoutput-filter-functions . xterm-color-filter)
   :config
   ;; comint install
-  ;; (add-hook 'comint-preoutput-filter-functions ')
+  (add-hook! 'comint-preoutput-filter-functions
+    (xterm-color-filter))
   (setq comint-output-filter-functions
         (remove 'ansi-color-process-output comint-output-filter-functions)))
 
