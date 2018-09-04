@@ -77,17 +77,13 @@ Add a lamdba containing BODY to hook HOOK."
 (use-package diminish)
 (use-package bind-key)
 
-(use-package server
-  :config
-  (unless (server-running-p) (server-start)))
-
 ;;; Sane default
 
 (setenv "LANG" "en_US.UTF-8")
 (setenv "LC_ALL" "en_US.UTF-8")
 
 (setq
- use-package-verbose nil      ; use-package décrit les appels qu'il fait
+ use-package-verbose nil    ; use-package décrit les appels qu'il fait
  delete-old-versions -1	; supprime les vieilles versions des fichiers sauvegardés
  version-control t      ; enable le version control
  vc-make-backup-files t	; backups file even when under vc
@@ -95,13 +91,13 @@ Add a lamdba containing BODY to hook HOOK."
  auto-save-file-name-transforms
  '((".*" "~/.emacs.d/auto-save-list/" t)) ; transforme les noms des fichiers sauvegardés
  inhibit-startup-screen t                 ; supprime l'écran d'accueil
- ring-bell-function 'ignore           ; supprime cette putain de cloche.
+ ring-bell-function 'ignore         ; supprime cette putain de cloche.
  sentence-end-double-space nil ; sentences does not end with double space.
  default-fill-column 72
  initial-scratch-message ""
  save-interprogram-paste-before-kill t
- help-window-select t                   ; focus help window when opened
- tab-width 4                            ; tab are 4 spaces large
+ help-window-select t                  ; focus help window when opened
+ tab-width 4                           ; tab are 4 spaces large
  auto-window-vscroll nil
  )
 
@@ -124,27 +120,24 @@ Add a lamdba containing BODY to hook HOOK."
 (delete-selection-mode 1)               ; replace highlighted text with type
 (setq initial-major-mode 'fundamental-mode)
 ;; supprime les caractères en trop en sauvegardant.
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook! 'before-save-hook
+  (delete-trailing-whitespace))
 
 ;; rend les scripts executable par défault si c'est un script.
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(add-hook! 'after-save-hook
+  (executable-make-buffer-file-executable-if-script-p))
 
 (defvar my-font-for-light "DejaVu Sans Mono 11"
   "Font for coding situations.")
 
 ;;; apparences
 
-(tooltip-mode -1)      ; don't know what that is
-(tool-bar-mode -1)     ; sans barre d'outil
-(menu-bar-mode -1)     ; barre de menu
-(scroll-bar-mode -1)   ; enlève la barre de défilement
-(blink-cursor-mode -1) ; pas de clignotement
-
 (when window-system
-  (set-frame-size (selected-frame) 85 61)
-  (add-to-list 'default-frame-alist '(height . 46))
-  (add-to-list 'default-frame-alist '(width . 85))
-  (fringe-mode '(4 . 0))                ; reduce fringe size to 4 px
+  ;; (set-frame-size (selected-frame) 85 61)
+  ;; (add-to-list 'default-frame-alist '(height . 46))
+  ;; (add-to-list 'default-frame-alist '(width . 85))
+  ;; (fringe-mode '(4 . 0))
+                                        ; reduce fringe size to 4 px
   (setq-default line-spacing 6)         ; increase between-line space.
 
   ;; change default font for current frame
@@ -210,16 +203,15 @@ Add a lamdba containing BODY to hook HOOK."
   (setq mac-right-command-modifier 'meta ; cmd de droite = meta
         mac-command-modifier 'control    ; cmd de gauche = control
         mac-option-modifier 'super       ; option de gauche = super
-        mac-right-option-modifier nil    ; option de droite = carac spéciaux
-        mac-control-modifier 'hyper      ; control de gauche = hyper (so does capslock)
-        ns-function-modifier 'hyper      ; fn key = hyper
+        mac-right-option-modifier nil ; option de droite = carac spéciaux
+        mac-control-modifier 'hyper ; control de gauche = hyper (so does capslock)
+        ns-function-modifier 'hyper ; fn key = hyper
         ns-right-alternate-modifier nil) ; cette touche n'existe pas.
-  (setq mac-pass-command-to-system nil)  ; disable system call to commands like
-                                         ; C-h (hide frame on macOS by default
-  (setq mac-pass-control-to-system nil)  ; idem
+  (setq mac-pass-command-to-system nil) ; disable system call to commands like
+                                        ; C-h (hide frame on macOS by default
+  (setq mac-pass-control-to-system nil) ; idem
   (setq-default locate-command "mdfind")
-
-
+  (setq-default cursor-type 'box)
 
   (setq delete-by-moving-to-trash t)
   (defun system-move-file-to-trash (file)
@@ -446,23 +438,24 @@ When using Homebrew, install it using \"brew install trash\"."
 (use-package counsel :ensure
   :commands (counsel-load-theme
              counsel-bookmark)
-  :bind* (("C-c /" . counsel-rg)
-          ("C-c i" . counsel-imenu)
+  :bind* (("C-c i" . counsel-imenu)
           ("C-x C-f" . counsel-find-file)
           ("C-x C-b" . ivy-switch-buffer)
+          ("C-c C-/" . counsel-rg)
           ("s-<backspace>" . ivy-switch-buffer)
           ("M-x" . counsel-M-x))
   :config
   (setq counsel-find-file-ignore-regexp
         (concat "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
-                "\\|\\.x\\'\\|\\.d\\'\\|\\.o\\'"))
+                "\\|\\.x\\'\\|\\.d\\'\\|\\.o\\'"
+                "\\|\\.aux\\'"))
 
   (setq counsel-locate-cmd 'counsel-locate-cmd-mdfind)
   (setq counsel-find-file-at-point t))
 
 (use-package counsel-gtags
   :ensure t
-  :after ggtags
+  :hook (ggtags-mode . counsel-gtags-mode)
   :bind (:map c-mode-map
          ("C-c g g" . counsel-gtags-dwim)
          ("C-c g s" . counsel-gtags-find-symbol)
@@ -953,6 +946,7 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
 (use-package hungry-delete
   :ensure t
   :diminish ""
+  :defer 2
   :config
   (global-hungry-delete-mode))
 
@@ -1234,6 +1228,7 @@ abort completely with `C-g'."
    lorem-ipsum-insert-paragraphs))
 
 (use-package lua-mode
+  :mode ("\\.lua\\'" . lua-mode))
 
 ;;;; M
 
@@ -1254,15 +1249,10 @@ abort completely with `C-g'."
              magit-status
              magit-unstage-file
              magit-blame-mode)
-  :bind (("s-v" . magit-status))
+  :bind* (("s-v" . magit-status))
 
   :config
-
   (global-git-commit-mode)
-
-  (general-define-key
-   :keymaps 'magit-mode-map
-   "'" #'eshell-here)
 
   (use-package magit-popup :ensure t)
   (use-package git-commit :ensure t :defer t)
@@ -1297,6 +1287,10 @@ abort completely with `C-g'."
   :mode (("\\.md\\'" . markdown-mode))
   :config
   (setq markdown-footnote-location 'immediately))
+
+(use-package menu-bar
+  :defer t
+  :commands (menu-bar-mode))
 
 (use-package move-text :ensure t
   :commands
@@ -1368,6 +1362,9 @@ abort completely with `C-g'."
 
   ;; does not include myself when replying
   (setq mu4e-compose-dont-reply-to-self t)
+  (setq mu4e-user-mail-address-list
+        '("samuel.barreto8@gmail.com"
+          "samuel.barreto@univ-lyon1.fr"))
 
   (setq mu4e-maildir-shortcuts
         '(("/gmail/inbox" . ?i)
@@ -1435,17 +1432,7 @@ abort completely with `C-g'."
    ("M-q" . nil)
    :map mu4e-headers-mode-map
    ("s-c" . mu4e-headers-query-prev)
-   ("s-r" . mu4e-headers-query-next))
-
-  (defhydra hydra-mu4e
-    (:hint nil
-     :color blue
-     :columns 1)
-    "MAIL:"
-    ("c" mu4e-compose-new "compose mail")
-    ("m" mu4e-headers-search-bookmark "mail")
-    ("u" mu4e-update-mail-and-index "update" :color red)
-    ("s" mu4e-headers-search "search")))
+   ("s-r" . mu4e-headers-query-next)))
 
 (use-package mwim :ensure t
   :bind* (("C-a" . mwim-beginning)
@@ -1995,7 +1982,9 @@ frame.
   :config
   (setq vr/auto-show-help nil))
 
-(use-package visual-fill-column :ensure t
+(use-package visual-fill-column
+  :ensure t
+  :commands (global-visual-fill-column-mode)
   :config
   (global-visual-fill-column-mode +1)
   (toggle-word-wrap +1))
@@ -2063,6 +2052,7 @@ frame.
 
 (use-package wiki-summary
   :ensure t
+  :commands (wiki-summary))
 
 ;;;; X
 
@@ -2114,6 +2104,8 @@ frame.
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
+(put 'TeX-narrow-to-group 'disabled nil)
+(put 'LaTeX-narrow-to-environment 'disabled nil)
 
 ;; TODO: check out https://www.youtube.com/watch?v=m_Oj_6Bjryw
 ;; TODO: check out https://github.com/Kungsgeten/selected.el
@@ -2121,3 +2113,19 @@ frame.
 ;; TODO: check out https://github.com/atgreen/paperless
 ;; TODO: check out https://github.com/masasam/emacs-easy-hugo
 
+;; Allow editing of binary .plist files.
+(add-to-list 'jka-compr-compression-info-list
+             ["\\.plist$"
+              "converting text XML to binary plist"
+              "plutil"
+              ("-convert" "binary1" "-o" "-" "-")
+              "converting binary plist to text XML"
+              "plutil"
+              ("-convert" "xml1" "-o" "-" "-")
+              nil nil "bplist"])
+
+;;It is necessary to perform an update!
+(jka-compr-update)
+
+(provide 'init)
+;;; init.el ends here
