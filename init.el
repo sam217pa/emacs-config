@@ -132,12 +132,6 @@ Add a lamdba containing BODY to hook HOOK."
 
 ;;; apparences
 
-(tooltip-mode -1)      ; don't know what that is
-(tool-bar-mode -1)     ; sans barre d'outil
-(menu-bar-mode -1)     ; barre de menu
-(scroll-bar-mode -1)   ; enlève la barre de défilement
-(blink-cursor-mode -1) ; pas de clignotement
-
 (when window-system
   (set-frame-size (selected-frame) 85 61)
   (add-to-list 'default-frame-alist '(height . 46))
@@ -268,6 +262,10 @@ When using Homebrew, install it using \"brew install trash\"."
 ;; (use-package bioseq-mode
 ;;   :load-path "~/.emacs.d/private/bioseq-mode"
 ;;   :commands (bioseq-mode))
+
+(use-package biblio
+  :ensure t
+  :after ivy-bibtex)
 
 (use-package blank-mode
   :ensure t
@@ -1013,9 +1011,13 @@ abort completely with `C-g'."
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t) )
 
-(use-package ivy-bibtex :ensure t
+(use-package ivy-bibtex
+  :ensure t
   :bind ("C-x M-b" . ivy-bibtex)
   :config
+
+  (setq ivy-bibtex-default-action 'ivy-bibtex-insert-citation)
+
   (setq bibtex-completion-bibliography '("~/Dropbox/bibliography/references.bib"))
   (setq bibtex-completion-library-path '("~/zotero_bib/"))
   (setq bibtex-completion-pdf-field "file")
