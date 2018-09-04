@@ -1648,6 +1648,36 @@ abort completely with `C-g'."
   :config
   (setq recentf-max-saved-items 50))
 
+(use-package reftex
+  :hook ((org-mode . reftex-mode)
+         (TeX-mode . reftex-mode))
+  :config
+  (setq reftex-default-bibliography
+        '("/Users/samuelbarreto/Dropbox/bibliography/references.bib"))
+  (setq reftex-cite-format 'biblatex)
+
+  (defun org-mode-link-reftex-entry (key)
+    "Returns the address of pdf file registered in the file entry
+of KEY."
+    (require 'bibtex-completion)
+    (car (bibtex-completion-find-pdf-in-field key)))
+
+  (defun org-mode-reftex-setup! ()
+    (when (and (buffer-file-name)
+               (file-exists-p (buffer-file-name)))
+      (reftex-set-cite-format "[[papers:%l][%A \(%t\)]]")
+      (add-to-list
+       'org-link-abbrev-alist
+       '("papers" . "%(org-mode-link-reftex-entry)") t #'equal)))
+
+  (add-hook! 'org-mode-hook
+    (org-mode-reftex-setup!))
+
+  ;; auto revert so that reftex updates when the bibtex file is
+  ;; updated.
+  (add-hook! 'bibtex-mode-hook
+    (turn-on-auto-revert-mode)))
+
 (use-package restart-emacs :ensure t
   :commands (restart-emacs))
 
