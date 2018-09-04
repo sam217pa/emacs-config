@@ -1691,34 +1691,15 @@ abort completely with `C-g'."
   (setq selected-minor-mode-override t)
   (selected-global-mode))
 
-(use-package shell
-  :functions (shell-dwim)
-  :bind ("s-'" . shell-dwim)
+(use-package server
+  :defer 2
   :config
-  (setq explicit-shell-file-name "/usr/local/bin/bash")
-  (defun shell-dwim ()
-    "Opens a shell buffer in directory associated with current
-buffer.
+  (unless (server-running-p) (server-start)))
 
-If the current buffer is already a shell buffer, it closes the
-window or do nothing if shell is the sole current window in
-frame.
-"
-
-    (interactive)
-    (if (string-equal major-mode "shell-mode")
-        (ignore-errors (delete-window))
-      (let* ((cwd default-directory)
-             (buf (concat "*shell " (file-name-base default-directory) "*"))
-             (proper-cwd (shell-quote-argument (expand-file-name cwd))))
-        (shell buf)
-        (with-current-buffer buf
-          (goto-char (point-max))
-          (comint-kill-input)
-          (insert (concat "cd " proper-cwd))
-          (let ((comint-process-echoes t))
-            (comint-send-input))
-          (recenter 0))))))
+(use-package scroll-bar
+  :defer 2
+  :config
+  (scroll-bar-mode -1))
 
 (use-package sh-script :defer t
   :mode
