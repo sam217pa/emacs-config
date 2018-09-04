@@ -930,6 +930,13 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
   :config
   (setq highlight-indent-guides-method 'character))
 
+(use-package hl-todo
+  :ensure t
+  :hook (prog-mode . hl-todo-mode)
+  :commands (hl-todo-previous
+             hl-todo-next
+             hl-todo-occur))
+
 (use-package htmlize
   :ensure t
   :defer t)
