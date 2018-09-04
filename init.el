@@ -1141,24 +1141,11 @@ abort completely with `C-g'."
   (setq bibtex-completion-pdf-field "file")
   (setq bibtex-completion-pdf-symbol "⌘")
   (setq bibtex-completion-notes-path "~/dotfile/bibliographie/notes.org")
-  (setq helm-bibtex-pdf-open-function #'helm-open-file-with-default-tool)
   (setq bibtex-completion-format-citation-functions
         '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
           (latex-mode    . bibtex-completion-format-citation-cite)
           (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
           (default       . bibtex-completion-format-citation-default))))
-
-(use-package ivy-posframe
-  :after ivy
-  :if window-system
-  :load-path "~/.emacs.d/private/ivy-posframe"
-  :config
-  (ivy-posframe-setup)
-  (push '(complete-symbol . ivy-posframe-display-at-point) ivy-display-functions-alist)
-  (setq ivy-display-function #'ivy-posframe-display-at-point)
-  (setq ivy-posframe-parameters
-        '((left-fringe . 5)
-          (right-fringe . 5))))
 
 ;;;; L
 
