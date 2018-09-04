@@ -1839,20 +1839,23 @@ frame.
 
 (use-package solarized-theme
   :ensure t
-  :defer 0.2
+  :defer t
   :config
   (setq solarized-distinct-fringe-background t) ; make the fringe stand out from the background
   (setq solarized-use-variable-pitch t)
   (setq solarized-high-contrast-mode-line t)
   (setq solarized-use-more-italic t)
   (setq solarized-scale-org-headlines t)
-  (setq-default cursor-type 'bar)
+
+  (defun solarized-no-background! ()
+    (interactive)
+    (set-face-background 'default "unspecified-bg"))
 
   (cond (window-system
-         (load-theme 'solarized-light t))
+         (load-theme 'solarized-dark t))
         (t
          (load-theme 'solarized-dark t)
-         (set-face-background 'default "unspecified-bg"))))
+         (solarized-no-background!))))
 
 (use-package spotlight :ensure t
   :bind (("C-c C-s" . spotlight)
