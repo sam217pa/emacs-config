@@ -603,6 +603,73 @@ as input."
   "Join current line to next line."
   (interactive)
   (join-line 4))
+
+
+;;; Compile on save mode
+
+(defun compile-on-save-start ()
+  (let ((buffer (compilation-find-buffer)))
+    (unless (get-buffer-process buffer)
+      (recompile))))
+
+(define-minor-mode compile-on-save-mode
+  "Minor mode to automatically call `recompile' whenever the
+current buffer is saved. When there is ongoing compilation,
+nothing happens."
+  :lighter " CoS"
+  (if compile-on-save-mode
+      (progn  (make-local-variable 'after-save-hook)
+              (add-hook 'after-save-hook 'compile-on-save-start nil t))
+    (kill-local-variable 'after-save-hook)))
+
+;;; * Side Window Management
+
+(defun sam|maximize-window ()
+  "Maximize frame on first use, toggle frame fullscreen on second
+consecutive use."
+  (interactive)
+  (let* ((second? (eq last-command this-command))
+         (fullscreen (frame-parameter nil 'fullscreen))
+         (maximized? (eq 'maximized fullscreen))
+         (fullscreen? (eq 'fullboth fullscreen)))
+    (cond ((and second? maximized?)
+           (toggle-frame-fullscreen))
+          (fullscreen?
+           (toggle-frame-fullscreen))
+          (t
+           (toggle-frame-maximized)))))
+
+(defun sam|main-window (&optional frame)
+  "Refocus the main editing window.
+
+Delete all side windows at first use ; at second consecutive use
+it also delete other normal windows currently active in the
+frame."
+  (interactive)
+  (let* ((frame (window-normalize-frame frame))
+         (window--sides-inhibit-check t)
+         (sw? (window-with-parameter 'window-side nil frame)))
+    (cond ((and (eq last-command this-command) sw?)
+           (ignore-errors (window-toggle-side-windows))
+           (delete-other-windows))
+          (sw?
+           (window-toggle-side-windows))
+          (t
+           (delete-other-windows)))))
+
+;;; Thesis project
+
+(defun sam|thesis-projects ()
+  "Switch to a data projects in my thesis folder"
+  (interactive)
+  (let* ((cmd "find ~/these/data -d 1 -type d")
+         (dirs (split-string (shell-command-to-string cmd) "\n" t))
+         (projects (seq-map #'file-name-nondirectory dirs))
+         (candidates (seq-mapn #'cons projects dirs)))
+    (ivy-read "Chose data folder :" candidates
+              :action (lambda (_) (find-file (cdr _)))
+              :caller #'sam|thesis-projects)))
+
 ;;; Snippet helper
 
 (defun sam--comment-date ()
