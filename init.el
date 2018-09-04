@@ -878,6 +878,15 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
          ("M-?" . ggtags-find-reference)))
 
 (use-package goto-addr
+  :hook ((compilation-mode . goto-address-mode)
+         (prog-mode . goto-address-prog-mode)
+         (eshell-mode . goto-address-mode)
+         (shell-mode . goto-address-mode))
+  :bind (:map goto-address-highlight-keymap
+              ("<RET>" . goto-address-at-point)
+              ("M-<RET>" . newline))
+  :commands (goto-address-prog-mode
+             goto-address-mode))
 
 (use-package goto-chg :ensure t
   :commands (goto-last-change
@@ -1288,11 +1297,6 @@ abort completely with `C-g'."
   :config
   (magit-todos-mode))
 
-(use-package make-it-so
-  :ensure t
-  :config
-  (setq mis-recipes-directory (expand-file-name "~/dotfile/emacs/recipes"))
-  (mis-config-default))
 
 (use-package makefile-mode :defer t
   :init
