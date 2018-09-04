@@ -1462,8 +1462,14 @@ abort completely with `C-g'."
   :config
   (osx-clipboard-mode +1))
 
+(use-package osx-dictionary
+  :ensure t
+  :if (eq system-type 'darwin)
+  :commands (osx-dictionary-search-input
+             osx-dictionary-search-word-at-point))
+
 (use-package outline
-  :diminish ""
+  :diminish (outline-minor-mode . "")
   :commands (outline-hide-body
              outline-show-all
              outline-minor-mode
