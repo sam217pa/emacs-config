@@ -2126,8 +2126,9 @@ frame.
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 
-;; TODO check out https://www.youtube.com/watch?v=m_Oj_6Bjryw
-;; TODO check out https://github.com/Kungsgeten/selected.el
-;; TODO check out https://vxlabs.com/2017/02/07/mu4e-0-9-18-e-mailing-with-emacs-now-even-better/
-;; TODO check out https://github.com/atgreen/paperless
-;; TODO check out https://github.com/masasam/emacs-easy-hugo
+;; TODO: check out https://www.youtube.com/watch?v=m_Oj_6Bjryw
+;; TODO: check out https://github.com/Kungsgeten/selected.el
+;; TODO: check out https://vxlabs.com/2017/02/07/mu4e-0-9-18-e-mailing-with-emacs-now-even-better/
+;; TODO: check out https://github.com/atgreen/paperless
+;; TODO: check out https://github.com/masasam/emacs-easy-hugo
+
