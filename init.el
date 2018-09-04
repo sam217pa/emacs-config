@@ -1528,11 +1528,10 @@ abort completely with `C-g'."
     :ensure t))
 
 
+(use-package powerthesaurus
   :ensure t
-  :when window-system
-  ;; defer loading after 2 seconds of standing still
-  :defer 2
-  :config (spaceline-all-the-icons-theme))
+  :commands (powerthesaurus-lookup-word
+             powerthesaurus-lookup-word-at-point))
 
 (use-package cperl
   :mode ("\\.pl\\'". cperl-mode)
