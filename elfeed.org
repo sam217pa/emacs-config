@@ -37,9 +37,10 @@
 **** [[https://c2-d2.github.io/hanage-lab/feed.xml][bill hanage lab]]
 **** [[https://armchairecology.blog/feed/atom.xml][thimothée poisot]]
 **** [[https://brentp.github.io/index.xml][brentp]]
-
+**** [[https://sniadecki.wordpress.com/feed/][et vous n'avez encore rien vu]]
 *** papers                                                                    :papers:
 **** [[https://evolbiol.peercommunityin.org/public/rss][PCI Evol Biol]]                                                           :ecology:evo:
+**** [[https://onlinelibrary.wiley.com/action/showFeed?jc=15585646&type=etoc&feed=rss][wiley evolution ]]                                                        :evo:
 **** [[http://www.annualreviews.org/action/showFeed?jc=genet&type=etoc&feed=rss][annual rev genet ]]                                                       :genet:
 **** [[http://feeds.nature.com/nrmicro/rss/current?format=xml][nature reviews microbiology]]                                             :microbio:
 **** [[http://feeds.nature.com/nrg/rss/current?format=xml][nature reviews genetics]]                                                 :genet:
@@ -51,9 +52,12 @@
 **** [[https://www.frontiersin.org/journals/ecology-and-evolution/rss][frontiers in ecology and evolution ]]                                     :ecology:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12064&channel-name=Theory+in+Biosciences][theory in biosciences]]                                                   :philo:epistemo:
 **** [[https://www.ptpbio.org/longfeed.xml][philosophy, theory and practice in biology]]                              :philo:
+**** [[http://mgen.microbiologyresearch.org/rss/content/journal/mgen/latestfasttrackarticles?fmt=rss][microbial genomics ]]                                                     :microbio:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=40656&channel-name=History+and+Philosophy+of+the+Life+Sciences][History and Philosophy of the Life Sciences]]                             :philo:epistemo:
 *** bioinfo                                                                   :bioinfo:
 **** [[http://bioinfo-fr.net/feed][bioinfo.fr]]
 *** biostat                                                                   :biostat:
+*** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13752&channel-name=Biological+Theory][Biological Theory]]                                                         :epistemo:
 ** news                                                                        :news:
 *** [[https://www.mediapart.fr/articles/feed][mediapart]]
 *** [[https://theconversation.com/fr/articles.atom][the conversation]]
@@ -62,6 +66,7 @@
 *** [[https://www.amnesty.org/fr/rss/][amnesty international]]
 *** [[https://www.hrw.org/fr/rss/news][human rights watch]]
 *** [[https://knoema.fr/tags/Viz%2520of%2520the%2520Day/rss][knomea viz of the day]]
+*** [[https://www.revue-ballast.fr/feed/][ballast]]
 ** éditions                                                                    :éditions:
 *** [[http://editionslibertalia.com/spip.php?page=backend][libertalia]]
 *** [[TODO ][éditions cnt-rp]]
@@ -100,14 +105,21 @@
 **** [[https://www.erudit.org/fr/rss.xml][érudit]]
 **** [[http://www.arss.fr/feed/][arss]]
 **** [[http://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=crsb&type=etoc&feed=rss][critical sociology]]
+**** [[http://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=sssb&type=etoc&feed=rss][social studies of science]]
+**** [[https://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=tsep20][social epistemoloy ]]                                                     :epistemo:
+**** [[https://www.cambridge.org/core/rss/product/id/5893D44315DDC6A96C30BA24A2B2D6C8][Archives Européennes de Sociologie]]
 *** [[http://www.laviedesidees.fr/spip.php?page=backend][la vie des idées]]
 Un journal du collège de France.
 *** philo                                                                       :philo:
 **** [[http://radiofrance-podcast.net/podcast09/rss_10467.xml][les chemins de la philo ]]                                                   :podcast:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13194&channel-name=European+Journal+for+Philosophy+of+Science][European Journal for Philosophy of Science]]                              :papers:
 **** [[http://www.journals.uchicago.edu/action/showFeed?type=etoc&feed=rss&jc=phos][Philosophy of Science Association]]                                       :papers:
-**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10539&channel-name=Biology+%26+Philosophy][Philosophy of Biology ]]                                                  :papers:
+**** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10539&channel-name=Biology+%26+Philosophy][Philosophy of Biology ]]                                                  :papers:bio:
 **** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10838&channel-name=Journal+for+General+Philosophy+of+Science][Journal for General Philosophy of Science]]                               :papers:
+*** [[https://journals.openedition.org/philosophiascientiae/backend?format=rssnumeros][Philosophia Scientiæ ]]                                                     :bio:
+*** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=10441&channel-name=Acta+Biotheoretica][Acta Biotheoretica]]                                                        :bio:
+*** [[https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=11422&channel-name=Cultural+Studies+of+Science+Education][Cultural Studies of Science Education]]
+*** [[http://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=sthd&type=etoc&feed=rss][Science, Technology and Human Values ]]                                     :epistemo:
 ** podcasts                                                                     :podcast:
 *** [[http://radiofrance-podcast.net/podcast09/rss_13957.xml][conversations scientifiques]]
 *** [[http://radiofrance-podcast.net/podcast09/rss_11921.xml][cours du collège de france]]
