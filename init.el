@@ -1760,6 +1760,35 @@ frame.
   (general-define-key :keymaps 'sh-mode-map "C-c c" 'sh-cleanup-line)
   (general-define-key :keymaps 'sh-mode-map "C-<return>" 'sh-send-line-or-region-and-step))
 
+(use-package shell
+  :functions (shell-dwim)
+  :bind ("s-'" . shell-dwim)
+  :config
+  (setq explicit-shell-file-name "/usr/local/bin/bash")
+  (defun shell-dwim ()
+    "Opens a shell buffer in directory associated with current
+buffer.
+
+If the current buffer is already a shell buffer, it closes the
+window or do nothing if shell is the sole current window in
+frame.
+"
+
+    (interactive)
+    (if (string-equal major-mode "shell-mode")
+        (ignore-errors (delete-window))
+      (let* ((cwd default-directory)
+             (buf "*shell*")
+             (proper-cwd (shell-quote-argument (expand-file-name cwd))))
+        (shell buf)
+        (with-current-buffer buf
+          (goto-char (point-max))
+          (comint-kill-input)
+          (insert (concat "cd " proper-cwd))
+          (let ((comint-process-echoes t))
+            (comint-send-input))
+          (recenter 0))))))
+
 (use-package smartparens
   :ensure t
   :diminish (smartparens-mode . "")
