@@ -925,10 +925,13 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
 
 (use-package highlight-indent-guides
   :ensure t
-  :if window-system
-  :hook (prog-mode . highlight-indent-guides-mode)
+  :commands (highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-method 'character))
+
+(use-package highlight-indentation
+  :ensure t
+  :defer t)
 
 (use-package hideshow
   :diminish (hs-minor-mode . "")
