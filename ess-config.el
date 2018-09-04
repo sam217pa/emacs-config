@@ -50,8 +50,10 @@
    ("\\.[Jj][Aa][Gg]\\'" . ess-jags-mode)
    ("\\.[Jj][Oo][Gg]\\'" . ess-jags-mode)
    ("\\.[Jj][Mm][Dd]\\'" . ess-jags-mode))
-  :commands
-  (R stata julia SAS)
+  :commands (R
+             stata
+             julia
+             SAS)
 
   :init
   (add-hook! 'ess-mode-hook
@@ -69,38 +71,24 @@
         ess-expression-offset 2         ; offset for expression
         ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
         ess-default-style 'RStudio) ; set default style for R source file
-
   (setq ess-indent-with-fancy-comments nil)
-  ;; do not truncate line in the R repl:
-  (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
-
-  :config
-
   (setq ess-swv-plug-into-AUCTeX-p t)
   (setq ess-eval-visibly 'nowait)
   (setq ess-roxy-insert-prefix-on-newline t)
   (setq ess-eldoc-show-on-symbol t)
   ;; ess should use default completing-read, either ivy or helm.
   (setq ess-use-ido nil)
+  (setq ess-use-flymake nil) ; flymake does not work with ess right now.
+  (setq ess-r-package-auto-enable-namespaced-evaluation t)
+
+  :config
   (ess-toggle-underscore nil)
 
-  ;; -- parens --
-  ;; when pressed RET after { or (,
-  ;; {
-  ;;    | <- cursor
-  ;; }
   (sp-local-pair 'ess-mode "{" nil
                  :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "(" nil
                  :post-handlers '((sam--create-newline-and-enter-sexp "RET")))
   (sp-local-pair 'ess-mode "%" "%")
-
-  ;; function definition
-  (add-to-list
-   'semantic-symref-filepattern-alist
-   '(ess-mode "*.[rR]" "*.r"))
-
-
 
 ;;;; keybindings
 
@@ -113,8 +101,10 @@
    "M-n"   'sp-up-sexp
    " " 'ess-insert-S-assign             ; shift alt space
    " " 'ess-insert-S-assign             ; shift space
-   (general-chord ",z") 'ess-switch-to-inferior-or-script-buffer
-   (general-chord ",,") 'hydra-ess/body
-   (general-chord ",l") 'lesspy-eval-line
-   (general-chord ",r") 'ess-eval-region-or-line-and-step
-   (general-chord ",t") 'ess-eval-function-or-paragraph))
+   ))
+
+(use-package ess-rutils
+  :after ess-site
+  :config
+  (ess-rutils-mode)
+  (setq ess-rutils-keys t))

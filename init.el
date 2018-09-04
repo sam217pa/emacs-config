@@ -740,62 +740,6 @@ When using Homebrew, install it using \"brew install trash\"."
    "" '(:ignore t :which-key "Emacs Help")
    "u" 'use-package-jump))
 
-(use-package ess-site
-  :ensure ess
-  :mode
-  (("\\.sp\\'"           . S-mode)
-   ("/R/.*\\.q\\'"       . R-mode)
-   ("\\.[qsS]\\'"        . S-mode)
-   ("\\.ssc\\'"          . S-mode)
-   ("\\.SSC\\'"          . S-mode)
-   ("\\.[rR]\\'"         . R-mode)
-   ("\\.[rR]nw\\'"       . Rnw-mode)
-   ("\\.[sS]nw\\'"       . Snw-mode)
-   ("\\.[rR]profile\\'"  . R-mode)
-   ("NAMESPACE\\'"       . R-mode)
-   ("CITATION\\'"        . R-mode)
-   ("\\.omg\\'"          . omegahat-mode)
-   ("\\.hat\\'"          . omegahat-mode)
-   ("\\.lsp\\'"          . XLS-mode)
-   ("\\.do\\'"           . STA-mode)
-   ("\\.ado\\'"          . STA-mode)
-   ("\\.[Ss][Aa][Ss]\\'" . SAS-mode)
-   ("\\.jl\\'"           . ess-julia-mode)
-   ("\\.[Ss]t\\'"        . S-transcript-mode)
-   ("\\.Sout"            . S-transcript-mode)
-   ("\\.[Rr]out"         . R-transcript-mode)
-   ("\\.Rd\\'"           . Rd-mode)
-   ("\\.[Bb][Uu][Gg]\\'" . ess-bugs-mode)
-   ("\\.[Bb][Oo][Gg]\\'" . ess-bugs-mode)
-   ("\\.[Bb][Mm][Dd]\\'" . ess-bugs-mode)
-   ("\\.[Jj][Aa][Gg]\\'" . ess-jags-mode)
-   ("\\.[Jj][Oo][Gg]\\'" . ess-jags-mode)
-   ("\\.[Jj][Mm][Dd]\\'" . ess-jags-mode))
-  :commands
-  (R stata julia SAS)
-
-  :init
-  (add-hook 'ess-mode-hook
-            (lambda ()
-              (smartparens-mode 1)
-              (lesspy-mode 1)
-              (run-hooks 'prog-mode-hook 'company-mode-hook)))
-  (add-hook 'inferior-ess-mode-hook
-            (lambda ()
-              (setq-local outline-regexp "^>")
-              (rainbow-mode t)))
-  (setq ess-offset-continued 2           ; offset after first statement
-        ess-expression-offset 2          ; offset for expression
-        ess-nuke-trailing-whitespace-p t ;delete trailing whitespace
-        ess-default-style 'RStudio) ; set default style for R source file
-
-  (setq ess-indent-with-fancy-comments nil)
-  ;; do not truncate line in the R repl:
-  (add-hook 'inferior-ess-mode-hook (lambda () (toggle-truncate-lines 1)))
-  :config
-  ;; config for R
-  (load-file "~/dotfile/emacs/ess-config.el"))
-
 (use-package esup
   :ensure t
   :commands esup)
@@ -2131,6 +2075,7 @@ frame.
 ;;; org
 
 (load-file "~/dotfile/emacs/org.el")
+(load-file "~/dotfile/emacs/ess-config.el")
 
 ;;; bind-key* "C-x x"  keybindings
 
