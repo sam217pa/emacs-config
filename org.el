@@ -250,14 +250,32 @@
         ("\\paragraph{%s}" . "\\paragraph*{%s}")))))
 
 ;;; * Keybindings
+(use-package org-download
+  :ensure t
+  :after org
+  :config
+
+  (defvar sam|org-download-dir "./img/"
+    "Default folder to place `org-download' captures in.")
+
+  (defun sam|img-dir ()
+    (let (target sam|org-download-dir)
+      (cond ((file-directory-p target) target)
+            (t (make-directory target) target))))
+
+  (setq-default org-download-heading-lvl nil)
+  (setq-default org-download-image-dir sam|org-download-dir)
+  (when (eq system-type 'darwin)
+    (setq-default org-download-screenshot-method "screencapture -i %s"))
 
   (general-define-key
    :keymaps 'org-mode-map
-   "C-c ." 'org-time-stamp
-   "C-c M-i" 'org-insert-link
-   ;; mnémotechnique : iMage (i is for imenu already)
-   "C-c m" 'hydra-org-image/body
-   "C-c $" 'hydra-org-archive/body)
+   :prefix "C-c y"
+   "e" 'org-download-edit
+   "i" 'org-download-image
+   "s" 'org-download-screenshot
+   "y" 'org-download-yank
+   "k" 'org-download-delete))
 
   (defhydra hydra-org-archive (:color red :columns 1)
     ("a" org-archive-subtree "archive")
