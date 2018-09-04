@@ -1233,29 +1233,7 @@ abort completely with `C-g'."
    lorem-ipsum-insert-sentences
    lorem-ipsum-insert-paragraphs))
 
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp-mode)
-  :config
-
-  (require 'lsp-imenu)
-  (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-
-  (use-package company-lsp
-    :after company
-    :ensure t
-    :config
-    (push 'company-lsp company-backends))
-
-  (use-package lsp-ui
-    :ensure t
-    :config
-    (add-hook 'lsp-mode-hook #'lsp-ui-mode)
-    (add-hook 'lsp-ui-mode   #'lsp-ui-peek-mode)
-    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-    (define-key lsp-ui-mode-map (kbd "M-p") #'lsp-ui-find-prev-reference)
-    (define-key lsp-ui-mode-map (kbd "M-n") #'lsp-ui-find-next-reference)))
+(use-package lua-mode
 
 ;;;; M
 
