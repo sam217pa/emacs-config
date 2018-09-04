@@ -1283,6 +1283,11 @@ abort completely with `C-g'."
   :config
   (magit-todos-mode))
 
+(use-package make-it-so
+  :ensure t
+  :config
+  (setq mis-recipes-directory (expand-file-name "~/dotfile/emacs/recipes"))
+  (mis-config-default))
 
 (use-package makefile-mode :defer t
   :init
