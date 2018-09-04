@@ -21,14 +21,11 @@
 
 (use-package org
   :defer t
-  :load-path ("~/.emacs.d/private/org-mode")
+  :ensure org-plus-contrib
   :commands (org-mode
-             org-agenda-list
              org-capture
-             org-store-link
-             org-agenda)
+             org-store-link)
   :mode (("\\.org\\'" . org-mode)
-         ("*Org Agenda*" . org-agenda-mode)
          ("README\\'"   . org-mode))
 
   :bind*
@@ -37,72 +34,15 @@
    ("C-M-c" . org-capture))
 
   :config
-  (use-package ox-tufte :ensure t :disabled t)
 
-  (use-package org-bullets :ensure t
-    :init
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-    :config
-    (setq org-bullets-bullet-list  '("➡" "➠" "➟" "➝" "↪")))
-
-  (use-package org-indent :diminish "")
-
-  (use-package ox-pandoc :ensure t)
 
 ;;;; BABEL
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '((R . t)
-                                 (perl . t)
-                                 (python . t)
-                                 ;; (clojure . t)
-                                 (shell . t)
-                                 (emacs-lisp . t)
-                                 (dot . t)
-                                 (makefile . t)
-                                 ;; (js . t)
-                                 ))
 
   (defun org-babel-tangle-all-block-same-file ()
     "tangle all blocks which belong to the same file."
     (interactive)
     (let ((current-prefix-arg '(16)))
       (call-interactively #'org-babel-tangle)))
-
-  (general-define-key
-   :keymaps 'org-mode-map
-   "s-e" 'org-babel-tangle-all-block-same-file
-   "s-l" 'org-latex-export-to-latex)
-
-  ;; ---------- default -----------------------------------------------------
-  (require 'org-agenda)
-
-  ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
-  (setq org-agenda-files
-        (list "~/Org/TODO"
-              "~/these/meta/nb/These.org"))
-
-  (setq org-mu4e-link-query-in-headers-mode nil)
-  (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
-  (setq org-agenda-span 7)
-  (setq org-agenda-tags-column -100) ; take advantage of the screen width
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-skip-deadline-if-done t)
-  (setq org-deadline-warning-days 4)
-  (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
-  ;; agenda start on mondays
-  (setq org-agenda-start-on-weekday 1)
-
-  (setq org-agenda-custom-commands
-        '(("c" "Simple agenda view"
-           ((agenda "")
-            (alltodo "")))
-          ("l" "Lab" tags-todo "@these"
-           ((org-agenda-files '("~/these/meta/nb/These.org"))
-            (org-agenda-sorting-strategy '(timestamp-up priority-up)))
-           ("~/these/meta/nb/These.html"))
-          ("p" "perso" tags "@perso"
-           ((org-agenda-sorting-strategy '(ts-up priority-up))))))
-  (bind-key* "C-c a" #'org-agenda)
 
 ;;;;  attachment system
 
@@ -121,21 +61,37 @@
                         ("~/Org/TODO" :level . 1)
                         ("~/these/meta/nb/maybe.org" :level . 1)
                         ("~/Org/maybe.org" :level . 1))
-   org-default-notes-file "~/Org/notes.org"
+   org-default-notes-file "~/Org/notes.org")
+
+  (setq
    org-capture-templates
-   '(("t" "these - Todo"     entry (file+headline "~/these/meta/nb/These.org" "InBox") "** %?\n%U")
-     ("l" "Lab - these"      entry (file+olp+datetree "~/these/meta/nb/journal.org") "* %(hour-minute-timestamp) %?%^g\n")
-     ("r" "these - tickleR"  entry (file+headline "~/these/meta/nb/These.org" "Tickler") "** %?\n%T")
-     ("c" "perso - Collecte" entry (file+headline "~/Org/TODO" "Collecte") "** %?\n%U\n")
-     ("n" "perso - Notes"    entry (file+olp+datetree "~/Org/journal.org") "* %(hour-minute-timestamp) %?%^g\n")))
-  (setq org-todo-keywords '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
+   '(("t" "these - Todo"     entry (file+headline "~/these/meta/nb/These.org" "InBox"             ) "** %?\n%U")
+     ("l" "these - Lab"      entry (file+olp+datetree "~/these/meta/nb/journal.org"               ) "* %(hour-minute-timestamp) %?%^g\n")
+     ("r" "these - tickleR"  entry (file+headline "~/these/meta/nb/These.org" "Tickler"           ) "** %?\n%T")
+     ("a" "these - rapport"  entry (file+headline "~/these/these/notes-manuscrit.org" "Collecte"  ) "** %?\n%U")
+     ("c" "perso - Collecte" entry (file+headline "~/Org/TODO" "Collecte"                         ) "** %?\n%U\n")
+     ("n" "perso - Notes"    entry (file+olp+datetree "~/Org/journal.org"                         ) "* %(hour-minute-timestamp) %?%^g\n")))
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELLED(c)")))
+
   ;; prevent an item to switch to completed if an item below it is not:
   (setq org-enforce-todo-dependencies t)
   (defun hour-minute-timestamp ()
     (format-time-string "%H:%M" (current-time)))
 
   (add-to-list 'org-modules 'org-mac-iCal)
-  (setq org-agenda-include-diary nil)
+
+  ;; (setq org-link-abbrev-alist nil)
+  (append-to-list!
+   'org-link-abbrev-alist
+   '(("wiki" . "https://en.wikipedia.org/wiki/%h")
+     ("gsc"  . "https://scholar.google.com/scholar?q=%h")
+     ("sep"  . "https://plato.stanford.edu/search/search?query=%h")
+     ("etym" . "http://www.cnrtl.fr/etymologie/%h")
+     ("bu"   . "http://hola.univ-lyon1.fr/ipac20/ipac.jsp?menu=search&aspect=basic_search&npp=10&ipp=20&spp=20&profile=scd&ri=&index=.GK&term=%h&terms=&valider=Ok")))
+
+  (setq org-crypt-disable-auto-save t)
 
 ;;;; src block and babel
 
@@ -156,19 +112,125 @@
    org-export-backends '(ascii html icalendar latex md koma-letter))
   (setq org-export-with-tags nil)
 
-  (use-package ox-twbs
-    :ensure t
-    :after org
-    :commands (org-twbs-publish-to-html)
-    :config
-    (setq org-publish-project-alist
-          '(("pop-acineto"
-             :base-directory "~/these/data/2018-01-08-pop-acineto/inst"
-             :publishing-directory "~/these/data/2018-01-08-pop-acineto/inst/analysis/reports"
-             :publishing-function org-twbs-publish-to-html
-             :with-sub-superscript nil))))
 
-;;;; latex
+  (setq org-startup-with-inline-images t)
+  (setq org-startup-indented t)
+
+  ;; rescale images to 400px if no with attribute is set (see
+  ;; https://lists.gnu.org/archive/html/emacs-orgmode/2012-08/msg01402.html)
+  (setq org-image-actual-width '(400))
+
+;;; Keybindings
+
+  (general-define-key
+   :keymaps 'org-mode-map
+   "s-e" 'org-babel-tangle-all-block-same-file
+   "s-l" 'org-latex-export-to-latex
+   "C-c ." 'org-time-stamp
+   "C-c M-i" 'org-insert-link
+   ;; mnémotechnique : iMage (i is for imenu already)
+   "C-c m" 'hydra-org-image/body
+   "C-c $" 'hydra-org-archive/body)
+
+  (general-define-key
+   :keymaps 'org-mode-map
+   :prefix "C-c e"
+   "d" 'org-decrypt-entry
+   "e" 'org-encrypt-entry
+   "s" 'org-sparse-tree
+   "t" 'org-tags-sparse-tree)
+
+  (defhydra hydra-org-archive (:color red :columns 1)
+    ("a" org-archive-subtree "archive")
+    ("n" org-next-visible-heading "next")
+    ("t" org-next-visible-heading "next")
+    ("p" org-previous-visible-heading "previous")
+    ("s" org-previous-visible-heading "previous"))
+
+  (defhydra hydra-org-image (:color red :hint nil)
+    "
+Display inline images ?
+_y_es  _n_o    _t_oggle
+"
+    ("y" org-display-inline-images)
+    ("n" org-remove-inline-images)
+    ("t" org-toggle-inline-images)))
+
+;;; Extensions
+
+(use-package org-agenda
+  :ensure org-plus-contrib
+  :bind* (("C-c a" . org-agenda))
+  :config
+
+  ;; inspired from  http://pages.sachachua.com/.emacs.d/Sacha.html#orgce6f46d
+  (setq org-agenda-files
+        (list "~/Org/TODO"
+              "~/these/meta/nb/These.org"))
+
+  (setq org-capture-use-agenda-date t) ; when press k from agenda, use agenda date.
+  (setq org-agenda-span 7)
+  (setq org-agenda-tags-column -100) ; take advantage of the screen width
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-skip-deadline-if-done t)
+  (setq org-deadline-warning-days 4)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
+
+  ;; agenda start on mondays
+  (setq org-agenda-start-on-weekday 1)
+
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))
+          ("l" "Lab" tags-todo "@these"
+           ((org-agenda-files '("~/these/meta/nb/These.org"))
+            (org-agenda-sorting-strategy '(timestamp-up priority-up)))
+           ("~/these/meta/nb/These.html"))
+          ("p" "perso" tags "@perso"
+           ((org-agenda-sorting-strategy '(ts-up priority-up))))))
+
+  (setq org-agenda-include-diary nil))
+
+(use-package ob-R
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:R))
+
+(use-package ob-perl
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:perl))
+
+(use-package ob-python
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:python))
+
+(use-package ob-shell
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:shell))
+
+(use-package ob-emacs-lisp
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:emacs-lisp))
+
+(use-package ob-dot
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:dot))
+
+(use-package ob-makefile
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:makefile))
+
+(use-package ox-latex
+  :ensure org-plus-contrib
+  :commands (org-latex-export-as-latex
+             org-latex-export-to-latex)
+  :config
+
+  (setq org-latex-listings 'minted)
+  (add-to-list 'org-latex-packages-alist '("" "listings"))
+  (add-to-list 'org-latex-packages-alist '("" "color"))
+  (add-to-list 'org-latex-packages-alist '("newfloat" "minted"))
+
   (setq
    ;; moyen d'export latex
    org-latex-pdf-process
@@ -201,55 +263,79 @@
    org-latex-remove-logfiles t
    org-src-fontify-natively t
    org-latex-table-caption-above nil
-   org-latex-tables-booktabs t
-   org-startup-with-inline-images t
-   org-startup-indented t)
+   org-latex-tables-booktabs t)
 
-  ;; rescale images to 400px if no with attribute is set (see
-  ;; https://lists.gnu.org/archive/html/emacs-orgmode/2012-08/msg01402.html)
-  (setq org-image-actual-width '(400))
-
-  (with-eval-after-load 'ox-latex
-    (append-to-list
-     'org-latex-classes
-     '(("tant"
-        "\\documentclass[twoside,a4paper,10pt]{tant}
+  (append-to-list!
+   'org-latex-classes
+   '(("tant"
+      "\\documentclass[twoside,a4paper,10pt]{tant}
 % \\addbibresource{reference.bib}
 "
-        ;; ("\\part{%s}" . "\\part*{%s}")
-        ;; ("\\chapter{%s}" . "\\chapter*{%s}")
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}"))
-       ("tufte-book"
-        "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
+      ;; ("\\part{%s}" . "\\part*{%s}")
+      ;; ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}"))
+     ("tufte-book"
+      "\\documentclass[a4paper, sfsidenotes, justified, notitlepage]{tufte-book}
        \\input{/Users/samuelbarreto/.templates/tufte-book.tex}"
-        ("\\part{%s}" . "\\part*{%s}")
-        ("\\chapter{%s}" . "\\chapter*{%s}")
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}"))
-       ("tufte-handout"
-        "\\documentclass[a4paper, justified]{tufte-handout}
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}"))
+     ("tufte-handout"
+      "\\documentclass[a4paper, justified]{tufte-handout}
        \\input{/Users/samuelbarreto/.templates/tufte-handout.tex}"
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}"))
-       ("rapport" "\\documentclass[11pt, oneside]{scrartcl}"
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}")
-        ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
-       ("beamer" "\\documentclass[presentation]{beamer}"
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}")
-        ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
-       ("journal"
-        "\\documentclass[9pt, oneside, twocolumn]{scrartcl}
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}"))
+     ("rapport" "\\documentclass[11pt, oneside]{scrartcl}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("beamer" "\\documentclass[presentation]{beamer}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("journal"
+      "\\documentclass[9pt, oneside, twocolumn]{scrartcl}
        \\input{/Users/samuelbarreto/.templates/journal.tex}"
-        ("\\part{%s}" . "\\section*{%s}")
-        ("\\section{%s}" . "\\section*{%s}")
-        ("\\subsection{%s}" . "\\subsection*{%s}")
-        ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-        ("\\paragraph{%s}" . "\\paragraph*{%s}")))))
+      ("\\part{%s}" . "\\section*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")))))
 
-;;; * Keybindings
+(use-package ox-twbs
+  :ensure t
+  :after org
+  :commands (org-twbs-publish-to-html))
+
+(use-package ox-tufte
+  :ensure t
+  :after org
+  :commands (org-tufte-export-to-file))
+
+(use-package org-bullets
+  :ensure t
+  :hook
+  (org-mode . org-bullets-mode)
+  :config
+  (setq org-bullets-bullet-list '("➡" "➠" "➟" "➝" "↪")))
+
+(use-package org-indent
+  :ensure org-plus-contrib
+  :diminish ""
+  :after org)
+
+(use-package ox-pandoc
+  :ensure t
+  :after org
+  :commands (org-pandoc-export))
+
+(use-package ox-gfm
+  :ensure t
+  :after org
+  :commands (org-gfm-export-to-markdown))
+
 (use-package org-download
   :ensure t
   :after org
@@ -277,18 +363,9 @@
    "y" 'org-download-yank
    "k" 'org-download-delete))
 
-  (defhydra hydra-org-archive (:color red :columns 1)
-    ("a" org-archive-subtree "archive")
-    ("n" org-next-visible-heading "next")
-    ("t" org-next-visible-heading "next")
-    ("p" org-previous-visible-heading "previous")
-    ("s" org-previous-visible-heading "previous"))
-
-  (defhydra hydra-org-image (:color red :hint nil)
-    "
-Display inline images ?
-_y_es  _n_o    _t_oggle
-"
-    ("y" org-display-inline-images)
-    ("n" org-remove-inline-images)
-    ("t" org-toggle-inline-images)))
+(use-package org-web-tools
+  :ensure t
+  :commands (org-web-tools-insert-link-for-url
+             org-web-tools-insert-web-page-as-entry
+             org-web-tools-read-url-as-org
+             org-web-tools-convert-links-to-page-entries))
