@@ -915,6 +915,8 @@ Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
 
 (use-package helpful
   :ensure t
+  :init
+  (use-package shut-up :ensure t :defer t)
   :bind (("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)
          ("C-h k" . helpful-key)
