@@ -1651,9 +1651,6 @@ abort completely with `C-g'."
 (use-package restart-emacs :ensure t
   :commands (restart-emacs))
 
-(use-package rg :ensure t
-  :commands (rg))
-
 (use-package rust-mode :ensure t
   :mode ("\\.rs\\'" . rust-mode)
   :config
