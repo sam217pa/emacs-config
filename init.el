@@ -819,11 +819,35 @@ _R_: reset
 (use-package flx :ensure t)
 
 (use-package flycheck
+  :disabled t
   :ensure t
   :commands (flycheck-mode)
   :diminish (flycheck-mode . "ⓕ")
   :config
   (setq flycheck-highlighting-mode 'symbols))
+
+(use-package flymake
+  :commands (flymake-mode
+             hydra-errors/body)
+  :functions (hydra-errors/body)
+  :config
+  (defhydra hydra-errors (:body-pre (flymake-mode)
+                          :post (flymake-mode -1)
+                          :hint nil)
+    "
+Linting : [_n_]ext / [_p_]rev
+Errors  : [_t_]: next / [_s_]: prev
+Totos   : _C-n_: next / _C-p_: prev / _C-s_: search"
+    ("n" flymake-goto-next-error)
+    ("p" flymake-goto-prev-error)
+    ("t" next-error)
+    ("s" previous-error)
+    ("C-n" hl-todo-next)
+    ("C-p" hl-todo-previous)
+    ("C-s" hl-todo-occur)))
+
+(use-package flyspell
+  :bind* (("C-c M-f" . flyspell-mode)))
 
 ;;;; G
 
