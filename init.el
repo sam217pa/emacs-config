@@ -488,9 +488,22 @@ When using Homebrew, install it using \"brew install trash\"."
 
 (use-package dired
   :bind* (("C-x d" . dired-other-window)
-          ("C-x C-d" . dired))
-  :commands (dired)
+          ("C-x C-d" . dired-side))
+  :commands (dired
+             dired-side)
+  :functions (dired-side)
   :config
+  (defun dired-side ()
+    "Display `default-directory' in side window on left, hiding details."
+    (interactive)
+    (let ((buffer (dired-noselect default-directory)))
+      (with-current-buffer buffer (dired-hide-details-mode t))
+      (display-buffer-in-side-window
+       buffer  `((side          . left)
+                 (slot          . 0)
+                 (window-width  . fit-window-to-buffer)
+                 (preserve-size . (t . nil)) ,parameters))))
+
   (use-package dired-x
     :bind* (("C-x C-'" . dired-jump))
     :commands (dired-omit-mode)
@@ -505,25 +518,6 @@ When using Homebrew, install it using \"brew install trash\"."
           (cl-list* ".aux" ".fls" ".log" ".out" ".toc" ".fdb_latexmk" ".bbl" ".blg" ".bcf" ".run.xml" ".x" ".d" dired-omit-extensions))
     (setq dired-omit-files (concat dired-omit-files
                                    "\\|^\\..*$\\|^.DS_Store$\\|^.projectile$\\|^.git$")))
-
-
-  (use-package dired-details :ensure t
-    :disabled t
-    :config
-    (dired-details-install)
-    (setq-default dired-details-hidden-string " --- "
-                  dired-details-hide-link-targets nil))
-
-  (use-package dired-sort :ensure t
-    :defines (hydra-dired-sort/body)
-    :commands (hydra-dired-sort/body
-               dired-sort-name
-               dired-sort-size
-               dired-sort-time
-               dired-sort-ctime
-               dired-sort-utime
-               dired-sort-extension))
-
 
   (let ((gls "/usr/local/bin/gls"))
     (if (file-exists-p gls)
