@@ -21,12 +21,12 @@
 
 (use-package company-auctex :ensure t
   :config
-  (append-to-list 'company-backends
-                  '(company-auctex-labels
-                    company-auctex-bibs
-                    company-auctex-environments
-                    company-auctex-macros
-                    company-auctex-symbols)))
+  (append-to-list! 'company-backends
+                   '(company-auctex-labels
+                     company-auctex-bibs
+                     company-auctex-environments
+                     company-auctex-macros
+                     company-auctex-symbols)))
 
 (use-package auctex-latexmk :ensure t
   :config

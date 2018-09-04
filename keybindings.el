@@ -23,95 +23,14 @@
   :ensure t
   :config
   (key-chord-mode 1)
-  (setq key-chord-two-keys-delay 0.2)
-  (key-chord-define-global "xq" #'ryo-modal-mode))
+  (setq key-chord-two-keys-delay 0.2))
 
 (use-package key-seq
   :ensure t
   :after key-chord
   :config
-  (key-seq-define-global "««" (lambda () (interactive) (insert "<")))
-  (key-seq-define-global "»»" (lambda () (interactive) (insert ">")))
   (key-seq-define-global "qb" #'counsel-bookmark)
-  (key-seq-define-global "qd" #'kill-this-buffer)
-  (key-seq-define-global "qr" (lambda () (interactive) (set-mark-command 4))))
-
-(use-package ryo-modal
-  :ensure t
-  :delight
-  :commands ryo-modal-mode
-  :init
-  (add-hook 'ryo-modal-mode-hook
-            (lambda ()
-              (if ryo-modal-mode
-                  (selected-minor-mode 1)
-                (selected-minor-mode -1))
-              (when (string-equal "emacs-lisp-mode" major-mode)
-                (if ryo-modal-mode (lispy-mode -1) (lispy-mode 1)))
-              (when (string-equal "ess-mode" major-mode)
-                (if ryo-modal-mode (lesspy-mode -1) (lesspy-mode 1)))))
-  :config
-  ;; nicer which-key printing
-  (push '((nil . "ryo:.*:") . (nil . "")) which-key-replacement-alist)
-
-  (setq ryo-modal-cursor-color "#268bd2")
-  (setq ryo-modal-cursor-type 'box)
-
-  (let ((text-objects '(("w" er/mark-word :name "Word")
-                        ("i" er/mark-inside-pairs :name "In pairs")
-                        ("o" er/mark-outside-pairs :name "Out pairs")
-                        ("d" er/mark-defun :name "Defun")
-                        ("p" er/mark-paragraph :name "Paragraph")
-                        ("s" er/mark-sentence :name "Sentence")))
-        (avy-destinations '(("l" avy-goto-line :name "line")
-                            ("w" avy-goto-word-1 :name "word")
-                            ("c" avy-goto-char :name "char"))))
-    (eval `(ryo-modal-keys
-            ("." ryo-modal-repeat)
-            ("/" swiper)
-            ("0" "M-0")
-            ("1" "M-1")
-            ("2" "M-2")
-            ("3" "M-3")
-            ("4" "M-4")
-            ("5" "M-5")
-            ("6" "M-6")
-            ("7" "M-7")
-            ("8" "M-8")
-            ("9" "M-9")
-            ("<tab>" sam|switch-to-other-buffer :name "other buffer")
-            ("A" sam|end-of-code-or-line :exit t)
-            ("B" counsel-bookmark)
-            ("I" smarter-move-beginning-of-line :exit t)
-            ("O" previous-line :then '(end-of-line newline-and-indent) :exit t)
-            ("U" sam|redo)
-            ("J" sam|join-to-next-line)
-            ("b" ivy-switch-buffer)
-            ("c" backward-char)
-            ("f" counsel-find-file)
-            ("h" ,text-objects :then '(kill-region) :exit t)
-            ("i" ryo-modal-mode)
-            ("j" ,avy-destinations)
-            ("k" ,text-objects :then '(kill-region))
-            ("o" end-of-line :then '(newline-and-indent) :exit t)
-            ("p" hydra-project/body :name "project" :exit t)
-            ("r" forward-char)
-            ("s" previous-line)
-            ("t" next-line)
-            ("u" sam|undo)
-            ("v" ,text-objects)
-            ("w" hydra-window/body :name "window")
-            ("y" hydra-yank-pop/yank :name "yank"))))
-
-  (ryo-modal-key
-   "SPC" '(("a" org-agenda :name "agenda")
-           ("b" ibuffer-list-buffers :name "buffer list")
-           ("c" org-capture :name "capture")
-           ("d" dired-jump :name "dired")
-           ("g" magit-status)
-           ("m" mu4e :name "mail")
-           ("n" elfeed :name "news")
-           ("s" save-buffer :name "save"))))
+  (key-seq-define-global "qd" #'kill-this-buffer))
 
 (use-package general :ensure t
   :config
@@ -129,12 +48,12 @@
    "C-S-c" 'sp-splice-sexp
    "C-S-z" 'undo-tree-redo
    "C-S-k" 'kill-whole-line
-   "C-é" 'hydra-window/body)
+   "C-é"   'hydra-window/body)
 
-  (bind-key* "C-'" #'avy-goto-word-1)
-  (bind-key* "C-." #'hydra-main/body)
-  (bind-key* "C-/" #'complete-symbol)
-  (bind-key* "C-¨" #'complete-symbol)   ; ctl-alt-i
+  (bind-keys*
+   ("C-'" . avy-goto-word-1)
+   ("C-/" . complete-symbol))
+
 
 ;;; * C-M-
 
@@ -150,7 +69,6 @@
 
   (general-define-key
    :prefix "C-x"
-   "SPC" 'hydra-rectangle/body
    "d" 'dired-other-window
    "n" 'narrow-or-widen-dwim
    "=" 'balance-windows
@@ -171,9 +89,13 @@
 
    "M-s-n" 'forward-paragraph
    "M-s-p" 'backward-paragraph
-   "M-s-i" 'shell-command-on-buffer)
+   "M-s-i" 'shell-command-on-buffer
+   "M-SPC" 'cycle-spacing)
+
+
 
 ;;; s-
+
   (general-define-key
    "s-<tab>" 'sam|switch-to-other-buffer
    "s-c" 'windmove-left
@@ -187,13 +109,16 @@
    "s-q" 'sam|unfill-paragraph
    "s-t" 'ivy-switch-buffer          ; don't show font panel with s-t.
    "s-u" 'negative-argument
-   "s-w" 'delete-other-windows
+   "s-w" 'sam|main-window
    "s-n" 'narrow-or-widen-dwim)
 
+
+
 ;;; H-
+
   (general-define-key
    "H-<tab>" 'hydra-outline/body
-   "H-w" 'toggle-frame-maximized
+   "H-w" 'sam|maximize-window
    "H-l" 'sam--duplicate-line
    "H-n" 'make-frame
    "H-s" 'move-text-up
@@ -207,11 +132,10 @@
    "H-M-n" 'scroll-down-command
    "H-M-s" 'mark-sexp)
 
-;;; Key chords
-
-
+  
 
 ;;; Mode specific map
+
   (general-define-key
    :keymaps 'compilation-mode-map
    "t" 'compilation-next-error
@@ -220,27 +144,13 @@
 
 ;;; * Global
 
-(global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
-(global-set-key [remap kill-line] (bol-with-prefix kill-line))
-(global-set-key [remap move-beginning-of-line] #'smarter-move-beginning-of-line)
-(global-set-key [remap move-end-of-line] #'sam|end-of-code-or-line)
 (global-set-key (kbd "C-x C-S-e") #'eval-and-replace)
 
-(global-set-key (kbd "<f5>") 'mu4e-new-frame)
-(global-set-key (kbd "<f6>") 'elfeed)
-(global-set-key (kbd "<f7>") 'org-capture)
-(global-set-key (kbd "<f8>") 'org-agenda)
 (bind-keys*
  ("C-c <left>" . hydra-winner/winner-undo)
  ("C-c <right" . hydra-winner/winner-redo))
 
 ;;; * HYDRA
-
-(defhydra hydra-frame (:hint nil :columns 3 :color blue)
-  "frames"
-  ("d" delete-frame "delete")
-  ("n" new-frame "new")
-  ("D" delete-other-frames "delete other"))
 
 (defhydra hydra-insert (:hint nil :color blue)
   "
@@ -257,36 +167,7 @@ _p_: paragraph
 
   ("s" lorem-ipsum-insert-sentences :color red)
   ("p" lorem-ipsum-insert-paragraphs :color red)
-  ("q" nil "quit")
-  ("." hydra-main/body "back"))
-
-(defhydra hydra-rectangle (:body-pre (rectangle-mark-mode 1)
-                           :hint nil
-                           :color pink
-                           :post (deactivate-mark))
-  "
-  ^_s_^     _d_elete      _S_tring    _k_ill
-_c_   _r_   _q_uit        _y_ank
-  ^_t_^     _n_ew-copy    _R_eset
-^^^^        _e_xchange    _u_ndo
-^^^^        ^ ^
-"
-  ("c" backward-char)
-  ("r" forward-char)
-  ("s" previous-line)
-  ("t" next-line)
-  ("e" exchange-point-and-mark)
-  ("n" copy-rectangle-as-kill)
-  ("d" delete-rectangle)
-  ("R" (if (region-active-p)
-           (deactivate-mark)
-         (rectangle-mark-mode 1)))
-  ("y" (lambda () (interactive) (save-excursion (yank-rectangle))))
-  ("u" undo)
-  ("S" string-rectangle)
-  ("k" kill-rectangle)
-  ("SPC" (lambda () (interactive) (rectangle-mark-mode 1)) "set")
-  ("q" nil))
+  ("q" nil "quit"))
 
 (defhydra hydra-toggle (:hint nil :color blue :columns 1)
   "TOGGLE"
@@ -381,25 +262,36 @@ _c_ _é_ _r_   _|_ : split V    _e_     _m_aximize
 
 ;;; ** MAIN HYDRA
 
-(defhydra hydra-main (:hint nil :color teal :columns 1)
-  "MAIN"
-  ("p" hydra-project/body "projects")
-  ("u" hydra-ui/body "UI")
-  ("w" hydra-window/body "window")
-  ("i" hydra-insert/body "insert")
-  ("e" hydra-text/body "text")
-  ("s" hydra-search/body "search")
-  ("g" hydra-gtd/body "GTD")
-  ("q" nil "quit" :color blue))
+(general-define-key
+ :prefix "C-."
+ "a" '(hydra-transparency/body :wk "alpha")
+ "i" '(hydra-insert/body       :wk "insert")
+ "t" '(hydra-toggle/body       :wk "toggle")
+ "w" '(hydra-window/body       :wk "window")
+ "z" '(hydra-zoom/body         :wk "zoom")
+ "t" '(hydra-thesis/body       :wk "thesis")
+ "e" '(hydra-errors/body      :wk "errors")
+ "d" '(hydra-define/body :wk "defines"))
+
+(defhydra hydra-define (:hint nil :color blue)
+  "
+         ^At Point^   ^Input^
+defines: _w_          _C-w_
+diction: _d_          _C-d_
+synonym: _s_          _C-s_
+wiki   : _W_"
+  ("w" define-word-at-point)
+  ("d" osx-dictionary-search-word-at-point)
+  ("s" powerthesaurus-lookup-word-at-point)
+  ("W" wiki-summary)
+  ("C-w" define-word)
+  ("C-d" osx-dictionary-search-input)
+  ("C-s" powerthesaurus-lookup-word))
 
 (defhydra hydra-ui (:hint nil :color teal :columns 1)
   ("a" hydra-transparency/body "alpha")
   ("t" hydra-toggle/body "toggle")
   ("z" hydra-zoom/body "zoom"))
-
-(defhydra hydra-gtd (:hint nil :color teal :columns 1)
-  ("a" org-agenda "agenda")
-  ("c" org-capture "capture"))
 
 (defhydra hydra-yank-pop (:hint nil)
   "yank"
@@ -409,9 +301,9 @@ _c_ _é_ _r_   _|_ : split V    _e_     _m_aximize
   ("p" (yank-pop 1) "next")
   ("n" (yank-pop -1) "prev")
   ("l" counsel-yank-pop "list" :color blue))
+
 (bind-key* "C-y" #'hydra-yank-pop/yank)
 (bind-key* "M-y" #'hydra-yank-pop/yank-pop)
-
 
 ;; taken from "http://joaotavora.github.io/yasnippet/snippet-development.html#sec-3-2
 ;; useful when resolving merge conflicts
@@ -448,31 +340,26 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   ("k" smerge-kill-current)
   ("q" nil "cancel" :color blue))
 
-(defhydra hydra-text (:color red :hint nil :columns 1)
-  "TEXT"
-  ("i" hydra-indent/body "indent" :color blue ))
-
-(defhydra hydra-indent (:color red :hint nil :columns 1)
+(defhydra hydra-thesis (:color blue)
   "
-MARK
-_l_ine
-_p_ara
-_b_uff
+THESIS
 "
-  ;; mark
-  ("l" mark-line)
-  ("p" mark-paragraph)
-  ("b" mark-whole-buffer)
-  ;; indent
-  ("i" sam|indent-region "indent" :color blue))
+  ("p" sam|thesis-projects "projects")
+  ("t" sam|thesis-thesis "thesis"))
 
-(defhydra hydra-search (:color teal :hint nil :columns 1)
-  "SEARCH"
-  ("b" swiper "buffer"))
+(defun sam|thesis-thesis ()
+  "Find file inside thesis folder."
+  (interactive)
+  (counsel-find-file "~/these/these"))
 
-(defhydra hydra-project (:color teal :hint nil :columns 1 :body-pre (projectile-mode))
-  "PROJECTS"
-  ("p" counsel-projectile-switch-project "project switch")
-  ("s" counsel-projectile-rg "project search")
-  ("c" projectile-compile-project "project compile")
-  ("f" counsel-projectile-find-file "find file"))
+(defhydra hydra-page (:hint nil)
+  "PAGE"
+  ("t" forward-page "next")
+  ("s" backward-page "previous"))
+
+(bind-keys*
+ ("C-x [" . hydra-page/backward-page)
+ ("C-x ]" . hydra-page/forward-page))
+
+(provide 'keybindings)
+;;; keybindings.el ends here

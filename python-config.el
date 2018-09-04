@@ -78,7 +78,7 @@
 (if (executable-find "ipython")
     (setq python-shell-interpreter "ipython"
           python-shell-interpreter-args "--simple-prompt -i --pprint")
-  (setq python-shell-interpreter "python"))
+  (setq python-shell-interpreter "python3"))
 
 ;; ---------- Function definitions ----------------------------------------
 (defun python-shell-send-line (&optional vis)
