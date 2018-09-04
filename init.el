@@ -1279,7 +1279,20 @@ abort completely with `C-g'."
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 
-  (setq magit-completing-read-function 'ivy-completing-read))
+  (setq magit-completing-read-function 'ivy-completing-read)
+  (setq magit-buffer-name-format "%x%M%v: %t%x"))
+
+(use-package magit-todos
+  :ensure t
+  :after magit
+  :config
+  (magit-todos-mode))
+
+(use-package make-it-so
+  :ensure t
+  :config
+  (setq mis-recipes-directory (expand-file-name "~/dotfile/emacs/recipes"))
+  (mis-config-default))
 
 (use-package makefile-mode :defer t
   :init
