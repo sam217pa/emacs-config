@@ -127,11 +127,8 @@ Add a lamdba containing BODY to hook HOOK."
 ;; rend les scripts executable par défault si c'est un script.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 
-(defvar my-font-for-light "Fira Code 10"
-  "Font for coding situations")
-
-(defvar my-font-for-text "Input Serif Narrow 12"
-  "Font for text")
+(defvar my-font-for-light "DejaVu Sans Mono 11"
+  "Font for coding situations.")
 
 ;;; apparences
 
