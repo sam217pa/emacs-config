@@ -462,6 +462,10 @@ When using Homebrew, install it using \"brew install trash\"."
 
 ;;;; D
 
+(use-package deadgrep
+  :load-path "~/.emacs.d/private/deadgrep"
+  :bind* (("C-c /" . deadgrep)))
+
 (use-package dired
   :bind* (("C-x d" . dired-other-window)
           ("C-x C-d" . dired))
